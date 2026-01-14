@@ -1,0 +1,25 @@
+# DealForge Code Owners
+# These users will be automatically requested for review on PRs
+
+# Default owners for everything
+* @yourusername
+
+# Web application
+/apps/web/ @yourusername
+
+# Documentation
+/apps/docs/ @yourusername
+
+# Calculation engine (Rust)
+/packages/calc-engine/ @yourusername
+/packages/calc-engine-wasm/ @yourusername
+
+# Database schema
+/packages/database/ @yourusername
+
+# Data sync service (Go)
+/services/data-sync/ @yourusername
+
+# CI/CD and infrastructure
+/.github/ @yourusername
+/tooling/ @yourusername

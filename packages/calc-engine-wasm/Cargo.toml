@@ -1,0 +1,25 @@
+[package]
+name = "calc-engine-wasm"
+version = "0.1.0"
+edition = "2021"
+authors = ["DealForge Contributors"]
+description = "WASM bindings for DealForge calculation engine"
+license = "MIT"
+repository = "https://github.com/yourusername/dealforge"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+calc-engine = { path = "../calc-engine" }
+wasm-bindgen = "0.2"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+serde-wasm-bindgen = "0.6"
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3"
+
+[profile.release]
+opt-level = "s"
+lto = true

@@ -1,0 +1,25 @@
+{
+  "name": "@dealforge/calc-engine-wasm",
+  "version": "0.0.0",
+  "private": true,
+  "description": "WASM bindings for DealForge calculation engine",
+  "main": "./pkg/calc_engine_wasm.js",
+  "types": "./pkg/calc_engine_wasm.d.ts",
+  "files": [
+    "pkg"
+  ],
+  "scripts": {
+    "build": "echo 'WASM build skipped - install wasm-pack to build: cargo install wasm-pack'",
+    "build:wasm": "wasm-pack build --target web --out-dir pkg",
+    "build:nodejs": "wasm-pack build --target nodejs --out-dir pkg",
+    "build:bundler": "wasm-pack build --target bundler --out-dir pkg",
+    "test": "echo 'WASM tests skipped - install wasm-pack to test'"
+  },
+  "keywords": [
+    "wasm",
+    "rust",
+    "real-estate",
+    "calculator"
+  ],
+  "license": "MIT"
+}

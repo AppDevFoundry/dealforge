@@ -1,0 +1,10 @@
+{
+  "name": "@dealforge/docs",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "echo 'Docs app coming soon - see README.md'",
+    "build": "echo 'Docs app coming soon'",
+    "typecheck": "echo 'No TypeScript files yet'"
+  }
+}
