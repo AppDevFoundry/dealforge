@@ -1,6 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Monitor, Moon, Sun } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import * as React from 'react';
@@ -65,34 +66,57 @@ export function ThemeToggleWithLabel() {
   }
 
   return (
-    <div className="flex items-center gap-0.5 rounded-lg border bg-muted/50 p-0.5">
-      <Button
-        variant={theme === 'light' ? 'secondary' : 'ghost'}
-        size="sm"
-        className="h-7 flex-1 min-w-0 px-1.5 text-xs"
-        onClick={() => setTheme('light')}
-      >
-        <Sun className="mr-1 h-3 w-3 shrink-0" />
-        <span className="truncate">Light</span>
-      </Button>
-      <Button
-        variant={theme === 'dark' ? 'secondary' : 'ghost'}
-        size="sm"
-        className="h-7 flex-1 min-w-0 px-1.5 text-xs"
-        onClick={() => setTheme('dark')}
-      >
-        <Moon className="mr-1 h-3 w-3 shrink-0" />
-        <span className="truncate">Dark</span>
-      </Button>
-      <Button
-        variant={theme === 'system' ? 'secondary' : 'ghost'}
-        size="sm"
-        className="h-7 flex-1 min-w-0 px-1.5 text-xs"
-        onClick={() => setTheme('system')}
-      >
-        <Monitor className="mr-1 h-3 w-3 shrink-0" />
-        <span className="truncate">Sys</span>
-      </Button>
-    </div>
+    <TooltipProvider delayDuration={300}>
+      <div className="flex items-center gap-0.5 rounded-lg border bg-muted/50 p-0.5">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant={theme === 'light' ? 'secondary' : 'ghost'}
+              size="icon"
+              className="h-7 w-7"
+              onClick={() => setTheme('light')}
+            >
+              <Sun className="h-3.5 w-3.5" />
+              <span className="sr-only">Light mode</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="top" className="text-xs">
+            Light
+          </TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant={theme === 'dark' ? 'secondary' : 'ghost'}
+              size="icon"
+              className="h-7 w-7"
+              onClick={() => setTheme('dark')}
+            >
+              <Moon className="h-3.5 w-3.5" />
+              <span className="sr-only">Dark mode</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="top" className="text-xs">
+            Dark
+          </TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant={theme === 'system' ? 'secondary' : 'ghost'}
+              size="icon"
+              className="h-7 w-7"
+              onClick={() => setTheme('system')}
+            >
+              <Monitor className="h-3.5 w-3.5" />
+              <span className="sr-only">System theme</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent side="top" className="text-xs">
+            System
+          </TooltipContent>
+        </Tooltip>
+      </div>
+    </TooltipProvider>
   );
 }
