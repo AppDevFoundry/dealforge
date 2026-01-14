@@ -18,9 +18,13 @@ const authRoutes = ['/sign-in', '/sign-up'];
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Check for session cookie - BetterAuth may use different cookie names
-  const sessionCookie = request.cookies.get('better-auth.session_token');
-  const sessionDataCookie = request.cookies.get('better-auth.session_data');
+  // Check for session cookie - BetterAuth uses __Secure- prefix on HTTPS (production)
+  const sessionCookie =
+    request.cookies.get('better-auth.session_token') ||
+    request.cookies.get('__Secure-better-auth.session_token');
+  const sessionDataCookie =
+    request.cookies.get('better-auth.session_data') ||
+    request.cookies.get('__Secure-better-auth.session_data');
   const isAuthenticated = !!sessionCookie;
 
   // Debug logging
