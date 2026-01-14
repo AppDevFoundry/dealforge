@@ -2,9 +2,9 @@
 
 import type { RentalInputs, RentalResults } from '@dealforge/types';
 
-import { METRIC_EXPLANATIONS } from '@/lib/constants/rental-defaults';
 import { CashFlowChart } from '@/components/charts/cash-flow-chart';
 import { ExpenseBreakdownChart } from '@/components/charts/expense-breakdown-chart';
+import { METRIC_EXPLANATIONS } from '@/lib/constants/rental-defaults';
 
 import { RentalResultsCard } from './rental-results-card';
 

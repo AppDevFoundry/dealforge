@@ -1,19 +1,26 @@
 'use client';
-
-import * as React from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import {
-  LayoutDashboard,
-  FolderKanban,
   Calculator,
-  Settings,
-  HelpCircle,
-  LogOut,
   ChevronUp,
+  FolderKanban,
+  HelpCircle,
+  LayoutDashboard,
+  LogOut,
+  Settings,
   Sparkles,
 } from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
+import { ThemeToggleWithLabel } from '@/components/layout/theme-toggle';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
   Sidebar,
   SidebarContent,
@@ -28,15 +35,6 @@ import {
   SidebarRail,
   useSidebar,
 } from '@/components/ui/sidebar';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ThemeToggleWithLabel } from '@/components/layout/theme-toggle';
 import { signOut } from '@/lib/auth-client';
 
 interface AppSidebarProps {
@@ -102,20 +100,14 @@ export function AppSidebar({ user }: AppSidebarProps) {
       <SidebarHeader className="border-b border-sidebar-border">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton
-              asChild
-              size="lg"
-              className="hover:bg-sidebar-accent"
-            >
-              <Link href="/dashboard" className="flex items-center gap-3">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                  <Sparkles className="size-4" />
+            <SidebarMenuButton asChild size="lg" className="hover:bg-sidebar-accent">
+              <Link href="/dashboard" className="flex items-center gap-3 group/logo">
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-all duration-300 group-hover/logo:scale-105 dark:shadow-[0_0_15px_hsl(var(--primary)/0.4)]">
+                  <Sparkles className="size-4 transition-transform duration-300 group-hover/logo:rotate-12" />
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none">
                   <span className="font-semibold tracking-tight">DealForge</span>
-                  <span className="text-xs text-muted-foreground">
-                    Real Estate Analysis
-                  </span>
+                  <span className="text-xs text-muted-foreground">Real Estate Analysis</span>
                 </div>
               </Link>
             </SidebarMenuButton>
@@ -139,14 +131,19 @@ export function AppSidebar({ user }: AppSidebarProps) {
                       asChild
                       isActive={isActive}
                       tooltip={item.title}
-                      className={
-                        isActive
-                          ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
-                          : 'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50'
-                      }
+                      className={`
+                        transition-all duration-200
+                        ${
+                          isActive
+                            ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium border-accent-left'
+                            : 'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50'
+                        }
+                      `}
                     >
-                      <Link href={item.href}>
-                        <item.icon className="size-4" />
+                      <Link href={item.href} className="group/nav">
+                        <item.icon
+                          className={`size-4 transition-transform duration-200 ${isActive ? 'text-primary' : 'group-hover/nav:scale-110'}`}
+                        />
                         <span>{item.title}</span>
                       </Link>
                     </SidebarMenuButton>
@@ -171,14 +168,19 @@ export function AppSidebar({ user }: AppSidebarProps) {
                       asChild
                       isActive={isActive}
                       tooltip={item.title}
-                      className={
-                        isActive
-                          ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
-                          : 'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50'
-                      }
+                      className={`
+                        transition-all duration-200
+                        ${
+                          isActive
+                            ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium border-accent-left'
+                            : 'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50'
+                        }
+                      `}
                     >
-                      <Link href={item.href}>
-                        <item.icon className="size-4" />
+                      <Link href={item.href} className="group/nav">
+                        <item.icon
+                          className={`size-4 transition-transform duration-200 ${isActive ? 'text-primary' : 'group-hover/nav:scale-110'}`}
+                        />
                         <span>{item.title}</span>
                       </Link>
                     </SidebarMenuButton>
@@ -222,9 +224,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
                   </Avatar>
                   <div className="flex flex-1 flex-col gap-0.5 overflow-hidden text-left leading-tight">
                     <span className="truncate text-sm font-medium">{user.name}</span>
-                    <span className="truncate text-xs text-muted-foreground">
-                      {user.email}
-                    </span>
+                    <span className="truncate text-xs text-muted-foreground">{user.email}</span>
                   </div>
                   <ChevronUp className="ml-auto size-4 text-muted-foreground" />
                 </SidebarMenuButton>

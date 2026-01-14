@@ -1,7 +1,7 @@
 'use client';
 
-import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 
 function MetricCardSkeleton({ highlight = false }: { highlight?: boolean }) {
   return (
@@ -30,7 +30,11 @@ function SectionSkeleton({
       <h3 className="mb-4 text-lg font-semibold">{title}</h3>
       <div
         className={`grid gap-4 ${
-          count === 2 ? 'sm:grid-cols-2' : count === 3 ? 'sm:grid-cols-2 lg:grid-cols-3' : 'sm:grid-cols-2'
+          count === 2
+            ? 'sm:grid-cols-2'
+            : count === 3
+              ? 'sm:grid-cols-2 lg:grid-cols-3'
+              : 'sm:grid-cols-2'
         }`}
       >
         {Array.from({ length: count }).map((_, i) => (

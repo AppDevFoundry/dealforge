@@ -1,5 +1,8 @@
 'use client';
 
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { chartColors, tooltipStyles } from '@/lib/chart-theme';
+import { formatCurrency } from '@/lib/formatters';
 import {
   Area,
   AreaChart,
@@ -9,9 +12,6 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { formatCurrency } from '@/lib/formatters';
-import { chartColors, tooltipStyles } from '@/lib/chart-theme';
 
 interface CashFlowDataPoint {
   year: number;
@@ -44,7 +44,8 @@ function generateProjection({
 
   // Assume 30-year mortgage at ~7% for principal paydown estimation
   const monthlyRate = 0.07 / 12;
-  const monthlyPayment = loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, 360)) /
+  const monthlyPayment =
+    (loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, 360))) /
     (Math.pow(1 + monthlyRate, 360) - 1);
 
   for (let year = 0; year <= 10; year++) {
@@ -81,9 +82,7 @@ export function CashFlowChart(props: CashFlowChartProps) {
     <Card>
       <CardHeader className="pb-2">
         <CardTitle className="text-base">10-Year Projection</CardTitle>
-        <p className="text-sm text-muted-foreground">
-          Cash flow and equity growth over time
-        </p>
+        <p className="text-sm text-muted-foreground">Cash flow and equity growth over time</p>
       </CardHeader>
       <CardContent>
         <div className="h-64">
@@ -99,11 +98,7 @@ export function CashFlowChart(props: CashFlowChartProps) {
                   <stop offset="95%" stopColor={chartColors.positive} stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid
-                strokeDasharray="3 3"
-                stroke="hsl(var(--border))"
-                vertical={false}
-              />
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
               <XAxis
                 dataKey="year"
                 tickLine={false}
@@ -128,7 +123,11 @@ export function CashFlowChart(props: CashFlowChartProps) {
                     >
                       <p className="mb-1 font-medium">Year {label}</p>
                       {payload.map((entry, index) => (
-                        <p key={index} className="text-sm tabular-nums" style={{ color: entry.color }}>
+                        <p
+                          key={index}
+                          className="text-sm tabular-nums"
+                          style={{ color: entry.color }}
+                        >
                           {entry.name}: {formatCurrency(entry.value as number)}
                         </p>
                       ))}
@@ -161,7 +160,10 @@ export function CashFlowChart(props: CashFlowChartProps) {
             <span className="text-muted-foreground">Equity</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="size-3 rounded-full" style={{ backgroundColor: chartColors.positive }} />
+            <div
+              className="size-3 rounded-full"
+              style={{ backgroundColor: chartColors.positive }}
+            />
             <span className="text-muted-foreground">Cash Flow</span>
           </div>
         </div>

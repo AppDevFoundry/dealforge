@@ -1,10 +1,10 @@
-import { getServerSession } from '@/lib/auth-server';
-import { redirect } from 'next/navigation';
 import { AppSidebar } from '@/components/layout/app-sidebar';
 import { MobileHeader } from '@/components/layout/mobile-nav';
-import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
-import { Separator } from '@/components/ui/separator';
 import { ThemeToggle } from '@/components/layout/theme-toggle';
+import { Separator } from '@/components/ui/separator';
+import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
+import { getServerSession } from '@/lib/auth-server';
+import { redirect } from 'next/navigation';
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const session = await getServerSession();

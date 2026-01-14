@@ -1,32 +1,32 @@
 'use client';
 
-import * as React from 'react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
 import {
-  LayoutDashboard,
-  FolderKanban,
   Calculator,
-  Settings,
+  FolderKanban,
   HelpCircle,
+  LayoutDashboard,
   LogOut,
   Menu,
+  Settings,
   Sparkles,
   X,
 } from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import * as React from 'react';
 
+import { ThemeToggle } from '@/components/layout/theme-toggle';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
 import {
   Sheet,
+  SheetClose,
   SheetContent,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-  SheetClose,
 } from '@/components/ui/sheet';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Separator } from '@/components/ui/separator';
-import { ThemeToggle } from '@/components/layout/theme-toggle';
 import { signOut } from '@/lib/auth-client';
 
 interface MobileNavProps {

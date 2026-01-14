@@ -1,8 +1,8 @@
-import type { Metadata } from 'next';
-import { GeistSans } from 'geist/font/sans';
-import { GeistMono } from 'geist/font/mono';
 import { ThemeProvider } from '@/components/providers/theme-provider';
 import { Toaster } from '@/components/ui/sonner';
+import { GeistMono } from 'geist/font/mono';
+import { GeistSans } from 'geist/font/sans';
+import type { Metadata } from 'next';
 import '@/styles/globals.css';
 
 export const metadata: Metadata = {
@@ -31,9 +31,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${GeistSans.variable} ${GeistMono.variable} font-sans antialiased`}
-      >
+      <body className={`${GeistSans.variable} ${GeistMono.variable} font-sans antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

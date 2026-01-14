@@ -1,9 +1,9 @@
 'use client';
 
-import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { formatCurrency } from '@/lib/formatters';
 import { financialColors, tooltipStyles } from '@/lib/chart-theme';
+import { formatCurrency } from '@/lib/formatters';
+import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 
 interface ExpenseData {
   name: string;
@@ -39,7 +39,7 @@ export function ExpenseBreakdownChart({
     { name: 'Vacancy', value: vacancy, color: financialColors.vacancy },
     { name: 'CapEx', value: capex, color: financialColors.capex },
     { name: 'Management', value: managementFees, color: financialColors.management },
-  ].filter(item => item.value > 0);
+  ].filter((item) => item.value > 0);
 
   const total = data.reduce((sum, item) => sum + item.value, 0);
 

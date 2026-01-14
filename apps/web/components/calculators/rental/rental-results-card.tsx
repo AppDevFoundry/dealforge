@@ -1,9 +1,9 @@
 'use client';
 
-import { HelpCircle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { formatCurrency, formatNumber, formatPercentage, formatRatio } from '@/lib/formatters';
+import { HelpCircle } from 'lucide-react';
 
 type FormatType = 'currency' | 'percentage' | 'number' | 'ratio';
 
@@ -68,9 +68,7 @@ export function RentalResultsCard({
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className={`text-2xl font-bold tabular-nums ${valueColorClass}`}>
-          {formattedValue}
-        </div>
+        <div className={`text-2xl font-bold tabular-nums ${valueColorClass}`}>{formattedValue}</div>
         {learnMode && explanation && (
           <CardDescription className="mt-3 text-xs leading-relaxed">{explanation}</CardDescription>
         )}
