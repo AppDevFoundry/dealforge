@@ -1,6 +1,8 @@
 'use client';
 
+import { HelpCircle } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { formatCurrency, formatNumber, formatPercentage, formatRatio } from '@/lib/formatters';
 
 type FormatType = 'currency' | 'percentage' | 'number' | 'ratio';
@@ -27,6 +29,14 @@ function formatValue(value: number, format: FormatType): string {
   }
 }
 
+function getValueColorClass(value: number, format: FormatType): string {
+  if (format === 'currency') {
+    if (value > 0) return 'text-success';
+    if (value < 0) return 'text-destructive';
+  }
+  return '';
+}
+
 export function RentalResultsCard({
   label,
   value,
@@ -36,22 +46,29 @@ export function RentalResultsCard({
   highlight = false,
 }: RentalResultsCardProps) {
   const formattedValue = formatValue(value, format);
-
-  // Determine if the value is positive, negative, or neutral for styling
-  const isPositive = format === 'currency' ? value > 0 : format === 'percentage' ? value > 0 : true;
-  const isNegative = format === 'currency' ? value < 0 : false;
+  const valueColorClass = getValueColorClass(value, format);
 
   return (
-    <Card className={highlight ? 'border-primary' : ''}>
+    <Card className={highlight ? 'border-primary/50 bg-primary/5' : ''}>
       <CardHeader className="pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">{label}</CardTitle>
+        <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+          {label}
+          {!learnMode && explanation && (
+            <TooltipProvider delayDuration={300}>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <HelpCircle className="size-3.5 cursor-help text-muted-foreground/50 hover:text-muted-foreground transition-colors" />
+                </TooltipTrigger>
+                <TooltipContent side="top" className="max-w-xs text-xs">
+                  {explanation}
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+        </CardTitle>
       </CardHeader>
       <CardContent>
-        <div
-          className={`text-2xl font-bold ${
-            isNegative ? 'text-destructive' : isPositive && format === 'currency' ? '' : ''
-          }`}
-        >
+        <div className={`text-2xl font-bold tabular-nums ${valueColorClass}`}>
           {formattedValue}
         </div>
         {learnMode && explanation && (

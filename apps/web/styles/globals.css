@@ -1,4 +1,7 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
 
 @theme {
   /* Typography */
@@ -115,8 +118,9 @@
   --chart-4: 199 89% 48%;
   --chart-5: var(--success-500);
 
-  /* Sidebar specific */
-  --sidebar-background: 0 0% 100%;
+  /* Sidebar - Light mode (subtle off-white) */
+  --sidebar: var(--slate-50);
+  --sidebar-background: var(--slate-50);
   --sidebar-foreground: var(--slate-900);
   --sidebar-primary: var(--brand-500);
   --sidebar-primary-foreground: 0 0% 100%;
@@ -124,6 +128,75 @@
   --sidebar-accent-foreground: var(--brand-700);
   --sidebar-border: var(--slate-200);
   --sidebar-ring: var(--brand-500);
+}
+
+/* Color mappings for Tailwind utilities */
+@theme inline {
+  /* Core theme colors */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  /* Card */
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  /* Popover */
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  /* Primary */
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  /* Secondary */
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  /* Muted */
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  /* Accent */
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  /* Destructive */
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  /* Border, Input, Ring */
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  /* Success */
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+
+  /* Warning */
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+
+  /* Charts */
+  --color-chart-positive: var(--chart-positive);
+  --color-chart-negative: var(--chart-negative);
+  --color-chart-neutral: var(--chart-neutral);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  /* Sidebar */
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-background: var(--sidebar-background);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
 }
 
 /* ========================================
@@ -186,14 +259,15 @@
   --chart-4: 199 89% 58%;
   --chart-5: var(--success-500);
 
-  /* Sidebar specific - Dark mode */
-  --sidebar-background: var(--slate-900);
+  /* Sidebar - Dark mode (deep slate for contrast) */
+  --sidebar: var(--slate-950);
+  --sidebar-background: var(--slate-950);
   --sidebar-foreground: var(--slate-50);
   --sidebar-primary: var(--brand-400);
   --sidebar-primary-foreground: var(--slate-900);
-  --sidebar-accent: var(--brand-900);
+  --sidebar-accent: var(--slate-800);
   --sidebar-accent-foreground: var(--brand-200);
-  --sidebar-border: var(--slate-700);
+  --sidebar-border: var(--slate-800);
   --sidebar-ring: var(--brand-400);
 }
 
@@ -203,7 +277,7 @@
 
 @layer base {
   * {
-    border-color: hsl(var(--border));
+    @apply border-border outline-ring/50;
   }
 
   html {
@@ -211,17 +285,10 @@
   }
 
   body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
+    @apply bg-background text-foreground;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-feature-settings: "rlig" 1, "calt" 1;
-  }
-
-  /* Smooth theme transitions */
-  html.transitioning,
-  html.transitioning * {
-    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.2s ease !important;
   }
 }
 
@@ -250,9 +317,7 @@
 
   /* Focus visible ring with brand color */
   .focus-ring {
-    outline: none;
-    ring: 2px solid hsl(var(--ring));
-    ring-offset: 2px;
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
   }
 }
 
