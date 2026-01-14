@@ -4,6 +4,27 @@ import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { getBaseUrl } from './get-base-url';
 
+const DEBUG_AUTH = process.env.DEBUG_AUTH === 'true' || process.env.VERCEL_ENV === 'preview';
+
+// Compute config values
+const baseURL = getBaseUrl();
+const trustedOrigins = [
+  baseURL,
+  // Trust production URL from preview deployments (for OAuth callbacks)
+  process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : null,
+].filter(Boolean) as string[];
+
+// Debug log auth configuration at initialization
+if (DEBUG_AUTH) {
+  console.log('[auth] BetterAuth configuration:', {
+    baseURL,
+    trustedOrigins,
+    VERCEL_ENV: process.env.VERCEL_ENV,
+  });
+}
+
 /**
  * BetterAuth server configuration
  *
@@ -13,14 +34,8 @@ import { getBaseUrl } from './get-base-url';
  * - Database sessions stored in Neon PostgreSQL
  */
 export const auth = betterAuth({
-  baseURL: getBaseUrl(),
-  trustedOrigins: [
-    getBaseUrl(),
-    // Trust production URL from preview deployments (for OAuth callbacks)
-    process.env.VERCEL_PROJECT_PRODUCTION_URL
-      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-      : null,
-  ].filter(Boolean) as string[],
+  baseURL,
+  trustedOrigins,
 
   database: drizzleAdapter(getDb(), {
     provider: 'pg',

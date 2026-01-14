@@ -14,7 +14,8 @@
         "NEXT_PUBLIC_APP_URL",
         "VERCEL_URL",
         "VERCEL_ENV",
-        "VERCEL_PROJECT_PRODUCTION_URL"
+        "VERCEL_PROJECT_PRODUCTION_URL",
+        "DEBUG_AUTH"
       ]
     },
     "dev": {

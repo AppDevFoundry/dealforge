@@ -1,5 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server';
 
+const DEBUG_AUTH = process.env.DEBUG_AUTH === 'true' || process.env.VERCEL_ENV === 'preview';
+
 /**
  * Route protection middleware
  *
@@ -16,14 +18,29 @@ const authRoutes = ['/sign-in', '/sign-up'];
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Check for session cookie
+  // Check for session cookie - BetterAuth may use different cookie names
   const sessionCookie = request.cookies.get('better-auth.session_token');
+  const sessionDataCookie = request.cookies.get('better-auth.session_data');
   const isAuthenticated = !!sessionCookie;
+
+  // Debug logging
+  if (DEBUG_AUTH && (pathname.startsWith('/sign-in') || pathname.startsWith('/dashboard'))) {
+    const allCookies = request.cookies.getAll().map((c) => c.name);
+    console.log('[middleware] Auth debug:', {
+      pathname,
+      host: request.headers.get('host'),
+      allCookies,
+      sessionCookie: sessionCookie ? 'present' : 'missing',
+      sessionDataCookie: sessionDataCookie ? 'present' : 'missing',
+      isAuthenticated,
+    });
+  }
 
   // Check if accessing protected route without authentication
   const isProtectedRoute = protectedRoutes.some((route) => pathname.startsWith(route));
 
   if (isProtectedRoute && !isAuthenticated) {
+    if (DEBUG_AUTH) console.log('[middleware] Redirecting to sign-in, no session cookie');
     const signInUrl = new URL('/sign-in', request.url);
     signInUrl.searchParams.set('callbackUrl', pathname);
     return NextResponse.redirect(signInUrl);
@@ -33,6 +50,7 @@ export async function middleware(request: NextRequest) {
   const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
 
   if (isAuthRoute && isAuthenticated) {
+    if (DEBUG_AUTH) console.log('[middleware] Redirecting authenticated user to dashboard');
     return NextResponse.redirect(new URL('/dashboard', request.url));
   }
 

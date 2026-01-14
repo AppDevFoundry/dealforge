@@ -1,3 +1,5 @@
+const DEBUG_AUTH = process.env.DEBUG_AUTH === 'true' || process.env.VERCEL_ENV === 'preview';
+
 /**
  * Get the base URL for the application.
  *
@@ -13,16 +15,31 @@ export function getBaseUrl(): string {
     return window.location.origin;
   }
 
+  // Debug: log all relevant env vars on server
+  if (DEBUG_AUTH) {
+    console.log('[getBaseUrl] Environment vars:', {
+      VERCEL_URL: process.env.VERCEL_URL,
+      VERCEL_ENV: process.env.VERCEL_ENV,
+      VERCEL_PROJECT_PRODUCTION_URL: process.env.VERCEL_PROJECT_PRODUCTION_URL,
+      BETTER_AUTH_URL: process.env.BETTER_AUTH_URL,
+      NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+    });
+  }
+
   // Vercel: use system env vars (doesn't include protocol)
   if (process.env.VERCEL_URL) {
-    return `https://${process.env.VERCEL_URL}`;
+    const url = `https://${process.env.VERCEL_URL}`;
+    if (DEBUG_AUTH) console.log('[getBaseUrl] Using VERCEL_URL:', url);
+    return url;
   }
 
   // Explicit override (useful for local dev or custom domains)
   if (process.env.BETTER_AUTH_URL) {
+    if (DEBUG_AUTH) console.log('[getBaseUrl] Using BETTER_AUTH_URL:', process.env.BETTER_AUTH_URL);
     return process.env.BETTER_AUTH_URL;
   }
 
   // Local development fallback
+  if (DEBUG_AUTH) console.log('[getBaseUrl] Using fallback: http://localhost:3000');
   return 'http://localhost:3000';
 }
