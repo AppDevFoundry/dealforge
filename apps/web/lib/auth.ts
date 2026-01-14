@@ -2,6 +2,7 @@ import { getDb } from '@dealforge/database';
 import { accounts, sessions, users, verifications } from '@dealforge/database/schema';
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
+import { getBaseUrl } from './get-base-url';
 
 /**
  * BetterAuth server configuration
@@ -12,6 +13,15 @@ import { drizzleAdapter } from 'better-auth/adapters/drizzle';
  * - Database sessions stored in Neon PostgreSQL
  */
 export const auth = betterAuth({
+  baseURL: getBaseUrl(),
+  trustedOrigins: [
+    getBaseUrl(),
+    // Trust production URL from preview deployments (for OAuth callbacks)
+    process.env.VERCEL_PROJECT_PRODUCTION_URL
+      ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+      : null,
+  ].filter(Boolean) as string[],
+
   database: drizzleAdapter(getDb(), {
     provider: 'pg',
     schema: {
