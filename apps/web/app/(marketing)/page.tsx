@@ -53,11 +53,19 @@ export default function HomePage() {
               </div>
 
               {/* Headline */}
-              <h1 className="animate-fade-in text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl [animation-delay:100ms]">
+              <h1 className="animate-fade-in text-4xl font-bold tracking-tight text-balance sm:text-5xl md:text-6xl lg:text-7xl [animation-delay:100ms]">
                 Forge Better Deals with{' '}
-                <span className="relative">
-                  <span className="bg-gradient-to-r from-primary via-primary to-primary/70 bg-clip-text text-transparent">
-                    Data
+                <span className="relative inline-block">
+                  <span
+                    className="text-primary"
+                    style={{
+                      background: 'linear-gradient(to right, hsl(var(--primary)), hsl(var(--primary)), hsl(var(--primary) / 0.7))',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      backgroundClip: 'text',
+                    }}
+                  >
+                    Data,
                   </span>
                   <svg
                     className="absolute -bottom-1 left-0 w-full"
@@ -73,8 +81,8 @@ export default function HomePage() {
                       className="opacity-50"
                     />
                   </svg>
-                </span>
-                , Not Gut Feelings
+                </span>{' '}
+                Not Gut Feelings
               </h1>
 
               {/* Subheadline */}
