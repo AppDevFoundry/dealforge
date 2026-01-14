@@ -5,7 +5,14 @@
     "build": {
       "dependsOn": ["^build"],
       "outputs": [".next/**", "!.next/cache/**", "dist/**"],
-      "inputs": ["$TURBO_DEFAULT$", ".env*"]
+      "inputs": ["$TURBO_DEFAULT$", ".env*"],
+      "env": [
+        "DATABASE_URL",
+        "DATABASE_URL_POOLER",
+        "BETTER_AUTH_SECRET",
+        "BETTER_AUTH_URL",
+        "NEXT_PUBLIC_APP_URL"
+      ]
     },
     "dev": {
       "cache": false,
@@ -56,6 +63,9 @@
     "db:studio": {
       "cache": false,
       "persistent": true
+    },
+    "db:seed": {
+      "cache": false
     }
   }
 }
