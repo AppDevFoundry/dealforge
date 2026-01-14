@@ -1,7 +1,15 @@
-import { Button } from '@/components/ui/button';
+import { UserNav } from '@/components/auth/user-nav';
+import { getServerSession } from '@/lib/auth-server';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const session = await getServerSession();
+
+  if (!session) {
+    redirect('/sign-in');
+  }
+
   return (
     <div className="flex min-h-screen flex-col">
       {/* Dashboard Header */}
@@ -33,9 +41,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             </nav>
           </div>
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="sm">
-              Profile
-            </Button>
+            <UserNav user={session.user} />
           </div>
         </div>
       </header>
