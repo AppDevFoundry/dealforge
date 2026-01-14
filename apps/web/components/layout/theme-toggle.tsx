@@ -120,3 +120,48 @@ export function ThemeToggleWithLabel() {
     </TooltipProvider>
   );
 }
+
+// Compact theme toggle for collapsed sidebar - shows current theme icon, cycles on click
+export function ThemeToggleCompact() {
+  const { theme, setTheme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null;
+  }
+
+  // Cycle through: light → dark → system
+  const cycleTheme = () => {
+    if (theme === 'light') {
+      setTheme('dark');
+    } else if (theme === 'dark') {
+      setTheme('system');
+    } else {
+      setTheme('light');
+    }
+  };
+
+  const getThemeLabel = () => {
+    if (theme === 'system') {
+      return `System (${resolvedTheme})`;
+    }
+    return theme === 'light' ? 'Light' : 'Dark';
+  };
+
+  return (
+    <button
+      onClick={cycleTheme}
+      className="flex h-8 w-full items-center justify-center rounded-md p-2 text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
+      title={`Theme: ${getThemeLabel()}. Click to cycle.`}
+    >
+      {theme === 'light' && <Sun className="size-4" />}
+      {theme === 'dark' && <Moon className="size-4" />}
+      {theme === 'system' && <Monitor className="size-4" />}
+      <span className="sr-only">Toggle theme (currently {getThemeLabel()})</span>
+    </button>
+  );
+}

@@ -13,7 +13,7 @@ import {
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
-import { ThemeToggleWithLabel } from '@/components/layout/theme-toggle';
+import { ThemeToggleCompact, ThemeToggleWithLabel } from '@/components/layout/theme-toggle';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -192,19 +192,25 @@ export function AppSidebar({ user }: AppSidebarProps) {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* Theme Toggle - only show when sidebar is expanded */}
-        {state === 'expanded' && (
-          <SidebarGroup className="mt-auto">
+        {/* Theme Toggle - adapts to sidebar state */}
+        <SidebarGroup className="mt-auto">
+          {state === 'expanded' && (
             <SidebarGroupLabel className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
               Appearance
             </SidebarGroupLabel>
-            <SidebarGroupContent>
+          )}
+          <SidebarGroupContent>
+            {state === 'expanded' ? (
               <div className="px-1 py-1 overflow-hidden">
                 <ThemeToggleWithLabel />
               </div>
-            </SidebarGroupContent>
-          </SidebarGroup>
-        )}
+            ) : (
+              <div className="flex justify-center py-1">
+                <ThemeToggleCompact />
+              </div>
+            )}
+          </SidebarGroupContent>
+        </SidebarGroup>
       </SidebarContent>
 
       {/* Footer with User */}
