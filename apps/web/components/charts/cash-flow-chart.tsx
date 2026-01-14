@@ -79,9 +79,9 @@ export function CashFlowChart(props: CashFlowChartProps) {
   const data = generateProjection(props);
 
   return (
-    <Card>
+    <Card className="card-premium overflow-hidden">
       <CardHeader className="pb-2">
-        <CardTitle className="text-base">10-Year Projection</CardTitle>
+        <CardTitle className="text-base headline-premium">10-Year Projection</CardTitle>
         <p className="text-sm text-muted-foreground">Cash flow and equity growth over time</p>
       </CardHeader>
       <CardContent>
@@ -90,12 +90,12 @@ export function CashFlowChart(props: CashFlowChartProps) {
             <AreaChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
               <defs>
                 <linearGradient id="equityGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={chartColors.primary} stopOpacity={0.3} />
-                  <stop offset="95%" stopColor={chartColors.primary} stopOpacity={0} />
+                  <stop offset="5%" stopColor={chartColors.primary} stopOpacity={0.4} />
+                  <stop offset="95%" stopColor={chartColors.primary} stopOpacity={0.05} />
                 </linearGradient>
                 <linearGradient id="cashFlowGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor={chartColors.positive} stopOpacity={0.3} />
-                  <stop offset="95%" stopColor={chartColors.positive} stopOpacity={0} />
+                  <stop offset="5%" stopColor={chartColors.positive} stopOpacity={0.4} />
+                  <stop offset="95%" stopColor={chartColors.positive} stopOpacity={0.05} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
@@ -118,14 +118,14 @@ export function CashFlowChart(props: CashFlowChartProps) {
                   if (!active || !payload?.length) return null;
                   return (
                     <div
-                      className="rounded-lg border bg-popover px-3 py-2 shadow-lg"
+                      className="rounded-lg border bg-popover/95 backdrop-blur-sm px-3 py-2 shadow-xl"
                       style={tooltipStyles.contentStyle}
                     >
-                      <p className="mb-1 font-medium">Year {label}</p>
+                      <p className="mb-1.5 font-semibold text-sm">Year {label}</p>
                       {payload.map((entry, index) => (
                         <p
                           key={index}
-                          className="text-sm tabular-nums"
+                          className="text-sm tabular-nums font-medium"
                           style={{ color: entry.color }}
                         >
                           {entry.name}: {formatCurrency(entry.value as number)}
@@ -142,6 +142,7 @@ export function CashFlowChart(props: CashFlowChartProps) {
                 stroke={chartColors.primary}
                 strokeWidth={2}
                 fill="url(#equityGradient)"
+                animationDuration={1000}
               />
               <Area
                 type="monotone"
@@ -150,21 +151,22 @@ export function CashFlowChart(props: CashFlowChartProps) {
                 stroke={chartColors.positive}
                 strokeWidth={2}
                 fill="url(#cashFlowGradient)"
+                animationDuration={1200}
               />
             </AreaChart>
           </ResponsiveContainer>
         </div>
         <div className="mt-4 flex items-center justify-center gap-6 text-sm">
           <div className="flex items-center gap-2">
-            <div className="size-3 rounded-full" style={{ backgroundColor: chartColors.primary }} />
-            <span className="text-muted-foreground">Equity</span>
+            <div className="size-3 rounded-full ring-2 ring-offset-2 ring-offset-background" style={{ backgroundColor: chartColors.primary, boxShadow: `0 0 8px ${chartColors.primary}40` }} />
+            <span className="text-muted-foreground font-medium">Equity</span>
           </div>
           <div className="flex items-center gap-2">
             <div
-              className="size-3 rounded-full"
-              style={{ backgroundColor: chartColors.positive }}
+              className="size-3 rounded-full ring-2 ring-offset-2 ring-offset-background"
+              style={{ backgroundColor: chartColors.positive, boxShadow: `0 0 8px ${chartColors.positive}40` }}
             />
-            <span className="text-muted-foreground">Cash Flow</span>
+            <span className="text-muted-foreground font-medium">Cash Flow</span>
           </div>
         </div>
       </CardContent>

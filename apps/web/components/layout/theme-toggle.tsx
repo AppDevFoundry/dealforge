@@ -65,33 +65,33 @@ export function ThemeToggleWithLabel() {
   }
 
   return (
-    <div className="flex items-center gap-1 rounded-lg border bg-muted/50 p-1">
+    <div className="flex items-center gap-0.5 rounded-lg border bg-muted/50 p-0.5">
       <Button
         variant={theme === 'light' ? 'secondary' : 'ghost'}
         size="sm"
-        className="h-7 px-2"
+        className="h-7 flex-1 min-w-0 px-1.5 text-xs"
         onClick={() => setTheme('light')}
       >
-        <Sun className="mr-1.5 h-3.5 w-3.5" />
-        Light
+        <Sun className="mr-1 h-3 w-3 shrink-0" />
+        <span className="truncate">Light</span>
       </Button>
       <Button
         variant={theme === 'dark' ? 'secondary' : 'ghost'}
         size="sm"
-        className="h-7 px-2"
+        className="h-7 flex-1 min-w-0 px-1.5 text-xs"
         onClick={() => setTheme('dark')}
       >
-        <Moon className="mr-1.5 h-3.5 w-3.5" />
-        Dark
+        <Moon className="mr-1 h-3 w-3 shrink-0" />
+        <span className="truncate">Dark</span>
       </Button>
       <Button
         variant={theme === 'system' ? 'secondary' : 'ghost'}
         size="sm"
-        className="h-7 px-2"
+        className="h-7 flex-1 min-w-0 px-1.5 text-xs"
         onClick={() => setTheme('system')}
       >
-        <Monitor className="mr-1.5 h-3.5 w-3.5" />
-        System
+        <Monitor className="mr-1 h-3 w-3 shrink-0" />
+        <span className="truncate">Sys</span>
       </Button>
     </div>
   );

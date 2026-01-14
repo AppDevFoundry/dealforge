@@ -34,8 +34,8 @@ export function RentalResultsDisplay({ results, inputs, learnMode }: RentalResul
   return (
     <div className="space-y-8">
       {/* Key Metrics */}
-      <section>
-        <h3 className="mb-4 text-lg font-semibold">Key Metrics</h3>
+      <section className="animate-fade-in">
+        <h3 className="mb-4 text-lg font-semibold headline-premium">Key Metrics</h3>
         <div className="grid gap-4 sm:grid-cols-2">
           <RentalResultsCard
             label="Cash on Cash Return"
@@ -72,8 +72,8 @@ export function RentalResultsDisplay({ results, inputs, learnMode }: RentalResul
       </section>
 
       {/* Charts */}
-      <section>
-        <h3 className="mb-4 text-lg font-semibold">Visual Analysis</h3>
+      <section className="animate-fade-in delay-100">
+        <h3 className="mb-4 text-lg font-semibold headline-premium">Visual Analysis</h3>
         <div className="grid gap-4 lg:grid-cols-2">
           <ExpenseBreakdownChart
             mortgage={results.monthlyMortgage}
@@ -94,8 +94,8 @@ export function RentalResultsDisplay({ results, inputs, learnMode }: RentalResul
       </section>
 
       {/* Investment Breakdown */}
-      <section>
-        <h3 className="mb-4 text-lg font-semibold">Investment Breakdown</h3>
+      <section className="animate-fade-in delay-200">
+        <h3 className="mb-4 text-lg font-semibold headline-premium">Investment Breakdown</h3>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <RentalResultsCard
             label="Total Investment"
@@ -122,8 +122,8 @@ export function RentalResultsDisplay({ results, inputs, learnMode }: RentalResul
       </section>
 
       {/* Income & Expenses */}
-      <section>
-        <h3 className="mb-4 text-lg font-semibold">Income & Expenses</h3>
+      <section className="animate-fade-in delay-300">
+        <h3 className="mb-4 text-lg font-semibold headline-premium">Income & Expenses</h3>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <RentalResultsCard
             label="Gross Monthly Income"
@@ -164,8 +164,8 @@ export function RentalResultsDisplay({ results, inputs, learnMode }: RentalResul
       </section>
 
       {/* First Year Amortization */}
-      <section>
-        <h3 className="mb-4 text-lg font-semibold">Year 1 Amortization</h3>
+      <section className="animate-fade-in delay-400">
+        <h3 className="mb-4 text-lg font-semibold headline-premium">Year 1 Amortization</h3>
         <div className="grid gap-4 sm:grid-cols-2">
           <RentalResultsCard
             label="Principal Paydown (Year 1)"
@@ -185,8 +185,8 @@ export function RentalResultsDisplay({ results, inputs, learnMode }: RentalResul
       </section>
 
       {/* 5-Year Projections */}
-      <section>
-        <h3 className="mb-4 text-lg font-semibold">5-Year Projections</h3>
+      <section className="animate-fade-in delay-500">
+        <h3 className="mb-4 text-lg font-semibold headline-premium">5-Year Projections</h3>
         <div className="grid gap-4 sm:grid-cols-2">
           <RentalResultsCard
             label="5-Year Equity"

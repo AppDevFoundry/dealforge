@@ -198,7 +198,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
               Appearance
             </SidebarGroupLabel>
             <SidebarGroupContent>
-              <div className="px-2 py-1">
+              <div className="px-1 py-1 overflow-hidden">
                 <ThemeToggleWithLabel />
               </div>
             </SidebarGroupContent>

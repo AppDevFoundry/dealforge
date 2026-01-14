@@ -45,9 +45,9 @@ export function ExpenseBreakdownChart({
 
   if (total === 0) {
     return (
-      <Card>
+      <Card className="card-premium">
         <CardHeader>
-          <CardTitle className="text-base">Monthly Expenses</CardTitle>
+          <CardTitle className="text-base headline-premium">Monthly Expenses</CardTitle>
         </CardHeader>
         <CardContent className="flex h-48 items-center justify-center">
           <p className="text-sm text-muted-foreground">No expenses to display</p>
@@ -57,10 +57,10 @@ export function ExpenseBreakdownChart({
   }
 
   return (
-    <Card>
+    <Card className="card-premium overflow-hidden">
       <CardHeader className="pb-2">
-        <CardTitle className="text-base">Monthly Expenses</CardTitle>
-        <p className="text-2xl font-bold tabular-nums">{formatCurrency(total)}</p>
+        <CardTitle className="text-base headline-premium">Monthly Expenses</CardTitle>
+        <p className="text-2xl font-bold tabular-nums metric-value">{formatCurrency(total)}</p>
       </CardHeader>
       <CardContent>
         <div className="h-64">
@@ -77,6 +77,8 @@ export function ExpenseBreakdownChart({
                 nameKey="name"
                 stroke="hsl(var(--background))"
                 strokeWidth={2}
+                animationDuration={800}
+                animationBegin={100}
               >
                 {data.map((entry, index) => (
                   <Cell key={`cell-${index}`} fill={entry.color} />
@@ -89,12 +91,12 @@ export function ExpenseBreakdownChart({
                   const percentage = ((item.value / total) * 100).toFixed(1);
                   return (
                     <div
-                      className="rounded-lg border bg-popover px-3 py-2 shadow-lg"
+                      className="rounded-lg border bg-popover/95 backdrop-blur-sm px-3 py-2 shadow-xl"
                       style={tooltipStyles.contentStyle}
                     >
-                      <p className="font-medium">{item.name}</p>
-                      <p className="text-sm tabular-nums">{formatCurrency(item.value)}</p>
-                      <p className="text-xs text-muted-foreground">{percentage}% of total</p>
+                      <p className="font-semibold text-sm">{item.name}</p>
+                      <p className="text-sm tabular-nums font-medium">{formatCurrency(item.value)}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{percentage}% of total</p>
                     </div>
                   );
                 }}
@@ -103,7 +105,7 @@ export function ExpenseBreakdownChart({
                 verticalAlign="bottom"
                 height={36}
                 formatter={(value: string) => (
-                  <span className="text-xs text-foreground">{value}</span>
+                  <span className="text-xs text-foreground font-medium">{value}</span>
                 )}
               />
             </PieChart>
