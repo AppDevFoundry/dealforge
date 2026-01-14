@@ -1,4 +1,5 @@
 import { UserNav } from '@/components/auth/user-nav';
+import { ThemeToggle } from '@/components/layout/theme-toggle';
 import { getServerSession } from '@/lib/auth-server';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
@@ -40,7 +41,8 @@ export default async function DashboardLayout({ children }: { children: React.Re
               </Link>
             </nav>
           </div>
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
             <UserNav user={session.user} />
           </div>
         </div>

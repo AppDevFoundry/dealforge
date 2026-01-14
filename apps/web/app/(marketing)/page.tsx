@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button';
+import { ThemeToggle } from '@/components/layout/theme-toggle';
 import Link from 'next/link';
 
 export default function HomePage() {
@@ -10,7 +11,8 @@ export default function HomePage() {
           <div className="flex items-center gap-2">
             <span className="text-xl font-bold">DealForge</span>
           </div>
-          <nav className="flex items-center gap-4">
+          <nav className="flex items-center gap-2">
+            <ThemeToggle />
             <Link href="/sign-in" className="text-sm font-medium hover:underline">
               Sign In
             </Link>

@@ -1,0 +1,98 @@
+'use client';
+
+import * as React from 'react';
+import { Moon, Sun, Monitor } from 'lucide-react';
+import { useTheme } from 'next-themes';
+import { Button } from '@/components/ui/button';
+
+export function ThemeToggle() {
+  const { theme, setTheme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = React.useState(false);
+
+  // Prevent hydration mismatch
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <Button variant="ghost" size="icon" className="h-9 w-9" disabled>
+        <Sun className="h-4 w-4" />
+        <span className="sr-only">Toggle theme</span>
+      </Button>
+    );
+  }
+
+  // Cycle through: light → dark → system
+  const cycleTheme = () => {
+    if (theme === 'light') {
+      setTheme('dark');
+    } else if (theme === 'dark') {
+      setTheme('system');
+    } else {
+      setTheme('light');
+    }
+  };
+
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      className="h-9 w-9 transition-colors"
+      onClick={cycleTheme}
+      title={`Current: ${theme === 'system' ? `system (${resolvedTheme})` : theme}`}
+    >
+      {theme === 'light' && <Sun className="h-4 w-4" />}
+      {theme === 'dark' && <Moon className="h-4 w-4" />}
+      {theme === 'system' && <Monitor className="h-4 w-4" />}
+      <span className="sr-only">
+        Toggle theme (currently {theme === 'system' ? `system (${resolvedTheme})` : theme})
+      </span>
+    </Button>
+  );
+}
+
+export function ThemeToggleWithLabel() {
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null;
+  }
+
+  return (
+    <div className="flex items-center gap-1 rounded-lg border bg-muted/50 p-1">
+      <Button
+        variant={theme === 'light' ? 'secondary' : 'ghost'}
+        size="sm"
+        className="h-7 px-2"
+        onClick={() => setTheme('light')}
+      >
+        <Sun className="mr-1.5 h-3.5 w-3.5" />
+        Light
+      </Button>
+      <Button
+        variant={theme === 'dark' ? 'secondary' : 'ghost'}
+        size="sm"
+        className="h-7 px-2"
+        onClick={() => setTheme('dark')}
+      >
+        <Moon className="mr-1.5 h-3.5 w-3.5" />
+        Dark
+      </Button>
+      <Button
+        variant={theme === 'system' ? 'secondary' : 'ghost'}
+        size="sm"
+        className="h-7 px-2"
+        onClick={() => setTheme('system')}
+      >
+        <Monitor className="mr-1.5 h-3.5 w-3.5" />
+        System
+      </Button>
+    </div>
+  );
+}
