@@ -2,7 +2,7 @@
 
 import type { RentalInputs, RentalResults } from '@dealforge/types';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useCallback, useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 
 import { calculateRentalMetrics } from '@/lib/calculations/rental';
@@ -24,35 +24,45 @@ export function RentalForm({ onResultsChange }: RentalFormProps) {
   const {
     register,
     watch,
-    formState: { errors, isValid },
+    formState: { errors },
+    getValues,
   } = useForm<RentalInputs>({
     resolver: zodResolver(rentalInputSchema),
     defaultValues: RENTAL_DEFAULTS,
     mode: 'onChange',
   });
 
-  // Watch all form values for real-time calculation
-  const formValues = watch();
+  // Store the callback in a ref to avoid dependency issues
+  const onResultsChangeRef = useRef(onResultsChange);
+  onResultsChangeRef.current = onResultsChange;
 
-  // Memoize the calculation to avoid unnecessary recalculations
-  const calculateResults = useCallback((values: RentalInputs): RentalResults | null => {
-    try {
-      return calculateRentalMetrics(values);
-    } catch (error) {
-      console.error('Calculation error:', error);
-      return null;
-    }
-  }, []);
-
-  // Recalculate on every valid change
+  // Calculate results whenever form values change
   useEffect(() => {
-    if (isValid) {
-      const results = calculateResults(formValues);
-      onResultsChange(results);
-    } else {
-      onResultsChange(null);
+    // Subscribe to all form changes
+    const subscription = watch(() => {
+      // Get the complete values (watch callback may have partial data)
+      const values = getValues();
+
+      try {
+        const results = calculateRentalMetrics(values);
+        onResultsChangeRef.current(results);
+      } catch (error) {
+        console.error('Calculation error:', error);
+        onResultsChangeRef.current(null);
+      }
+    });
+
+    // Calculate initial results
+    try {
+      const initialValues = getValues();
+      const results = calculateRentalMetrics(initialValues);
+      onResultsChangeRef.current(results);
+    } catch (error) {
+      console.error('Initial calculation error:', error);
     }
-  }, [formValues, isValid, calculateResults, onResultsChange]);
+
+    return () => subscription.unsubscribe();
+  }, [watch, getValues]);
 
   return (
     <div className="space-y-6">
