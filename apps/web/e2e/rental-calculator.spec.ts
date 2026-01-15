@@ -1,4 +1,4 @@
-import { test, expect } from './fixtures/test-fixtures';
+import { expect, test } from './fixtures/test-fixtures';
 
 test.describe('Rental Calculator', () => {
   test('loads the calculator page', async ({ rentalCalculatorPage, page }) => {

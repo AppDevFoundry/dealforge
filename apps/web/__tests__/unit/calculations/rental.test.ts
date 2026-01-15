@@ -194,7 +194,8 @@ describe('calculateRentalMetrics', () => {
       const results = calculateRentalMetrics(RENTAL_DEFAULTS);
 
       // Cash flow = Effective Gross Income - Operating Expenses - Mortgage
-      const expectedCashFlow = results.effectiveGrossIncome - results.totalMonthlyExpenses - results.monthlyMortgage;
+      const expectedCashFlow =
+        results.effectiveGrossIncome - results.totalMonthlyExpenses - results.monthlyMortgage;
       expect(results.monthlyCashFlow).toBeCloseTo(expectedCashFlow, 2);
     });
 
@@ -236,7 +237,10 @@ describe('calculateRentalMetrics', () => {
       expect(results.year1InterestPaid).toBeGreaterThan(0);
       // Principal + Interest = Total payments (approximately)
       const totalYear1Payments = results.monthlyMortgage * 12;
-      expect(results.year1PrincipalPaydown + results.year1InterestPaid).toBeCloseTo(totalYear1Payments, 0);
+      expect(results.year1PrincipalPaydown + results.year1InterestPaid).toBeCloseTo(
+        totalYear1Payments,
+        0
+      );
     });
 
     it('should return 0 amortization when no loan', () => {
@@ -254,7 +258,8 @@ describe('calculateRentalMetrics', () => {
 
       // 5-year equity = down payment + 5 years of principal paydown
       // Should be greater than just the down payment
-      const downPayment = RENTAL_DEFAULTS.purchasePrice * (RENTAL_DEFAULTS.downPaymentPercent / 100);
+      const downPayment =
+        RENTAL_DEFAULTS.purchasePrice * (RENTAL_DEFAULTS.downPaymentPercent / 100);
       expect(results.fiveYearEquity).toBeGreaterThan(downPayment);
     });
 

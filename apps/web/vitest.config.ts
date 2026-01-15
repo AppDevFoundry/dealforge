@@ -28,13 +28,7 @@ export default defineConfig({
         'app/**/*.{ts,tsx}',
         'hooks/**/*.{ts,tsx}',
       ],
-      exclude: [
-        '**/*.d.ts',
-        '**/__tests__/**',
-        '**/e2e/**',
-        '**/*.config.{ts,js}',
-        '**/types/**',
-      ],
+      exclude: ['**/*.d.ts', '**/__tests__/**', '**/e2e/**', '**/*.config.{ts,js}', '**/types/**'],
       thresholds: {
         lines: 70,
         functions: 70,

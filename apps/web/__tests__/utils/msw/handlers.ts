@@ -61,9 +61,12 @@ export const authHandlers = [
     const body = (await request.json()) as { email: string; password: string };
 
     if (body.email === 'invalid@example.com') {
-      return HttpResponse.json(createApiErrorResponse('INVALID_CREDENTIALS', 'Invalid email or password'), {
-        status: 401,
-      });
+      return HttpResponse.json(
+        createApiErrorResponse('INVALID_CREDENTIALS', 'Invalid email or password'),
+        {
+          status: 401,
+        }
+      );
     }
 
     return HttpResponse.json({
@@ -95,7 +98,9 @@ export const authHandlers = [
     };
 
     if (body.email === 'existing@example.com') {
-      return HttpResponse.json(createApiErrorResponse('USER_EXISTS', 'User already exists'), { status: 409 });
+      return HttpResponse.json(createApiErrorResponse('USER_EXISTS', 'User already exists'), {
+        status: 409,
+      });
     }
 
     return HttpResponse.json({

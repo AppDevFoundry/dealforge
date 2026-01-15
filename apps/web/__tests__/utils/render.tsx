@@ -1,5 +1,5 @@
 import { SidebarProvider } from '@/components/ui/sidebar';
-import { render as rtlRender, type RenderOptions, type RenderResult } from '@testing-library/react';
+import { type RenderOptions, type RenderResult, render as rtlRender } from '@testing-library/react';
 import type { UserEvent } from '@testing-library/user-event';
 import userEvent from '@testing-library/user-event';
 import { ThemeProvider } from 'next-themes';
@@ -35,10 +35,19 @@ interface AllProvidersProps {
 }
 
 function AllProviders({ children, theme = 'light', withSidebar = false }: AllProvidersProps) {
-  const content = withSidebar ? <SidebarProvider defaultOpen={true}>{children}</SidebarProvider> : children;
+  const content = withSidebar ? (
+    <SidebarProvider defaultOpen={true}>{children}</SidebarProvider>
+  ) : (
+    children
+  );
 
   return (
-    <ThemeProvider attribute="class" defaultTheme={theme} enableSystem={false} disableTransitionOnChange>
+    <ThemeProvider
+      attribute="class"
+      defaultTheme={theme}
+      enableSystem={false}
+      disableTransitionOnChange
+    >
       {content}
     </ThemeProvider>
   );
@@ -53,7 +62,10 @@ interface CustomRenderOptions extends Omit<RenderOptions, 'wrapper'> {
   withSidebar?: boolean;
 }
 
-function customRender(ui: ReactElement, options: CustomRenderOptions = {}): RenderResult & { user: UserEvent } {
+function customRender(
+  ui: ReactElement,
+  options: CustomRenderOptions = {}
+): RenderResult & { user: UserEvent } {
   const { session, theme, withSidebar, ...renderOptions } = options;
 
   const renderResult = rtlRender(ui, {

@@ -1,5 +1,5 @@
-import type { RentalInputs, RentalResults } from '@dealforge/types';
 import { RENTAL_DEFAULTS } from '@/lib/constants/rental-defaults';
+import type { RentalInputs, RentalResults } from '@dealforge/types';
 
 // ============================================
 // User Factory
@@ -47,7 +47,10 @@ export interface MockSession {
 
 let sessionIdCounter = 0;
 
-export function createMockSession(user?: MockUser, overrides: Partial<MockSession['session']> = {}): MockSession {
+export function createMockSession(
+  user?: MockUser,
+  overrides: Partial<MockSession['session']> = {}
+): MockSession {
   sessionIdCounter++;
   const mockUser = user || createMockUser();
   return {
