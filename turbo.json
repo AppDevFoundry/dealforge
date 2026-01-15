@@ -13,6 +13,7 @@
         "BETTER_AUTH_URL",
         "NEXT_PUBLIC_APP_URL",
         "VERCEL_URL",
+        "VERCEL_BRANCH_URL",
         "VERCEL_ENV",
         "VERCEL_PROJECT_PRODUCTION_URL",
         "DEBUG_AUTH"

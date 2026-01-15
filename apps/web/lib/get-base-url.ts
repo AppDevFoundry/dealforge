@@ -19,6 +19,7 @@ export function getBaseUrl(): string {
   if (DEBUG_AUTH) {
     console.log('[getBaseUrl] Environment vars:', {
       VERCEL_URL: process.env.VERCEL_URL,
+      VERCEL_BRANCH_URL: process.env.VERCEL_BRANCH_URL,
       VERCEL_ENV: process.env.VERCEL_ENV,
       VERCEL_PROJECT_PRODUCTION_URL: process.env.VERCEL_PROJECT_PRODUCTION_URL,
       BETTER_AUTH_URL: process.env.BETTER_AUTH_URL,
