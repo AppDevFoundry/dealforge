@@ -104,7 +104,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
           <SidebarMenuItem>
             <SidebarMenuButton asChild size="lg" className="hover:bg-sidebar-accent">
               <Link href="/dashboard" className="flex items-center gap-3 group/logo">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-all duration-300 group-hover/logo:scale-105 dark:shadow-[0_0_15px_hsl(var(--primary)/0.4)]">
+                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-[transform,box-shadow] duration-300 group-hover/logo:scale-105 dark:shadow-[0_0_15px_hsl(var(--primary)/0.4)]">
                   <Sparkles className="size-4 transition-transform duration-300 group-hover/logo:rotate-12" />
                 </div>
                 <div className="flex flex-col gap-0.5 leading-none">
@@ -134,7 +134,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
                       isActive={isActive}
                       tooltip={item.title}
                       className={`
-                        transition-all duration-200
+                        transition-colors duration-200
                         ${
                           isActive
                             ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium border-accent-left'
@@ -171,7 +171,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
                       isActive={isActive}
                       tooltip={item.title}
                       className={`
-                        transition-all duration-200
+                        transition-colors duration-200
                         ${
                           isActive
                             ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium border-accent-left'
@@ -217,7 +217,7 @@ export function AppSidebar({ user }: AppSidebarProps) {
             <SidebarMenuButton
               tooltip={state === 'expanded' ? 'Collapse sidebar' : 'Expand sidebar'}
               onClick={toggleSidebar}
-              className="text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-all duration-200"
+              className="text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-colors duration-200"
             >
               {state === 'expanded' ? (
                 <>
