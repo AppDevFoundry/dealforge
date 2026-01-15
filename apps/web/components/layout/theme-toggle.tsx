@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { cn } from '@/lib/utils';
 import { Monitor, Moon, Sun } from 'lucide-react';
 import { useTheme } from 'next-themes';
 import * as React from 'react';
@@ -65,57 +66,36 @@ export function ThemeToggleWithLabel() {
     return null;
   }
 
+  const themes = [
+    { value: 'light', icon: Sun, label: 'Light' },
+    { value: 'dark', icon: Moon, label: 'Dark' },
+    { value: 'system', icon: Monitor, label: 'System' },
+  ] as const;
+
   return (
     <TooltipProvider delayDuration={300}>
-      <div className="flex items-center gap-0.5 rounded-lg border bg-muted/50 p-0.5">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant={theme === 'light' ? 'secondary' : 'ghost'}
-              size="icon"
-              className="h-7 w-7"
-              onClick={() => setTheme('light')}
-            >
-              <Sun className="h-3.5 w-3.5" />
-              <span className="sr-only">Light mode</span>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side="top" className="text-xs">
-            Light
-          </TooltipContent>
-        </Tooltip>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant={theme === 'dark' ? 'secondary' : 'ghost'}
-              size="icon"
-              className="h-7 w-7"
-              onClick={() => setTheme('dark')}
-            >
-              <Moon className="h-3.5 w-3.5" />
-              <span className="sr-only">Dark mode</span>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side="top" className="text-xs">
-            Dark
-          </TooltipContent>
-        </Tooltip>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant={theme === 'system' ? 'secondary' : 'ghost'}
-              size="icon"
-              className="h-7 w-7"
-              onClick={() => setTheme('system')}
-            >
-              <Monitor className="h-3.5 w-3.5" />
-              <span className="sr-only">System theme</span>
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent side="top" className="text-xs">
-            System
-          </TooltipContent>
-        </Tooltip>
+      <div className="inline-flex items-center gap-0.5 rounded-full bg-sidebar-accent/50 p-1">
+        {themes.map(({ value, icon: Icon, label }) => (
+          <Tooltip key={value}>
+            <TooltipTrigger asChild>
+              <button
+                onClick={() => setTheme(value)}
+                className={cn(
+                  'rounded-full p-1.5 transition-all duration-200',
+                  theme === value
+                    ? 'bg-background text-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
+                )}
+              >
+                <Icon className="h-3.5 w-3.5" />
+                <span className="sr-only">{label} mode</span>
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="text-xs">
+              {label}
+            </TooltipContent>
+          </Tooltip>
+        ))}
       </div>
     </TooltipProvider>
   );

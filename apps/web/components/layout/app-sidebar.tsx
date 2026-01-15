@@ -195,14 +195,9 @@ export function AppSidebar({ user }: AppSidebarProps) {
 
         {/* Theme Toggle - adapts to sidebar state */}
         <SidebarGroup className="mt-auto">
-          {state === 'expanded' && (
-            <SidebarGroupLabel className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-              Appearance
-            </SidebarGroupLabel>
-          )}
           <SidebarGroupContent>
             {state === 'expanded' ? (
-              <div className="px-1 py-1 overflow-hidden">
+              <div className="px-2 py-1">
                 <ThemeToggleWithLabel />
               </div>
             ) : (
