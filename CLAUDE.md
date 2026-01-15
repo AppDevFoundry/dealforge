@@ -12,6 +12,9 @@ pnpm lint             # Run Biome linter
 pnpm lint:fix         # Fix linting issues
 pnpm typecheck        # TypeScript type checking
 pnpm test             # Run all tests
+pnpm test:unit        # Run Vitest unit/component tests
+pnpm test:coverage    # Run tests with coverage report
+pnpm test:e2e         # Run Playwright E2E tests
 ```
 
 ### Database (Drizzle ORM)
@@ -92,6 +95,7 @@ The Next.js app uses route groups in `apps/web/app/`:
 - **Calculations**: Rust compiled to WASM
 - **Data Sync**: Go service for government APIs
 - **Mapping**: Mapbox GL JS
+- **Testing**: Vitest + React Testing Library + Playwright + MSW
 
 ## Environment Requirements
 
