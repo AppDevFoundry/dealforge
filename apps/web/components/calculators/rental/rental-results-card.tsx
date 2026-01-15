@@ -29,10 +29,15 @@ function formatValue(value: number, format: FormatType): string {
   }
 }
 
-function getValueStyling(value: number, format: FormatType): { colorClass: string; glowClass: string; icon: typeof TrendingUp | typeof TrendingDown | null } {
+function getValueStyling(
+  value: number,
+  format: FormatType
+): { colorClass: string; glowClass: string; icon: typeof TrendingUp | typeof TrendingDown | null } {
   if (format === 'currency') {
-    if (value > 0) return { colorClass: 'text-success', glowClass: 'glow-positive', icon: TrendingUp };
-    if (value < 0) return { colorClass: 'text-destructive', glowClass: 'glow-negative', icon: TrendingDown };
+    if (value > 0)
+      return { colorClass: 'text-success', glowClass: 'glow-positive', icon: TrendingUp };
+    if (value < 0)
+      return { colorClass: 'text-destructive', glowClass: 'glow-negative', icon: TrendingDown };
   }
   return { colorClass: '', glowClass: '', icon: null };
 }
@@ -83,9 +88,7 @@ export function RentalResultsCard({
           <span className={`text-2xl font-bold tabular-nums metric-value ${colorClass}`}>
             {formattedValue}
           </span>
-          {TrendIcon && (
-            <TrendIcon className={`size-5 ${colorClass} opacity-70`} />
-          )}
+          {TrendIcon && <TrendIcon className={`size-5 ${colorClass} opacity-70`} />}
         </div>
         {learnMode && explanation && (
           <CardDescription className="mt-3 text-xs leading-relaxed">{explanation}</CardDescription>

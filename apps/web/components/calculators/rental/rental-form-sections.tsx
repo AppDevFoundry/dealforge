@@ -25,7 +25,10 @@ interface FormFieldProps {
 function FormField({ label, name, register, error, prefix, suffix, step = '1' }: FormFieldProps) {
   return (
     <div className="space-y-2 group/field">
-      <Label htmlFor={name} className="text-sm font-medium transition-colors group-focus-within/field:text-primary">
+      <Label
+        htmlFor={name}
+        className="text-sm font-medium transition-colors group-focus-within/field:text-primary"
+      >
         {label}
       </Label>
       <div className="relative">

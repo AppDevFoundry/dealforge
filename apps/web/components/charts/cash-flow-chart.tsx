@@ -158,13 +158,22 @@ export function CashFlowChart(props: CashFlowChartProps) {
         </div>
         <div className="mt-4 flex items-center justify-center gap-6 text-sm">
           <div className="flex items-center gap-2">
-            <div className="size-3 rounded-full ring-2 ring-offset-2 ring-offset-background" style={{ backgroundColor: chartColors.primary, boxShadow: `0 0 8px ${chartColors.primary}40` }} />
+            <div
+              className="size-3 rounded-full ring-2 ring-offset-2 ring-offset-background"
+              style={{
+                backgroundColor: chartColors.primary,
+                boxShadow: `0 0 8px ${chartColors.primary}40`,
+              }}
+            />
             <span className="text-muted-foreground font-medium">Equity</span>
           </div>
           <div className="flex items-center gap-2">
             <div
               className="size-3 rounded-full ring-2 ring-offset-2 ring-offset-background"
-              style={{ backgroundColor: chartColors.positive, boxShadow: `0 0 8px ${chartColors.positive}40` }}
+              style={{
+                backgroundColor: chartColors.positive,
+                boxShadow: `0 0 8px ${chartColors.positive}40`,
+              }}
             />
             <span className="text-muted-foreground font-medium">Cash Flow</span>
           </div>

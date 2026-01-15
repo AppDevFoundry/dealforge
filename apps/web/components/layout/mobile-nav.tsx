@@ -118,7 +118,7 @@ export function MobileNav({ user }: MobileNavProps) {
           </div>
         </SheetHeader>
 
-        <div className="flex flex-col h-[calc(100vh-73px)]">
+        <div className="flex flex-col h-[calc(100dvh-var(--mobile-header-height,73px))]">
           {/* Main Navigation */}
           <nav className="flex-1 overflow-y-auto px-4 py-4">
             <div className="space-y-1">

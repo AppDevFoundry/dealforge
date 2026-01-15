@@ -11,6 +11,9 @@
   /* Border radius */
   --radius: 0.5rem;
 
+  /* Layout dimensions */
+  --mobile-header-height: 73px;
+
   /* ========================================
      TEAL-SLATE INSTITUTIONAL PALETTE
      ======================================== */

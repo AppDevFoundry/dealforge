@@ -9,9 +9,9 @@ export const metadata = {
 export default function DealsPage() {
   return (
     <div className="container py-8">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">My Deals</h1>
+          <h1 className="text-3xl font-bold tracking-tight headline-premium">My Deals</h1>
           <p className="text-muted-foreground">View and manage your saved deal analyses.</p>
         </div>
         <Button asChild>
@@ -20,7 +20,7 @@ export default function DealsPage() {
       </div>
 
       {/* Filters (placeholder) */}
-      <div className="mt-6 flex gap-4">
+      <div className="mt-6 flex flex-wrap gap-2 sm:gap-4">
         <Button variant="outline" size="sm">
           All Types
         </Button>
@@ -33,7 +33,7 @@ export default function DealsPage() {
       </div>
 
       {/* Empty State */}
-      <div className="mt-8 rounded-lg border p-12 text-center">
+      <div className="mt-8 rounded-xl border-2 border-dashed border-muted-foreground/20 bg-muted/30 p-12 text-center">
         <div className="mx-auto max-w-md">
           <h3 className="text-lg font-semibold">No deals yet</h3>
           <p className="mt-2 text-sm text-muted-foreground">

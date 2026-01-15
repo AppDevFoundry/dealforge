@@ -41,7 +41,7 @@ export function RentalCalculator() {
         </div>
 
         {/* Results */}
-        <div className="lg:sticky lg:top-24 lg:self-start">
+        <div className="lg:sticky lg:top-20 lg:self-start lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
           <RentalResultsDisplay results={results} inputs={inputs} learnMode={learnMode} />
         </div>
       </div>

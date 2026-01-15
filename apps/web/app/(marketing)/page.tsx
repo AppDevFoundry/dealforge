@@ -94,11 +94,7 @@ export default function HomePage() {
 
               {/* CTA Buttons with enhanced styling */}
               <div className="animate-slide-up-blur delay-300 mt-12 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-                <Button
-                  size="lg"
-                  className="group gap-2 px-8 h-12 text-base hover-lift animate-glow-pulse"
-                  asChild
-                >
+                <Button size="xl" className="group gap-2 hover-lift" asChild>
                   <Link href="/sign-up">
                     Start Analyzing for Free
                     <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
@@ -106,8 +102,8 @@ export default function HomePage() {
                 </Button>
                 <Button
                   variant="outline"
-                  size="lg"
-                  className="gap-2 px-8 h-12 text-base hover-lift border-primary/30 hover:border-primary/50 hover:bg-primary/5"
+                  size="xl"
+                  className="gap-2 hover-lift border-primary/30 hover:border-primary/50 hover:bg-primary/5"
                   asChild
                 >
                   <Link href="/analyze">
@@ -264,11 +260,7 @@ export default function HomePage() {
                 Join thousands of investors using DealForge to analyze deals with confidence.
               </p>
               <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
-                <Button
-                  size="lg"
-                  className="group gap-2 px-10 h-12 text-base hover-lift animate-glow-pulse"
-                  asChild
-                >
+                <Button size="xl" className="group gap-2 px-10 hover-lift" asChild>
                   <Link href="/sign-up">
                     Create Free Account
                     <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />

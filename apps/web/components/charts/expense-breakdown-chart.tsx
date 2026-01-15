@@ -95,7 +95,9 @@ export function ExpenseBreakdownChart({
                       style={tooltipStyles.contentStyle}
                     >
                       <p className="font-semibold text-sm">{item.name}</p>
-                      <p className="text-sm tabular-nums font-medium">{formatCurrency(item.value)}</p>
+                      <p className="text-sm tabular-nums font-medium">
+                        {formatCurrency(item.value)}
+                      </p>
                       <p className="text-xs text-muted-foreground mt-0.5">{percentage}% of total</p>
                     </div>
                   );
