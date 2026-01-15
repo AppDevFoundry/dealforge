@@ -80,8 +80,8 @@ export function ExpenseBreakdownChart({
                 animationDuration={800}
                 animationBegin={100}
               >
-                {data.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
+                {data.map((entry) => (
+                  <Cell key={entry.name} fill={entry.color} />
                 ))}
               </Pie>
               <Tooltip

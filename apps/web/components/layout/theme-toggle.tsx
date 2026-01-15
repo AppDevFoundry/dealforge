@@ -79,6 +79,7 @@ export function ThemeToggleWithLabel() {
           <Tooltip key={value}>
             <TooltipTrigger asChild>
               <button
+                type="button"
                 onClick={() => setTheme(value)}
                 className={cn(
                   'cursor-pointer rounded-full p-1.5 transition-all duration-200',
@@ -134,6 +135,7 @@ export function ThemeToggleCompact() {
 
   return (
     <button
+      type="button"
       onClick={cycleTheme}
       className="flex h-8 w-full cursor-pointer items-center justify-center rounded-md p-2 text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
       title={`Theme: ${getThemeLabel()}. Click to cycle.`}

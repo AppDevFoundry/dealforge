@@ -51,9 +51,12 @@ export default function DealsLoading() {
 
       {/* Deal cards skeletons */}
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <DealCardSkeleton key={i} />
-        ))}
+        <DealCardSkeleton />
+        <DealCardSkeleton />
+        <DealCardSkeleton />
+        <DealCardSkeleton />
+        <DealCardSkeleton />
+        <DealCardSkeleton />
       </div>
     </div>
   );

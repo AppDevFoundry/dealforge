@@ -13,7 +13,7 @@ export async function getServerSession() {
 
   if (DEBUG_AUTH) {
     console.log('[getServerSession] Checking session with headers:', {
-      cookie: reqHeaders.get('cookie')?.substring(0, 100) + '...',
+      cookie: `${reqHeaders.get('cookie')?.substring(0, 100)}...`,
       host: reqHeaders.get('host'),
     });
   }

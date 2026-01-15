@@ -72,6 +72,7 @@ export default function HomePage() {
                     viewBox="0 0 200 12"
                     fill="none"
                     preserveAspectRatio="none"
+                    aria-hidden="true"
                   >
                     <path
                       d="M2 8C30 4 60 2 100 4C140 6 170 4 198 8"

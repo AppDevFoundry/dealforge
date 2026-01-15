@@ -45,8 +45,7 @@ function generateProjection({
   // Assume 30-year mortgage at ~7% for principal paydown estimation
   const monthlyRate = 0.07 / 12;
   const monthlyPayment =
-    (loanAmount * (monthlyRate * Math.pow(1 + monthlyRate, 360))) /
-    (Math.pow(1 + monthlyRate, 360) - 1);
+    (loanAmount * (monthlyRate * (1 + monthlyRate) ** 360)) / ((1 + monthlyRate) ** 360 - 1);
 
   for (let year = 0; year <= 10; year++) {
     // Calculate equity: property value - remaining loan balance
@@ -63,11 +62,9 @@ function generateProjection({
     currentPropertyValue *= 1 + appreciationRate / 100;
 
     // Approximate principal paydown for the year
-    let yearlyPrincipal = 0;
     for (let month = 0; month < 12; month++) {
       const interestPayment = currentLoanBalance * monthlyRate;
       const principalPayment = monthlyPayment - interestPayment;
-      yearlyPrincipal += principalPayment;
       currentLoanBalance -= principalPayment;
     }
   }
@@ -122,9 +119,9 @@ export function CashFlowChart(props: CashFlowChartProps) {
                       style={tooltipStyles.contentStyle}
                     >
                       <p className="mb-1.5 font-semibold text-sm">Year {label}</p>
-                      {payload.map((entry, index) => (
+                      {payload.map((entry) => (
                         <p
-                          key={index}
+                          key={entry.dataKey}
                           className="text-sm tabular-nums font-medium"
                           style={{ color: entry.color }}
                         >

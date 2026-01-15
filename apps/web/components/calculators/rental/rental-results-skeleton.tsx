@@ -16,6 +16,8 @@ function MetricCardSkeleton({ highlight = false }: { highlight?: boolean }) {
   );
 }
 
+const SKELETON_KEYS = ['sk-1', 'sk-2', 'sk-3', 'sk-4', 'sk-5'] as const;
+
 function SectionSkeleton({
   title,
   count,
@@ -25,6 +27,7 @@ function SectionSkeleton({
   count: number;
   highlight?: boolean;
 }) {
+  const keys = SKELETON_KEYS.slice(0, count);
   return (
     <section>
       <h3 className="mb-4 text-lg font-semibold">{title}</h3>
@@ -37,8 +40,8 @@ function SectionSkeleton({
               : 'sm:grid-cols-2'
         }`}
       >
-        {Array.from({ length: count }).map((_, i) => (
-          <MetricCardSkeleton key={i} highlight={highlight && i < 3} />
+        {keys.map((key, idx) => (
+          <MetricCardSkeleton key={key} highlight={highlight && idx < 3} />
         ))}
       </div>
     </section>
