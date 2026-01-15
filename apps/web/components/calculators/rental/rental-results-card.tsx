@@ -1,9 +1,10 @@
 'use client';
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { formatCurrency, formatNumber, formatPercentage, formatRatio } from '@/lib/formatters';
 import { HelpCircle, TrendingDown, TrendingUp } from 'lucide-react';
+
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { formatCurrency, formatNumber, formatPercentage, formatRatio } from '@/lib/formatters';
 
 type FormatType = 'currency' | 'percentage' | 'number' | 'ratio';
 
@@ -70,16 +71,14 @@ export function RentalResultsCard({
         <CardTitle className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
           {label}
           {!learnMode && explanation && (
-            <TooltipProvider delayDuration={300}>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <HelpCircle className="size-3.5 cursor-help text-muted-foreground/50 hover:text-muted-foreground transition-colors" />
-                </TooltipTrigger>
-                <TooltipContent side="top" className="max-w-xs text-xs">
-                  {explanation}
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <HelpCircle className="size-3.5 cursor-help text-muted-foreground/50 hover:text-muted-foreground transition-colors" />
+              </TooltipTrigger>
+              <TooltipContent side="top" className="max-w-xs text-xs">
+                {explanation}
+              </TooltipContent>
+            </Tooltip>
           )}
         </CardTitle>
       </CardHeader>

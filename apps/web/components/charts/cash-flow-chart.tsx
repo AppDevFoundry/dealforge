@@ -1,8 +1,6 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { chartColors, tooltipStyles } from '@/lib/chart-theme';
-import { formatCurrency } from '@/lib/formatters';
+import { useMemo } from 'react';
 import {
   Area,
   AreaChart,
@@ -12,6 +10,10 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { chartColors, tooltipStyles } from '@/lib/chart-theme';
+import { formatCurrency } from '@/lib/formatters';
 
 interface CashFlowDataPoint {
   year: number;
@@ -72,8 +74,34 @@ function generateProjection({
   return data;
 }
 
-export function CashFlowChart(props: CashFlowChartProps) {
-  const data = generateProjection(props);
+export function CashFlowChart({
+  annualCashFlow,
+  totalInvestment,
+  loanAmount,
+  purchasePrice,
+  appreciationRate,
+  cashFlowGrowthRate,
+}: CashFlowChartProps) {
+  // Memoize expensive 10-year projection calculation
+  const data = useMemo(
+    () =>
+      generateProjection({
+        annualCashFlow,
+        totalInvestment,
+        loanAmount,
+        purchasePrice,
+        appreciationRate,
+        cashFlowGrowthRate,
+      }),
+    [
+      annualCashFlow,
+      totalInvestment,
+      loanAmount,
+      purchasePrice,
+      appreciationRate,
+      cashFlowGrowthRate,
+    ]
+  );
 
   return (
     <Card className="card-premium overflow-hidden">

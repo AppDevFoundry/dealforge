@@ -20,7 +20,7 @@ export default function HomePage() {
       <header className="sticky top-0 z-50 border-b bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-16 items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-all duration-300 group-hover:scale-105 group-hover:shadow-[0_0_20px_hsl(var(--primary)/0.4)]">
+            <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-[transform,box-shadow] duration-300 group-hover:scale-105 group-hover:shadow-[0_0_20px_hsl(var(--primary)/0.4)]">
               <Sparkles className="size-4 transition-transform duration-300 group-hover:rotate-12" />
             </div>
             <span className="text-lg font-semibold tracking-tight">DealForge</span>
@@ -281,7 +281,7 @@ export default function HomePage() {
         <div className="container">
           <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
             <div className="flex items-center gap-2.5 group">
-              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-all duration-300 group-hover:scale-105 group-hover:shadow-[0_0_15px_hsl(var(--primary)/0.3)]">
+              <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground transition-[transform,box-shadow] duration-300 group-hover:scale-105 group-hover:shadow-[0_0_15px_hsl(var(--primary)/0.3)]">
                 <Sparkles className="size-4" />
               </div>
               <span className="font-semibold">DealForge</span>
@@ -330,7 +330,7 @@ function FeatureCard({
 }) {
   return (
     <div
-      className={`animate-flip-in ${delay} group relative overflow-hidden rounded-2xl border bg-card p-8 transition-all duration-300 hover:border-primary/50 hover-lift`}
+      className={`animate-flip-in ${delay} group relative overflow-hidden rounded-2xl border bg-card p-8 transition-[border-color] duration-300 hover:border-primary/50 hover-lift`}
     >
       {/* Gradient background on hover */}
       <div
@@ -342,7 +342,7 @@ function FeatureCard({
 
       <div className="relative">
         <div
-          className={`mb-5 flex size-14 items-center justify-center rounded-xl ${iconBg} text-foreground transition-all duration-300 group-hover:text-white group-hover:scale-110 group-hover:shadow-lg`}
+          className={`mb-5 flex size-14 items-center justify-center rounded-xl ${iconBg} text-foreground transition-[background-color,color,transform,box-shadow] duration-300 group-hover:text-white group-hover:scale-110 group-hover:shadow-lg`}
         >
           <Icon className="size-7" />
         </div>
@@ -369,7 +369,7 @@ function CalculatorCard({
 
   return (
     <div
-      className={`group relative rounded-xl border p-5 transition-all duration-300 overflow-hidden ${
+      className={`group relative rounded-xl border p-5 transition-[border-color,opacity] duration-300 overflow-hidden ${
         isAvailable
           ? 'bg-card hover:border-primary/50 cursor-pointer hover-lift'
           : 'bg-muted/20 opacity-50 border-muted'

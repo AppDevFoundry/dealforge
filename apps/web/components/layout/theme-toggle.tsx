@@ -82,7 +82,7 @@ export function ThemeToggleWithLabel() {
                 type="button"
                 onClick={() => setTheme(value)}
                 className={cn(
-                  'cursor-pointer rounded-full p-1.5 transition-all duration-200',
+                  'cursor-pointer rounded-full p-1.5 transition-colors duration-200',
                   theme === value
                     ? 'bg-background text-foreground shadow-sm'
                     : 'text-muted-foreground hover:text-foreground'

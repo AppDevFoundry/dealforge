@@ -1,0 +1,5 @@
+# Auth state files (generated during E2E setup)
+.auth/*.json
+
+# Test results
+test-results/

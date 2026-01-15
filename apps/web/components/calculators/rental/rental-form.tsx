@@ -37,6 +37,7 @@ export function RentalForm({ onResultsChange }: RentalFormProps) {
   onResultsChangeRef.current = onResultsChange;
 
   // Calculate results whenever form values change
+  // biome-ignore lint/correctness/useExhaustiveDependencies: watch/getValues are stable references from useForm
   useEffect(() => {
     // Subscribe to all form changes
     const subscription = watch(() => {
@@ -62,7 +63,7 @@ export function RentalForm({ onResultsChange }: RentalFormProps) {
     }
 
     return () => subscription.unsubscribe();
-  }, [watch, getValues]);
+  }, []);
 
   return (
     <div className="space-y-6">

@@ -1,12 +1,44 @@
 'use client';
 
 import type { RentalInputs, RentalResults } from '@dealforge/types';
+import dynamic from 'next/dynamic';
 
-import { CashFlowChart } from '@/components/charts/cash-flow-chart';
-import { ExpenseBreakdownChart } from '@/components/charts/expense-breakdown-chart';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { METRIC_EXPLANATIONS } from '@/lib/constants/rental-defaults';
 
 import { RentalResultsCard } from './rental-results-card';
+
+// Lazy load chart components to reduce initial bundle size (~200KB recharts)
+const CashFlowChart = dynamic(
+  () => import('@/components/charts/cash-flow-chart').then((mod) => mod.CashFlowChart),
+  {
+    ssr: false,
+    loading: () => <ChartSkeleton title="10-Year Projection" />,
+  }
+);
+
+const ExpenseBreakdownChart = dynamic(
+  () =>
+    import('@/components/charts/expense-breakdown-chart').then((mod) => mod.ExpenseBreakdownChart),
+  {
+    ssr: false,
+    loading: () => <ChartSkeleton title="Monthly Expense Breakdown" />,
+  }
+);
+
+function ChartSkeleton({ title }: { title: string }) {
+  return (
+    <Card className="card-premium overflow-hidden">
+      <CardHeader className="pb-2">
+        <div className="text-base font-semibold headline-premium">{title}</div>
+        <div className="h-4 w-48 animate-pulse rounded bg-muted" />
+      </CardHeader>
+      <CardContent>
+        <div className="h-64 animate-pulse rounded bg-muted" />
+      </CardContent>
+    </Card>
+  );
+}
 
 interface RentalResultsDisplayProps {
   results: RentalResults | null;
