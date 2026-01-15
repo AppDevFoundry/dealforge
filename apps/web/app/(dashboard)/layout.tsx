@@ -19,7 +19,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
         <MobileHeader user={session.user} />
 
         {/* Main Content */}
-        <main className="flex-1">{children}</main>
+        <main className="flex-1 px-4 md:px-6 lg:px-8">{children}</main>
       </SidebarInset>
     </SidebarProvider>
   );
