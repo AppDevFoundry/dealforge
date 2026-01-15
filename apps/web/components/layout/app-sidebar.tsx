@@ -7,6 +7,7 @@ import {
   LayoutDashboard,
   LogOut,
   PanelLeftClose,
+  PanelLeftOpen,
   Settings,
   Sparkles,
 } from 'lucide-react';
@@ -215,21 +216,25 @@ export function AppSidebar({ user }: AppSidebarProps) {
 
       {/* Footer with User */}
       <SidebarFooter className="border-t border-sidebar-border">
-        {/* Collapse trigger - only show when expanded */}
-        {state === 'expanded' && (
-          <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton
-                tooltip="Collapse sidebar"
-                onClick={toggleSidebar}
-                className="text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-all duration-200"
-              >
-                <PanelLeftClose className="size-4" />
-                <span>Collapse</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-          </SidebarMenu>
-        )}
+        {/* Collapse/Expand trigger - adapts to sidebar state */}
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
+              tooltip={state === 'expanded' ? 'Collapse sidebar' : 'Expand sidebar'}
+              onClick={toggleSidebar}
+              className="text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50 transition-all duration-200"
+            >
+              {state === 'expanded' ? (
+                <>
+                  <PanelLeftClose className="size-4" />
+                  <span>Collapse</span>
+                </>
+              ) : (
+                <PanelLeftOpen className="size-4" />
+              )}
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>
