@@ -81,7 +81,7 @@ export function ThemeToggleWithLabel() {
               <button
                 onClick={() => setTheme(value)}
                 className={cn(
-                  'rounded-full p-1.5 transition-all duration-200',
+                  'cursor-pointer rounded-full p-1.5 transition-all duration-200',
                   theme === value
                     ? 'bg-background text-foreground shadow-sm'
                     : 'text-muted-foreground hover:text-foreground'
@@ -135,7 +135,7 @@ export function ThemeToggleCompact() {
   return (
     <button
       onClick={cycleTheme}
-      className="flex h-8 w-full items-center justify-center rounded-md p-2 text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
+      className="flex h-8 w-full cursor-pointer items-center justify-center rounded-md p-2 text-sidebar-foreground/70 transition-colors hover:bg-sidebar-accent hover:text-sidebar-foreground"
       title={`Theme: ${getThemeLabel()}. Click to cycle.`}
     >
       {theme === 'light' && <Sun className="size-4" />}
