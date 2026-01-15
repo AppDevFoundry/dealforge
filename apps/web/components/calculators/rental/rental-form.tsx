@@ -18,9 +18,10 @@ import { rentalInputSchema } from './rental-schema';
 
 interface RentalFormProps {
   onResultsChange: (results: RentalResults | null, inputs: RentalInputs | null) => void;
+  initialValues?: Partial<RentalInputs>;
 }
 
-export function RentalForm({ onResultsChange }: RentalFormProps) {
+export function RentalForm({ onResultsChange, initialValues }: RentalFormProps) {
   const {
     register,
     watch,
@@ -28,7 +29,10 @@ export function RentalForm({ onResultsChange }: RentalFormProps) {
     getValues,
   } = useForm<RentalInputs>({
     resolver: zodResolver(rentalInputSchema),
-    defaultValues: RENTAL_DEFAULTS,
+    defaultValues: {
+      ...RENTAL_DEFAULTS,
+      ...initialValues,
+    },
     mode: 'onChange',
   });
 
