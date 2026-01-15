@@ -295,7 +295,7 @@ export default function HomePage() {
               >
                 Documentation
               </Link>
-              <Link
+              {/* <Link
                 href="https://github.com/yourusername/dealforge"
                 className="text-sm text-muted-foreground hover:text-primary transition-colors inline-flex items-center gap-1.5"
                 target="_blank"
@@ -303,7 +303,7 @@ export default function HomePage() {
               >
                 <Github className="size-4" />
                 GitHub
-              </Link>
+              </Link> */}
             </div>
           </div>
         </div>
