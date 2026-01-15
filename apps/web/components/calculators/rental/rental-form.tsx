@@ -17,7 +17,7 @@ import {
 import { rentalInputSchema } from './rental-schema';
 
 interface RentalFormProps {
-  onResultsChange: (results: RentalResults | null) => void;
+  onResultsChange: (results: RentalResults | null, inputs: RentalInputs | null) => void;
 }
 
 export function RentalForm({ onResultsChange }: RentalFormProps) {
@@ -45,10 +45,10 @@ export function RentalForm({ onResultsChange }: RentalFormProps) {
 
       try {
         const results = calculateRentalMetrics(values);
-        onResultsChangeRef.current(results);
+        onResultsChangeRef.current(results, values);
       } catch (error) {
         console.error('Calculation error:', error);
-        onResultsChangeRef.current(null);
+        onResultsChangeRef.current(null, null);
       }
     });
 
@@ -56,7 +56,7 @@ export function RentalForm({ onResultsChange }: RentalFormProps) {
     try {
       const initialValues = getValues();
       const results = calculateRentalMetrics(initialValues);
-      onResultsChangeRef.current(results);
+      onResultsChangeRef.current(results, initialValues);
     } catch (error) {
       console.error('Initial calculation error:', error);
     }

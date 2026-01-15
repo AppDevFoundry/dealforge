@@ -1,6 +1,6 @@
 'use client';
 
-import type { RentalResults } from '@dealforge/types';
+import type { RentalInputs, RentalResults } from '@dealforge/types';
 import { useCallback, useState } from 'react';
 
 import { LearnModeToggle } from './learn-mode-toggle';
@@ -9,11 +9,16 @@ import { RentalResultsDisplay } from './rental-results';
 
 export function RentalCalculator() {
   const [results, setResults] = useState<RentalResults | null>(null);
+  const [inputs, setInputs] = useState<RentalInputs | null>(null);
   const [learnMode, setLearnMode] = useState(false);
 
-  const handleResultsChange = useCallback((newResults: RentalResults | null) => {
-    setResults(newResults);
-  }, []);
+  const handleResultsChange = useCallback(
+    (newResults: RentalResults | null, newInputs: RentalInputs | null) => {
+      setResults(newResults);
+      setInputs(newInputs);
+    },
+    []
+  );
 
   return (
     <div className="space-y-6">
@@ -36,8 +41,8 @@ export function RentalCalculator() {
         </div>
 
         {/* Results */}
-        <div className="lg:sticky lg:top-24 lg:self-start">
-          <RentalResultsDisplay results={results} learnMode={learnMode} />
+        <div className="lg:sticky lg:top-20 lg:self-start lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto">
+          <RentalResultsDisplay results={results} inputs={inputs} learnMode={learnMode} />
         </div>
       </div>
     </div>

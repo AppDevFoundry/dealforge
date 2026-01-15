@@ -24,11 +24,16 @@ interface FormFieldProps {
 
 function FormField({ label, name, register, error, prefix, suffix, step = '1' }: FormFieldProps) {
   return (
-    <div className="space-y-2">
-      <Label htmlFor={name}>{label}</Label>
+    <div className="space-y-2 group/field">
+      <Label
+        htmlFor={name}
+        className="text-sm font-medium transition-colors group-focus-within/field:text-primary"
+      >
+        {label}
+      </Label>
       <div className="relative">
         {prefix && (
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm">
             {prefix}
           </span>
         )}
@@ -37,24 +42,26 @@ function FormField({ label, name, register, error, prefix, suffix, step = '1' }:
           type="number"
           step={step}
           {...register(name, { valueAsNumber: true })}
-          className={`${prefix ? 'pl-7' : ''} ${suffix ? 'pr-12' : ''}`}
+          className={`${prefix ? 'pl-7' : ''} ${suffix ? 'pr-14' : ''} tabular-nums`}
         />
         {suffix && (
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground text-xs">
             {suffix}
           </span>
         )}
       </div>
-      {error?.message && <p className="text-sm text-destructive">{error.message}</p>}
+      {error?.message && (
+        <p className="text-sm text-destructive animate-fade-in">{error.message}</p>
+      )}
     </div>
   );
 }
 
 export function PurchaseSection({ register, errors }: FormSectionProps) {
   return (
-    <Card>
+    <Card className="card-premium">
       <CardHeader className="pb-4">
-        <CardTitle className="text-lg">Purchase Details</CardTitle>
+        <CardTitle className="text-lg headline-premium">Purchase Details</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <FormField
@@ -85,9 +92,9 @@ export function PurchaseSection({ register, errors }: FormSectionProps) {
 
 export function FinancingSection({ register, errors }: FormSectionProps) {
   return (
-    <Card>
+    <Card className="card-premium">
       <CardHeader className="pb-4">
-        <CardTitle className="text-lg">Financing</CardTitle>
+        <CardTitle className="text-lg headline-premium">Financing</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <FormField
@@ -120,9 +127,9 @@ export function FinancingSection({ register, errors }: FormSectionProps) {
 
 export function IncomeSection({ register, errors }: FormSectionProps) {
   return (
-    <Card>
+    <Card className="card-premium">
       <CardHeader className="pb-4">
-        <CardTitle className="text-lg">Income</CardTitle>
+        <CardTitle className="text-lg headline-premium">Income</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <FormField
@@ -154,9 +161,9 @@ export function IncomeSection({ register, errors }: FormSectionProps) {
 
 export function ExpensesSection({ register, errors }: FormSectionProps) {
   return (
-    <Card>
+    <Card className="card-premium">
       <CardHeader className="pb-4">
-        <CardTitle className="text-lg">Expenses</CardTitle>
+        <CardTitle className="text-lg headline-premium">Expenses</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <FormField

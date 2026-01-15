@@ -1,18 +1,21 @@
 'use client';
 
-import type { RentalResults } from '@dealforge/types';
+import type { RentalInputs, RentalResults } from '@dealforge/types';
 
+import { CashFlowChart } from '@/components/charts/cash-flow-chart';
+import { ExpenseBreakdownChart } from '@/components/charts/expense-breakdown-chart';
 import { METRIC_EXPLANATIONS } from '@/lib/constants/rental-defaults';
 
 import { RentalResultsCard } from './rental-results-card';
 
 interface RentalResultsDisplayProps {
   results: RentalResults | null;
+  inputs: RentalInputs | null;
   learnMode: boolean;
 }
 
-export function RentalResultsDisplay({ results, learnMode }: RentalResultsDisplayProps) {
-  if (!results) {
+export function RentalResultsDisplay({ results, inputs, learnMode }: RentalResultsDisplayProps) {
+  if (!results || !inputs) {
     return (
       <div className="flex h-64 items-center justify-center rounded-lg border border-dashed">
         <p className="text-muted-foreground">Enter valid inputs to see results</p>
@@ -20,11 +23,19 @@ export function RentalResultsDisplay({ results, learnMode }: RentalResultsDispla
     );
   }
 
+  // Calculate expense breakdown for the chart
+  const monthlyPropertyTaxes = inputs.propertyTaxAnnual / 12;
+  const monthlyInsurance = inputs.insuranceAnnual / 12;
+  const monthlyMaintenance = (results.grossMonthlyIncome * inputs.maintenancePercent) / 100;
+  const monthlyCapex = (results.grossMonthlyIncome * inputs.capexPercent) / 100;
+  const monthlyManagement = (results.grossMonthlyIncome * inputs.managementPercent) / 100;
+  const monthlyVacancy = (results.grossMonthlyIncome * inputs.vacancyRate) / 100;
+
   return (
     <div className="space-y-8">
       {/* Key Metrics */}
-      <section>
-        <h3 className="mb-4 text-lg font-semibold">Key Metrics</h3>
+      <section className="animate-fade-in">
+        <h3 className="mb-4 text-lg font-semibold headline-premium">Key Metrics</h3>
         <div className="grid gap-4 sm:grid-cols-2">
           <RentalResultsCard
             label="Cash on Cash Return"
@@ -60,9 +71,31 @@ export function RentalResultsDisplay({ results, learnMode }: RentalResultsDispla
         </div>
       </section>
 
+      {/* Charts */}
+      <section className="animate-fade-in delay-100">
+        <h3 className="mb-4 text-lg font-semibold headline-premium">Visual Analysis</h3>
+        <div className="grid gap-4 lg:grid-cols-2">
+          <ExpenseBreakdownChart
+            mortgage={results.monthlyMortgage}
+            propertyTaxes={monthlyPropertyTaxes}
+            insurance={monthlyInsurance}
+            maintenance={monthlyMaintenance}
+            vacancy={monthlyVacancy}
+            capex={monthlyCapex}
+            managementFees={monthlyManagement}
+          />
+          <CashFlowChart
+            annualCashFlow={results.annualCashFlow}
+            totalInvestment={results.totalInvestment}
+            loanAmount={results.loanAmount}
+            purchasePrice={inputs.purchasePrice}
+          />
+        </div>
+      </section>
+
       {/* Investment Breakdown */}
-      <section>
-        <h3 className="mb-4 text-lg font-semibold">Investment Breakdown</h3>
+      <section className="animate-fade-in delay-200">
+        <h3 className="mb-4 text-lg font-semibold headline-premium">Investment Breakdown</h3>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <RentalResultsCard
             label="Total Investment"
@@ -89,8 +122,8 @@ export function RentalResultsDisplay({ results, learnMode }: RentalResultsDispla
       </section>
 
       {/* Income & Expenses */}
-      <section>
-        <h3 className="mb-4 text-lg font-semibold">Income & Expenses</h3>
+      <section className="animate-fade-in delay-300">
+        <h3 className="mb-4 text-lg font-semibold headline-premium">Income & Expenses</h3>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           <RentalResultsCard
             label="Gross Monthly Income"
@@ -131,8 +164,8 @@ export function RentalResultsDisplay({ results, learnMode }: RentalResultsDispla
       </section>
 
       {/* First Year Amortization */}
-      <section>
-        <h3 className="mb-4 text-lg font-semibold">Year 1 Amortization</h3>
+      <section className="animate-fade-in delay-400">
+        <h3 className="mb-4 text-lg font-semibold headline-premium">Year 1 Amortization</h3>
         <div className="grid gap-4 sm:grid-cols-2">
           <RentalResultsCard
             label="Principal Paydown (Year 1)"
@@ -152,8 +185,8 @@ export function RentalResultsDisplay({ results, learnMode }: RentalResultsDispla
       </section>
 
       {/* 5-Year Projections */}
-      <section>
-        <h3 className="mb-4 text-lg font-semibold">5-Year Projections</h3>
+      <section className="animate-fade-in delay-500">
+        <h3 className="mb-4 text-lg font-semibold headline-premium">5-Year Projections</h3>
         <div className="grid gap-4 sm:grid-cols-2">
           <RentalResultsCard
             label="5-Year Equity"

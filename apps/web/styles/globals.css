@@ -1,36 +1,302 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
 
 @theme {
-  --font-sans: "Inter", system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", monospace;
+  /* Typography */
+  --font-sans: var(--font-geist-sans), system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), "SF Mono", monospace;
 
+  /* Border radius */
   --radius: 0.5rem;
 
-  /* Light mode colors */
-  --background: 0 0% 100%;
-  --foreground: 0 0% 3.9%;
+  /* Layout dimensions */
+  --mobile-header-height: 73px;
+
+  /* ========================================
+     TEAL-SLATE INSTITUTIONAL PALETTE
+     ======================================== */
+
+  /* Brand Teal Scale - Trust, stability, modern fintech */
+  --brand-50: 166 76% 97%;
+  --brand-100: 167 76% 92%;
+  --brand-200: 168 74% 83%;
+  --brand-300: 170 70% 72%;
+  --brand-400: 172 66% 58%;
+  --brand-500: 174 62% 47%;
+  --brand-600: 175 72% 38%;
+  --brand-700: 176 74% 31%;
+  --brand-800: 177 70% 26%;
+  --brand-900: 178 67% 21%;
+  --brand-950: 180 74% 11%;
+
+  /* Slate Neutrals - Warmer than pure gray */
+  --slate-50: 210 40% 98%;
+  --slate-100: 210 40% 96%;
+  --slate-200: 214 32% 91%;
+  --slate-300: 213 27% 84%;
+  --slate-400: 215 20% 65%;
+  --slate-500: 215 16% 47%;
+  --slate-600: 215 19% 35%;
+  --slate-700: 215 25% 27%;
+  --slate-800: 217 33% 17%;
+  --slate-900: 222 47% 11%;
+  --slate-950: 229 84% 5%;
+
+  /* Semantic Colors */
+  --success-50: 142 76% 97%;
+  --success-100: 141 84% 93%;
+  --success-500: 142 71% 45%;
+  --success-600: 142 76% 36%;
+  --success-700: 142 72% 29%;
+
+  --warning-50: 48 100% 96%;
+  --warning-100: 48 96% 89%;
+  --warning-500: 38 92% 50%;
+  --warning-600: 32 95% 44%;
+
+  --destructive-50: 0 86% 97%;
+  --destructive-100: 0 93% 94%;
+  --destructive-500: 0 84% 60%;
+  --destructive-600: 0 72% 51%;
+  --destructive-700: 0 74% 42%;
+
+  /* ========================================
+     LIGHT MODE THEME (Default)
+     ======================================== */
+
+  /* Backgrounds */
+  --background: var(--slate-50);
+  --foreground: var(--slate-900);
+
+  /* Card surfaces */
   --card: 0 0% 100%;
-  --card-foreground: 0 0% 3.9%;
+  --card-foreground: var(--slate-900);
+
+  /* Popover surfaces */
   --popover: 0 0% 100%;
-  --popover-foreground: 0 0% 3.9%;
-  --primary: 0 0% 9%;
-  --primary-foreground: 0 0% 98%;
-  --secondary: 0 0% 96.1%;
-  --secondary-foreground: 0 0% 9%;
-  --muted: 0 0% 96.1%;
-  --muted-foreground: 0 0% 45.1%;
-  --accent: 0 0% 96.1%;
-  --accent-foreground: 0 0% 9%;
-  --destructive: 0 84.2% 60.2%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 0 0% 89.8%;
-  --input: 0 0% 89.8%;
-  --ring: 0 0% 3.9%;
+  --popover-foreground: var(--slate-900);
+
+  /* Primary actions - Teal */
+  --primary: var(--brand-500);
+  --primary-foreground: 0 0% 100%;
+
+  /* Secondary elements */
+  --secondary: var(--slate-100);
+  --secondary-foreground: var(--slate-900);
+
+  /* Muted backgrounds and text */
+  --muted: var(--slate-100);
+  --muted-foreground: var(--slate-500);
+
+  /* Accent highlights */
+  --accent: var(--brand-50);
+  --accent-foreground: var(--brand-700);
+
+  /* Destructive actions */
+  --destructive: var(--destructive-500);
+  --destructive-foreground: 0 0% 100%;
+
+  /* Borders and inputs */
+  --border: var(--slate-200);
+  --input: var(--slate-200);
+  --ring: var(--brand-500);
+
+  /* Success states (for positive financial metrics) */
+  --success: var(--success-500);
+  --success-foreground: 0 0% 100%;
+
+  /* Warning states */
+  --warning: var(--warning-500);
+  --warning-foreground: var(--slate-900);
+
+  /* Chart colors */
+  --chart-positive: var(--success-500);
+  --chart-negative: var(--destructive-500);
+  --chart-neutral: var(--slate-500);
+  --chart-1: var(--brand-500);
+  --chart-2: 262 83% 58%;
+  --chart-3: var(--warning-500);
+  --chart-4: 199 89% 48%;
+  --chart-5: var(--success-500);
+
+  /* Sidebar - Light mode (subtle off-white) */
+  --sidebar: var(--slate-50);
+  --sidebar-background: var(--slate-50);
+  --sidebar-foreground: var(--slate-900);
+  --sidebar-primary: var(--brand-500);
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: var(--brand-50);
+  --sidebar-accent-foreground: var(--brand-700);
+  --sidebar-border: var(--slate-200);
+  --sidebar-ring: var(--brand-500);
+
+  /* Glow effects for premium UI */
+  --glow-primary: 0 0 20px hsl(var(--brand-500) / 0.35);
+  --glow-primary-intense: 0 0 30px hsl(var(--brand-500) / 0.5);
+  --glow-success: 0 0 20px hsl(var(--success-500) / 0.35);
+  --glow-destructive: 0 0 20px hsl(var(--destructive-500) / 0.35);
+  --glow-card: 0 4px 20px hsl(var(--slate-900) / 0.08);
+  --glow-card-hover: 0 8px 30px hsl(var(--slate-900) / 0.12);
 }
+
+/* Color mappings for Tailwind utilities */
+@theme inline {
+  /* Core theme colors */
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+
+  /* Card */
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+
+  /* Popover */
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+
+  /* Primary */
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+
+  /* Secondary */
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  /* Muted */
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  /* Accent */
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  /* Destructive */
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+  /* Border, Input, Ring */
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  /* Success */
+  --color-success: hsl(var(--success));
+  --color-success-foreground: hsl(var(--success-foreground));
+
+  /* Warning */
+  --color-warning: hsl(var(--warning));
+  --color-warning-foreground: hsl(var(--warning-foreground));
+
+  /* Charts */
+  --color-chart-positive: hsl(var(--chart-positive));
+  --color-chart-negative: hsl(var(--chart-negative));
+  --color-chart-neutral: hsl(var(--chart-neutral));
+  --color-chart-1: hsl(var(--chart-1));
+  --color-chart-2: hsl(var(--chart-2));
+  --color-chart-3: hsl(var(--chart-3));
+  --color-chart-4: hsl(var(--chart-4));
+  --color-chart-5: hsl(var(--chart-5));
+
+  /* Sidebar */
+  --color-sidebar: hsl(var(--sidebar));
+  --color-sidebar-background: hsl(var(--sidebar-background));
+  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
+  --color-sidebar-primary: hsl(var(--sidebar-primary));
+  --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
+  --color-sidebar-accent: hsl(var(--sidebar-accent));
+  --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
+  --color-sidebar-border: hsl(var(--sidebar-border));
+  --color-sidebar-ring: hsl(var(--sidebar-ring));
+}
+
+/* ========================================
+   DARK MODE THEME
+   ======================================== */
+
+.dark {
+  /* Backgrounds - Deep slate (trading terminal feel) */
+  --background: var(--slate-900);
+  --foreground: var(--slate-50);
+
+  /* Card surfaces */
+  --card: var(--slate-800);
+  --card-foreground: var(--slate-50);
+
+  /* Popover surfaces */
+  --popover: var(--slate-800);
+  --popover-foreground: var(--slate-50);
+
+  /* Primary actions - Lighter teal for dark mode */
+  --primary: var(--brand-400);
+  --primary-foreground: var(--slate-900);
+
+  /* Secondary elements */
+  --secondary: var(--slate-700);
+  --secondary-foreground: var(--slate-50);
+
+  /* Muted backgrounds and text */
+  --muted: var(--slate-800);
+  --muted-foreground: var(--slate-400);
+
+  /* Accent highlights */
+  --accent: var(--brand-900);
+  --accent-foreground: var(--brand-200);
+
+  /* Destructive actions - Slightly muted for dark mode */
+  --destructive: var(--destructive-600);
+  --destructive-foreground: var(--slate-50);
+
+  /* Borders and inputs */
+  --border: var(--slate-700);
+  --input: var(--slate-700);
+  --ring: var(--brand-400);
+
+  /* Success states */
+  --success: var(--success-500);
+  --success-foreground: var(--slate-900);
+
+  /* Warning states */
+  --warning: var(--warning-500);
+  --warning-foreground: var(--slate-900);
+
+  /* Chart colors - Adjusted for dark backgrounds */
+  --chart-positive: var(--success-500);
+  --chart-negative: var(--destructive-500);
+  --chart-neutral: var(--slate-400);
+  --chart-1: var(--brand-400);
+  --chart-2: 262 83% 68%;
+  --chart-3: var(--warning-500);
+  --chart-4: 199 89% 58%;
+  --chart-5: var(--success-500);
+
+  /* Sidebar - Dark mode (deep slate for contrast) */
+  --sidebar: var(--slate-950);
+  --sidebar-background: var(--slate-950);
+  --sidebar-foreground: var(--slate-50);
+  --sidebar-primary: var(--brand-400);
+  --sidebar-primary-foreground: var(--slate-900);
+  --sidebar-accent: var(--slate-800);
+  --sidebar-accent-foreground: var(--brand-200);
+  --sidebar-border: var(--slate-800);
+  --sidebar-ring: var(--brand-400);
+
+  /* Glow effects - More visible on dark backgrounds */
+  --glow-primary: 0 0 25px hsl(var(--brand-400) / 0.4);
+  --glow-primary-intense: 0 0 40px hsl(var(--brand-400) / 0.6);
+  --glow-success: 0 0 25px hsl(var(--success-500) / 0.4);
+  --glow-destructive: 0 0 25px hsl(var(--destructive-500) / 0.4);
+  --glow-card: 0 4px 20px hsl(0 0% 0% / 0.3);
+  --glow-card-hover: 0 8px 30px hsl(0 0% 0% / 0.4);
+}
+
+/* ========================================
+   BASE STYLES
+   ======================================== */
 
 @layer base {
   * {
-    border-color: hsl(var(--border));
+    @apply border-border outline-ring/50;
   }
 
   html {
@@ -38,35 +304,494 @@
   }
 
   body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
+    @apply bg-background text-foreground;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-feature-settings: "rlig" 1, "calt" 1;
   }
 }
 
-/* Dark mode (future) */
-@media (prefers-color-scheme: dark) {
-  @theme {
-    --background: 0 0% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 0 0% 98%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 14.9%;
-    --input: 0 0% 14.9%;
-    --ring: 0 0% 83.1%;
+/* ========================================
+   CONTAINER STYLES (Tailwind v4)
+   ======================================== */
+
+@layer components {
+  .container {
+    width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .container {
+      padding-left: 2rem;
+      padding-right: 2rem;
+    }
+  }
+
+  @media (min-width: 1400px) {
+    .container {
+      max-width: 1400px;
+    }
+  }
+}
+
+/* ========================================
+   UTILITY CLASSES
+   ======================================== */
+
+@layer utilities {
+  /* Financial metric colors */
+  .text-positive {
+    color: hsl(var(--success));
+  }
+
+  .text-negative {
+    color: hsl(var(--destructive));
+  }
+
+  .text-neutral {
+    color: hsl(var(--muted-foreground));
+  }
+
+  /* Tabular numbers for financial data */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Focus visible ring with brand color */
+  .focus-ring {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background;
+  }
+}
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+}
+
+@keyframes slide-in-from-right {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-from-left {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-from-bottom {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes pulse-subtle {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Animation utilities */
+@layer utilities {
+  .animate-fade-in {
+    animation: fade-in 0.2s ease-out forwards;
+  }
+
+  .animate-fade-in-slow {
+    animation: fade-in 0.4s ease-out forwards;
+  }
+
+  .animate-slide-in-right {
+    animation: slide-in-from-right 0.3s ease-out forwards;
+  }
+
+  .animate-slide-in-left {
+    animation: slide-in-from-left 0.3s ease-out forwards;
+  }
+
+  .animate-slide-in-bottom {
+    animation: slide-in-from-bottom 0.3s ease-out forwards;
+  }
+
+  .animate-scale-in {
+    animation: scale-in 0.2s ease-out forwards;
+  }
+
+  .animate-pulse-subtle {
+    animation: pulse-subtle 2s ease-in-out infinite;
+  }
+
+  .animate-shimmer {
+    animation: shimmer 2s linear infinite;
+    background: linear-gradient(
+      90deg,
+      hsl(var(--muted)) 0%,
+      hsl(var(--muted-foreground) / 0.1) 50%,
+      hsl(var(--muted)) 100%
+    );
+    background-size: 200% 100%;
+  }
+}
+
+/* ========================================
+   BOLD TRANSFORMATION ANIMATIONS
+   ======================================== */
+
+/* Slide up with blur-to-sharp effect */
+@keyframes slide-up-blur {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+    filter: blur(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+/* Scale with bounce overshoot */
+@keyframes scale-bounce {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  70% {
+    transform: scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Glow pulse effect */
+@keyframes glow-pulse {
+  0%,
+  100% {
+    box-shadow: var(--glow-primary);
+  }
+  50% {
+    box-shadow: var(--glow-primary-intense);
+  }
+}
+
+/* Gradient shift for backgrounds */
+@keyframes gradient-shift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Draw SVG line */
+@keyframes draw-line {
+  from {
+    stroke-dashoffset: 200;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Subtle float animation */
+@keyframes float-subtle {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+/* Flip in animation */
+@keyframes flip-in {
+  0% {
+    opacity: 0;
+    transform: perspective(400px) rotateX(-10deg);
+  }
+  100% {
+    opacity: 1;
+    transform: perspective(400px) rotateX(0);
+  }
+}
+
+/* Border glow animation */
+@keyframes border-glow {
+  0%,
+  100% {
+    border-color: hsl(var(--primary) / 0.3);
+  }
+  50% {
+    border-color: hsl(var(--primary) / 0.6);
+  }
+}
+
+/* Icon bounce */
+@keyframes icon-bounce {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+}
+
+/* Bold animation utilities */
+@layer utilities {
+  .animate-slide-up-blur {
+    animation: slide-up-blur 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .animate-scale-bounce {
+    animation: scale-bounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  }
+
+  .animate-glow-pulse {
+    animation: glow-pulse 2s ease-in-out infinite;
+  }
+
+  .animate-gradient-shift {
+    animation: gradient-shift 8s ease-in-out infinite;
+    background-size: 200% 200%;
+  }
+
+  .animate-draw-line {
+    stroke-dasharray: 200;
+    stroke-dashoffset: 200;
+    animation: draw-line 1s ease-out forwards;
+  }
+
+  .animate-float {
+    animation: float-subtle 4s ease-in-out infinite;
+  }
+
+  .animate-flip-in {
+    animation: flip-in 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  .animate-border-glow {
+    animation: border-glow 2s ease-in-out infinite;
+  }
+
+  .animate-icon-bounce {
+    animation: icon-bounce 0.3s ease-out;
+  }
+
+  /* Hover effects */
+  .hover-lift {
+    transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease;
+  }
+
+  .hover-lift:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--glow-card-hover);
+  }
+
+  .hover-glow {
+    transition: box-shadow 0.3s ease;
+  }
+
+  .hover-glow:hover {
+    box-shadow: var(--glow-primary);
+  }
+
+  .hover-scale {
+    transition: transform 0.2s ease;
+  }
+
+  .hover-scale:hover {
+    transform: scale(1.02);
+  }
+
+  /* Animation delays for staggered effects */
+  .delay-75 {
+    animation-delay: 75ms;
+  }
+  .delay-100 {
+    animation-delay: 100ms;
+  }
+  .delay-150 {
+    animation-delay: 150ms;
+  }
+  .delay-200 {
+    animation-delay: 200ms;
+  }
+  .delay-300 {
+    animation-delay: 300ms;
+  }
+  .delay-400 {
+    animation-delay: 400ms;
+  }
+  .delay-500 {
+    animation-delay: 500ms;
+  }
+  .delay-600 {
+    animation-delay: 600ms;
+  }
+  .delay-700 {
+    animation-delay: 700ms;
+  }
+
+  /* Glassmorphism effect */
+  .glass {
+    background: hsl(var(--card) / 0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  /* Premium card styling */
+  .card-premium {
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-radius: 1rem;
+    box-shadow: var(--glow-card);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .card-premium:hover {
+    border-color: hsl(var(--primary) / 0.5);
+    box-shadow: var(--glow-card-hover), var(--glow-primary);
+    transform: translateY(-2px);
+  }
+
+  /* Active border accent */
+  .border-accent-left {
+    position: relative;
+  }
+
+  .border-accent-left::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 3px;
+    height: 60%;
+    background: hsl(var(--primary));
+    border-radius: 0 2px 2px 0;
+    box-shadow: var(--glow-primary);
+  }
+
+  /* Text gradient effect */
+  .text-gradient-primary {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--primary)) 0%,
+      hsl(var(--brand-300)) 50%,
+      hsl(var(--primary)) 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Premium headline styling */
+  .headline-premium {
+    letter-spacing: -0.025em;
+    font-weight: 700;
+  }
+
+  /* Metric value styling */
+  .metric-value {
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+
+  /* Positive/Negative glow states */
+  .glow-positive {
+    box-shadow: 0 0 20px hsl(var(--success) / 0.2);
+  }
+
+  .glow-negative {
+    box-shadow: 0 0 20px hsl(var(--destructive) / 0.2);
+  }
+}
+
+/* Reduced motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .hover-lift:hover,
+  .hover-scale:hover {
+    transform: none;
   }
 }

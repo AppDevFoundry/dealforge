@@ -14,6 +14,8 @@ const trustedOrigins = [
   process.env.VERCEL_PROJECT_PRODUCTION_URL
     ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
     : null,
+  // Trust branch URL for preview deployments (alternative URL format)
+  process.env.VERCEL_BRANCH_URL ? `https://${process.env.VERCEL_BRANCH_URL}` : null,
 ].filter(Boolean) as string[];
 
 // Debug log auth configuration at initialization
