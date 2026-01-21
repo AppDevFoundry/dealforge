@@ -50,8 +50,9 @@ export default function AnalyzePage() {
           description="Owner-occupied multi-unit analysis with living cost offsets."
           href="/analyze/house-hack"
           complexity="Beginner"
-          available={false}
+          available
           delay="delay-300"
+          isNew
         />
         <CalculatorCard
           title="Multi-family"

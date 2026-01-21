@@ -118,6 +118,56 @@ export interface FlipResults {
 }
 
 // ============================================
+// House Hack Calculator
+// ============================================
+
+export interface HouseHackInputs {
+  // Purchase
+  purchasePrice: number;
+  closingCosts: number;
+
+  // Financing
+  downPaymentPercent: number;
+  interestRate: number;
+  loanTermYears: number;
+
+  // Units
+  numberOfUnits: number;
+  ownerUnit: number;
+  unit1Rent: number;
+  unit2Rent: number;
+  unit3Rent: number;
+  unit4Rent: number;
+  ownerEquivalentRent: number;
+
+  // Expenses
+  propertyTaxAnnual: number;
+  insuranceAnnual: number;
+  hoaMonthly: number;
+  maintenancePercent: number;
+  capexPercent: number;
+  managementPercent: number;
+  vacancyRate: number;
+}
+
+export interface HouseHackResults {
+  // Key metrics
+  netHousingCost: number;
+  savingsVsRenting: number;
+  effectiveHousingCost: number;
+  cashFlowAllRented: number;
+  cashOnCashReturn: number;
+
+  // Breakdown
+  totalMonthlyRent: number;
+  monthlyMortgage: number;
+  totalMonthlyExpenses: number;
+  totalInvestment: number;
+  loanAmount: number;
+  breakEvenRent: number;
+}
+
+// ============================================
 // Common Types
 // ============================================
 
@@ -126,4 +176,10 @@ export interface CalculationError {
   message: string;
 }
 
-export type CalculationType = 'rental' | 'brrrr' | 'flip' | 'multifamily' | 'syndication';
+export type CalculationType =
+  | 'rental'
+  | 'brrrr'
+  | 'flip'
+  | 'house_hack'
+  | 'multifamily'
+  | 'syndication';
