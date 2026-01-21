@@ -1,5 +1,12 @@
+import { MH_PARK_DEFAULTS } from '@/lib/constants/mh-park-defaults';
 import { RENTAL_DEFAULTS } from '@/lib/constants/rental-defaults';
-import type { RentalInputs, RentalResults } from '@dealforge/types';
+import type {
+  MhCommunity,
+  MhParkCalculatorInputs,
+  MhParkCalculatorResults,
+  RentalInputs,
+  RentalResults,
+} from '@dealforge/types';
 
 // ============================================
 // User Factory
@@ -169,9 +176,100 @@ export function createApiErrorResponse(
 }
 
 // ============================================
+// MH Park Inputs Factory
+// ============================================
+export function createMockMhParkInputs(
+  overrides: Partial<MhParkCalculatorInputs> = {}
+): MhParkCalculatorInputs {
+  return {
+    ...MH_PARK_DEFAULTS,
+    ...overrides,
+  };
+}
+
+// ============================================
+// MH Park Results Factory
+// ============================================
+export function createMockMhParkResults(
+  overrides: Partial<MhParkCalculatorResults> = {}
+): MhParkCalculatorResults {
+  return {
+    // Occupancy
+    occupancyRate: 90.67,
+
+    // Income Analysis
+    grossPotentialRent: 405000,
+    effectiveGrossIncome: 373200,
+    vacancyLoss: 37800,
+    otherIncomeAnnual: 6000,
+
+    // Expense Analysis
+    totalOperatingExpenses: 130620,
+
+    // Net Operating Income
+    netOperatingIncome: 242580,
+    noiPerLot: 3234.4,
+
+    // Financing
+    loanAmount: 1875000,
+    downPayment: 625000,
+    closingCosts: 50000,
+    totalInvestment: 675000,
+    monthlyDebtService: 14538.12,
+    annualDebtService: 174457.44,
+
+    // Key Metrics
+    capRate: 9.7,
+    cashOnCashReturn: 10.09,
+    debtServiceCoverageRatio: 1.39,
+
+    // Cash Flow
+    monthlyCashFlow: 5676.88,
+    annualCashFlow: 68122.56,
+
+    // Valuation
+    pricePerLot: 33333.33,
+    estimatedMarketValue: 3032250,
+    grossRentMultiplier: 6.17,
+    ...overrides,
+  };
+}
+
+// ============================================
+// MH Community Factory
+// ============================================
+let communityIdCounter = 0;
+
+export function createMockMhCommunity(overrides: Partial<MhCommunity> = {}): MhCommunity {
+  communityIdCounter++;
+  return {
+    id: `mhc_${communityIdCounter}`,
+    name: `Test MH Park ${communityIdCounter}`,
+    address: `${100 + communityIdCounter} Park Road`,
+    city: 'San Antonio',
+    county: 'Bexar',
+    state: 'TX',
+    zipCode: '78201',
+    latitude: 29.4241 + communityIdCounter * 0.01,
+    longitude: -98.4936 + communityIdCounter * 0.01,
+    lotCount: 75,
+    estimatedOccupancy: 0.9,
+    propertyType: 'all_ages',
+    ownerName: `Test Owner ${communityIdCounter}`,
+    source: 'manual',
+    sourceUpdatedAt: new Date(),
+    metadata: null,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    ...overrides,
+  };
+}
+
+// ============================================
 // Reset counters (useful for test isolation)
 // ============================================
 export function resetFactoryCounters() {
   userIdCounter = 0;
   sessionIdCounter = 0;
+  communityIdCounter = 0;
 }
