@@ -28,8 +28,7 @@ function calculateMonthlyPayment(
  */
 export function calculateMhParkMetrics(inputs: MhParkCalculatorInputs): MhParkCalculatorResults {
   // === OCCUPANCY ===
-  const occupancyRate =
-    inputs.lotCount > 0 ? (inputs.occupiedLots / inputs.lotCount) * 100 : 0;
+  const occupancyRate = inputs.lotCount > 0 ? (inputs.occupiedLots / inputs.lotCount) * 100 : 0;
 
   // === INCOME ANALYSIS ===
   // Gross Potential Rent (annual) - if all lots were rented
@@ -66,8 +65,7 @@ export function calculateMhParkMetrics(inputs: MhParkCalculatorInputs): MhParkCa
 
   // === KEY METRICS ===
   // Cap Rate
-  const capRate =
-    inputs.purchasePrice > 0 ? (netOperatingIncome / inputs.purchasePrice) * 100 : 0;
+  const capRate = inputs.purchasePrice > 0 ? (netOperatingIncome / inputs.purchasePrice) * 100 : 0;
 
   // Debt Service Coverage Ratio
   const debtServiceCoverageRatio =

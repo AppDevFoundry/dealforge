@@ -33,11 +33,7 @@ interface CountyData {
 type SortField = 'name' | 'parkCount' | 'totalLots' | 'avgOccupancy' | 'recentTitlings';
 type SortOrder = 'asc' | 'desc';
 
-export function CountyComparisonTable({
-  parks,
-  titlings,
-  isLoading,
-}: CountyComparisonTableProps) {
+export function CountyComparisonTable({ parks, titlings, isLoading }: CountyComparisonTableProps) {
   const [sortField, setSortField] = useState<SortField>('parkCount');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
 

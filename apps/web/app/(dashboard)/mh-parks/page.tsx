@@ -79,11 +79,7 @@ export default function MhParksPage() {
           <p className="text-muted-foreground">Loading map data...</p>
         </div>
       ) : (
-        <MhParkMap
-          parks={parks}
-          selectedPark={selectedPark}
-          onParkSelect={handleParkSelect}
-        />
+        <MhParkMap parks={parks} selectedPark={selectedPark} onParkSelect={handleParkSelect} />
       )}
 
       {selectedPark && (

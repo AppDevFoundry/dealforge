@@ -41,11 +41,7 @@ function getDscrColor(status: string): string {
   }
 }
 
-export function MhParkResultsDisplay({
-  results,
-  inputs,
-  learnMode,
-}: MhParkResultsDisplayProps) {
+export function MhParkResultsDisplay({ results, inputs, learnMode }: MhParkResultsDisplayProps) {
   if (!results || !inputs) {
     return (
       <div className="flex h-64 items-center justify-center rounded-lg border border-dashed">

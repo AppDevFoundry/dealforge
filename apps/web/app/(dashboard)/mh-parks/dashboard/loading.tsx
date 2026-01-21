@@ -10,9 +10,10 @@ export default function MhParksDashboardLoading() {
 
       {/* Summary Cards Skeleton */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <Skeleton key={`card-skeleton-${i}`} className="h-32 rounded-lg" />
-        ))}
+        <Skeleton className="h-32 rounded-lg" />
+        <Skeleton className="h-32 rounded-lg" />
+        <Skeleton className="h-32 rounded-lg" />
+        <Skeleton className="h-32 rounded-lg" />
       </div>
 
       {/* Charts Skeleton */}

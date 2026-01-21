@@ -31,9 +31,7 @@ function StatCard({ title, value, icon, description, trend }: StatCardProps) {
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold">{value}</div>
-        {description && (
-          <p className="text-xs text-muted-foreground mt-1">{description}</p>
-        )}
+        {description && <p className="text-xs text-muted-foreground mt-1">{description}</p>}
         {trend && (
           <div className="flex items-center gap-1 mt-2">
             <TrendingUp
@@ -111,13 +109,10 @@ export function ActivitySummaryCards({ stats, isLoading }: ActivitySummaryCardsP
     );
   }
 
-  const avgOccupancy = stats.avgOccupancy
-    ? `${Math.round(stats.avgOccupancy * 100)}%`
-    : 'N/A';
+  const avgOccupancy = stats.avgOccupancy ? `${Math.round(stats.avgOccupancy * 100)}%` : 'N/A';
 
-  const avgLots = stats.totalLots && stats.totalParks
-    ? Math.round(stats.totalLots / stats.totalParks)
-    : 0;
+  const avgLots =
+    stats.totalLots && stats.totalParks ? Math.round(stats.totalLots / stats.totalParks) : 0;
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

@@ -3,9 +3,9 @@
 import type { MhCommunity } from '@dealforge/types';
 import type { MarkerEvent, ViewStateChangeEvent } from '@vis.gl/react-mapbox';
 import 'mapbox-gl/dist/mapbox-gl.css';
+import { Map as MapboxMap, Marker, NavigationControl, Popup } from '@vis.gl/react-mapbox';
 import { useTheme } from 'next-themes';
 import { useCallback, useMemo, useState } from 'react';
-import Map, { Marker, NavigationControl, Popup } from '@vis.gl/react-mapbox';
 
 import { ParkPopup } from './park-popup';
 
@@ -30,9 +30,10 @@ export function MhParkMap({ parks, selectedPark, onParkSelect }: MhParkMapProps)
   const mapboxToken = process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
 
   // Use dark map style in dark mode
-  const mapStyle = resolvedTheme === 'dark'
-    ? 'mapbox://styles/mapbox/dark-v11'
-    : 'mapbox://styles/mapbox/light-v11';
+  const mapStyle =
+    resolvedTheme === 'dark'
+      ? 'mapbox://styles/mapbox/dark-v11'
+      : 'mapbox://styles/mapbox/light-v11';
 
   // Filter parks with valid coordinates
   const parksWithCoords = useMemo(
@@ -67,7 +68,7 @@ export function MhParkMap({ parks, selectedPark, onParkSelect }: MhParkMapProps)
 
   return (
     <div className="h-[500px] rounded-lg overflow-hidden border">
-      <Map
+      <MapboxMap
         {...viewState}
         onMove={(evt: ViewStateChangeEvent) => setViewState(evt.viewState)}
         mapStyle={mapStyle}
@@ -99,6 +100,8 @@ export function MhParkMap({ parks, selectedPark, onParkSelect }: MhParkMapProps)
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
                 className={selectedPark?.id === park.id ? 'text-primary' : 'text-blue-600'}
+                role="img"
+                aria-label={`Map marker for ${park.name}`}
               >
                 <path
                   d="M12 0C5.373 0 0 5.373 0 12c0 9 12 20 12 20s12-11 12-20c0-6.627-5.373-12-12-12z"
@@ -110,7 +113,7 @@ export function MhParkMap({ parks, selectedPark, onParkSelect }: MhParkMapProps)
           </Marker>
         ))}
 
-        {popupPark && popupPark.latitude && popupPark.longitude && (
+        {popupPark?.latitude && popupPark.longitude && (
           <Popup
             latitude={popupPark.latitude}
             longitude={popupPark.longitude}
@@ -122,7 +125,7 @@ export function MhParkMap({ parks, selectedPark, onParkSelect }: MhParkMapProps)
             <ParkPopup park={popupPark} />
           </Popup>
         )}
-      </Map>
+      </MapboxMap>
     </div>
   );
 }

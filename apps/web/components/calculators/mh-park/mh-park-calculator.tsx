@@ -17,11 +17,7 @@ interface MhParkCalculatorProps {
   onDealSaved?: (dealId: string) => void;
 }
 
-export function MhParkCalculator({
-  dealId,
-  initialDeal,
-  onDealSaved,
-}: MhParkCalculatorProps) {
+export function MhParkCalculator({ dealId, initialDeal, onDealSaved }: MhParkCalculatorProps) {
   const [results, setResults] = useState<MhParkCalculatorResults | null>(null);
   const [inputs, setInputs] = useState<MhParkCalculatorInputs | null>(null);
   const [learnMode, setLearnMode] = useState(false);

@@ -1,7 +1,7 @@
 import { ApiErrors, createSuccessResponse } from '@/lib/api';
 import { getDb } from '@dealforge/database/client';
 import { mhCommunities } from '@dealforge/database/schema';
-import { type SQL, and, avg, count, eq, isNotNull, sql, sum } from 'drizzle-orm';
+import { type SQL, and, avg, count, eq, sql, sum } from 'drizzle-orm';
 import type { NextRequest } from 'next/server';
 import { z } from 'zod';
 

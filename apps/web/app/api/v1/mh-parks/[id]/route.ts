@@ -10,16 +10,12 @@ interface RouteParams {
 /**
  * GET /api/v1/mh-parks/[id] - Get a single MH park by ID
  */
-export async function GET(request: Request, { params }: RouteParams) {
+export async function GET(_request: Request, { params }: RouteParams) {
   try {
     const { id } = await params;
     const db = getDb();
 
-    const [park] = await db
-      .select()
-      .from(mhCommunities)
-      .where(eq(mhCommunities.id, id))
-      .limit(1);
+    const [park] = await db.select().from(mhCommunities).where(eq(mhCommunities.id, id)).limit(1);
 
     if (!park) {
       return ApiErrors.notFound('MH Park');

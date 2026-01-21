@@ -17,7 +17,10 @@ import {
 import { mhParkInputSchema } from './mh-park-schema';
 
 interface MhParkFormProps {
-  onResultsChange: (results: MhParkCalculatorResults | null, inputs: MhParkCalculatorInputs | null) => void;
+  onResultsChange: (
+    results: MhParkCalculatorResults | null,
+    inputs: MhParkCalculatorInputs | null
+  ) => void;
   initialValues?: Partial<MhParkCalculatorInputs>;
 }
 

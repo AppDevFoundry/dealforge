@@ -24,12 +24,7 @@ const MAP_STYLES = [
   { id: 'mapbox://styles/mapbox/satellite-streets-v12', label: 'Satellite' },
 ];
 
-export function MapControls({
-  onZoomIn,
-  onZoomOut,
-  mapStyle,
-  onMapStyleChange,
-}: MapControlsProps) {
+export function MapControls({ onZoomIn, onZoomOut, mapStyle, onMapStyleChange }: MapControlsProps) {
   return (
     <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
       <div className="flex flex-col gap-1 rounded-md bg-background/90 backdrop-blur border shadow-sm">

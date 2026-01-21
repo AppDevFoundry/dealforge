@@ -53,10 +53,9 @@ function parksToCSV(parks: MhCommunity[]): string {
     return field;
   };
 
-  const csvContent = [
-    headers.join(','),
-    ...rows.map((row) => row.map(escapeField).join(',')),
-  ].join('\n');
+  const csvContent = [headers.join(','), ...rows.map((row) => row.map(escapeField).join(','))].join(
+    '\n'
+  );
 
   return csvContent;
 }
@@ -178,9 +177,12 @@ export function ParkSearch({ onParkSelect, selectedParkId }: ParkSearchProps) {
         {/* Results Grid */}
         {isLoadingParks ? (
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <Skeleton key={`skeleton-${i}`} className="h-48" />
-            ))}
+            <Skeleton className="h-48" />
+            <Skeleton className="h-48" />
+            <Skeleton className="h-48" />
+            <Skeleton className="h-48" />
+            <Skeleton className="h-48" />
+            <Skeleton className="h-48" />
           </div>
         ) : parks.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-center">

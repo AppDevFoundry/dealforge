@@ -46,9 +46,7 @@ export function ParkCard({ park, onClick, isSelected }: ParkCardProps) {
   return (
     <Card
       className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
-        isSelected
-          ? 'ring-2 ring-primary border-primary'
-          : 'hover:border-primary/50'
+        isSelected ? 'ring-2 ring-primary border-primary' : 'hover:border-primary/50'
       }`}
       onClick={() => onClick?.(park)}
     >

@@ -16,9 +16,12 @@ export default function MhParksSearchLoading() {
         <div className="space-y-4">
           <Skeleton className="h-6 w-32" />
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <Skeleton key={`card-skeleton-${i}`} className="h-48 rounded-lg" />
-            ))}
+            <Skeleton className="h-48 rounded-lg" />
+            <Skeleton className="h-48 rounded-lg" />
+            <Skeleton className="h-48 rounded-lg" />
+            <Skeleton className="h-48 rounded-lg" />
+            <Skeleton className="h-48 rounded-lg" />
+            <Skeleton className="h-48 rounded-lg" />
           </div>
         </div>
       </div>

@@ -9,7 +9,7 @@ import {
   Home,
   LayoutDashboard,
   LogOut,
-  Map,
+  Map as MapIcon,
   PanelLeftClose,
   PanelLeftOpen,
   Search,
@@ -76,7 +76,7 @@ const mainNavItems = [
       {
         title: 'Map',
         href: '/mh-parks',
-        icon: Map,
+        icon: MapIcon,
       },
       {
         title: 'Dashboard',
