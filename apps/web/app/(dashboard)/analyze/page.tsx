@@ -41,8 +41,9 @@ export default function AnalyzePage() {
           description="ARV-based profit projections for fix-and-flip investments."
           href="/analyze/flip"
           complexity="Beginner"
-          available={false}
+          available
           delay="delay-200"
+          isNew
         />
         <CalculatorCard
           title="House Hack"

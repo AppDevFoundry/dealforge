@@ -106,30 +106,63 @@ export interface BRRRRResults extends RentalResults {
 // ============================================
 
 export interface FlipInputs {
+  // Purchase
   purchasePrice: number;
-  closingCostsBuy: number;
+  closingCostsBuyPercent: number; // As percentage of purchase price
   rehabCosts: number;
-  afterRepairValue: number;
-  closingCostsSell: number;
-  agentCommissionPercent: number;
-  holdingCostsMonthly: number;
-  holdingPeriodMonths: number;
 
-  // Financing (optional)
+  // ARV & Sale
+  afterRepairValue: number;
+  agentCommissionPercent: number; // Total agent commission (typically 5-6%)
+  closingCostsSellPercent: number; // As percentage of sale price
+
+  // Holding Period
+  holdingPeriodMonths: number;
+  holdingCostsMonthly: number; // Utilities, taxes, insurance, etc.
+
+  // Financing
   useLoan: boolean;
-  loanAmount?: number;
-  interestRate?: number;
-  pointsPercent?: number;
+  loanToValuePercent: number; // LTV for purchase (0-100%)
+  loanInterestRate: number; // Annual interest rate
+  loanPointsPercent: number; // Origination points
+  includeRehabInLoan: boolean; // Whether rehab is financed
 }
 
 export interface FlipResults {
+  // Purchase Costs
+  closingCostsBuy: number;
+  totalAcquisitionCost: number;
+
+  // Financing Details
+  loanAmount: number;
+  downPayment: number;
+  loanPoints: number;
+  monthlyLoanPayment: number;
+  totalLoanInterest: number;
+
+  // Holding Costs
+  totalHoldingCosts: number;
+
+  // Selling Costs
+  agentCommission: number;
+  closingCostsSell: number;
+  totalSellingCosts: number;
+
+  // Total Costs
+  totalProjectCost: number;
+  totalCashRequired: number;
+
+  // Profit Metrics
   grossProfit: number;
   netProfit: number;
+  profitMargin: number;
   roi: number;
   annualizedRoi: number;
-  totalCosts: number;
-  totalInvestment: number;
+
+  // Analysis
   breakEvenPrice: number;
+  maxAllowableOffer: number; // 70% Rule: ARV × 0.70 - Rehab
+  dealMeetsSeventyPercentRule: boolean;
 }
 
 // ============================================
