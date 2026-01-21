@@ -59,8 +59,9 @@ export default function AnalyzePage() {
           description="5-50 unit analysis with NOI, DSCR, and expense ratio calculations."
           href="/analyze/multifamily"
           complexity="Intermediate"
-          available={false}
+          available
           delay="delay-400"
+          isNew
         />
         <CalculatorCard
           title="Syndication"

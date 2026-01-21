@@ -168,6 +168,87 @@ export interface HouseHackResults {
 }
 
 // ============================================
+// Multi-family Calculator
+// ============================================
+
+export interface MultifamilyInputs {
+  // Purchase
+  purchasePrice: number;
+  closingCosts: number;
+
+  // Units
+  numberOfUnits: number;
+  units1BR: number;
+  rent1BR: number;
+  units2BR: number;
+  rent2BR: number;
+  units3BR: number;
+  rent3BR: number;
+
+  // Other Income
+  laundryMonthly: number;
+  parkingMonthly: number;
+  petFeesMonthly: number;
+  storageMonthly: number;
+
+  // Vacancy
+  vacancyRate: number;
+
+  // Expenses
+  useExpenseRatio: boolean;
+  expenseRatio: number;
+  propertyTaxAnnual: number;
+  insuranceAnnual: number;
+  utilitiesMonthly: number;
+  maintenanceMonthly: number;
+  managementPercent: number;
+  payrollMonthly: number;
+  adminMonthly: number;
+  contractServicesMonthly: number;
+  replacementReservesMonthly: number;
+
+  // Financing
+  downPaymentPercent: number;
+  interestRate: number;
+  loanTermYears: number;
+
+  // Valuation
+  marketCapRate: number;
+}
+
+export interface MultifamilyResults {
+  // Income Metrics
+  grossPotentialIncome: number;
+  effectiveGrossIncome: number;
+  netOperatingIncome: number;
+  totalOtherIncome: number;
+
+  // Return Metrics
+  capRate: number;
+  cashOnCashReturn: number;
+  debtServiceCoverageRatio: number;
+
+  // Valuation
+  marketValue: number;
+  pricePerUnit: number;
+  grossRentMultiplier: number;
+
+  // Expense Analysis
+  expenseRatioActual: number;
+  breakEvenOccupancy: number;
+  totalMonthlyExpenses: number;
+
+  // Cash Flow
+  monthlyCashFlow: number;
+  annualCashFlow: number;
+
+  // Investment
+  totalInvestment: number;
+  loanAmount: number;
+  monthlyMortgage: number;
+}
+
+// ============================================
 // Common Types
 // ============================================
 
