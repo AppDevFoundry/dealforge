@@ -783,6 +783,47 @@
   }
 }
 
+/* ========================================
+   MAPBOX OVERRIDES
+   ======================================== */
+
+/* Mapbox popup styling */
+.mapboxgl-popup-content {
+  background: hsl(var(--card)) !important;
+  color: hsl(var(--card-foreground)) !important;
+  border-radius: 0.5rem !important;
+  padding: 0 !important;
+  box-shadow: 0 4px 20px hsl(var(--foreground) / 0.15) !important;
+  border: 1px solid hsl(var(--border)) !important;
+}
+
+.mapboxgl-popup-anchor-bottom .mapboxgl-popup-tip {
+  border-top-color: hsl(var(--card)) !important;
+}
+
+.mapboxgl-popup-anchor-top .mapboxgl-popup-tip {
+  border-bottom-color: hsl(var(--card)) !important;
+}
+
+.mapboxgl-popup-anchor-left .mapboxgl-popup-tip {
+  border-right-color: hsl(var(--card)) !important;
+}
+
+.mapboxgl-popup-anchor-right .mapboxgl-popup-tip {
+  border-left-color: hsl(var(--card)) !important;
+}
+
+.mapboxgl-popup-close-button {
+  color: hsl(var(--muted-foreground)) !important;
+  font-size: 1.25rem !important;
+  padding: 0.25rem 0.5rem !important;
+}
+
+.mapboxgl-popup-close-button:hover {
+  color: hsl(var(--foreground)) !important;
+  background: hsl(var(--muted)) !important;
+}
+
 /* Reduced motion preferences */
 @media (prefers-reduced-motion: reduce) {
   *,

@@ -1,13 +1,18 @@
 'use client';
 import {
+  BarChart3,
   Calculator,
+  ChevronRight,
   ChevronUp,
   FolderKanban,
   HelpCircle,
+  Home,
   LayoutDashboard,
   LogOut,
+  Map,
   PanelLeftClose,
   PanelLeftOpen,
+  Search,
   Settings,
   Sparkles,
 } from 'lucide-react';
@@ -16,6 +21,7 @@ import { usePathname } from 'next/navigation';
 
 import { ThemeToggleCompact, ThemeToggleWithLabel } from '@/components/layout/theme-toggle';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,6 +40,9 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubButton,
+  SidebarMenuSubItem,
   SidebarRail,
   useSidebar,
 } from '@/components/ui/sidebar';
@@ -58,6 +67,33 @@ const mainNavItems = [
     title: 'My Deals',
     href: '/deals',
     icon: FolderKanban,
+  },
+  {
+    title: 'MH Parks',
+    href: '/mh-parks',
+    icon: Home,
+    subItems: [
+      {
+        title: 'Map',
+        href: '/mh-parks',
+        icon: Map,
+      },
+      {
+        title: 'Dashboard',
+        href: '/mh-parks/dashboard',
+        icon: BarChart3,
+      },
+      {
+        title: 'Search',
+        href: '/mh-parks/search',
+        icon: Search,
+      },
+      {
+        title: 'Calculator',
+        href: '/mh-parks/calculator',
+        icon: Calculator,
+      },
+    ],
   },
   {
     title: 'Analyze',
@@ -127,6 +163,62 @@ export function AppSidebar({ user }: AppSidebarProps) {
             <SidebarMenu>
               {mainNavItems.map((item) => {
                 const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+                const hasSubItems = 'subItems' in item && item.subItems && item.subItems.length > 0;
+
+                if (hasSubItems && item.subItems) {
+                  return (
+                    <Collapsible
+                      key={item.href}
+                      asChild
+                      defaultOpen={isActive}
+                      className="group/collapsible"
+                    >
+                      <SidebarMenuItem>
+                        <CollapsibleTrigger asChild>
+                          <SidebarMenuButton
+                            tooltip={item.title}
+                            className={`
+                              transition-colors duration-200
+                              ${
+                                isActive
+                                  ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium'
+                                  : 'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50'
+                              }
+                            `}
+                          >
+                            <item.icon
+                              className={`size-4 transition-transform duration-200 ${isActive ? 'text-primary' : ''}`}
+                            />
+                            <span>{item.title}</span>
+                            <ChevronRight className="ml-auto size-4 transition-transform duration-200 group-data-[state=open]/collapsible:rotate-90" />
+                          </SidebarMenuButton>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                          <SidebarMenuSub>
+                            {item.subItems.map((subItem) => {
+                              const isSubActive = pathname === subItem.href;
+                              return (
+                                <SidebarMenuSubItem key={subItem.href}>
+                                  <SidebarMenuSubButton
+                                    asChild
+                                    isActive={isSubActive}
+                                    className={isSubActive ? 'font-medium' : ''}
+                                  >
+                                    <Link href={subItem.href}>
+                                      <subItem.icon className="size-4" />
+                                      <span>{subItem.title}</span>
+                                    </Link>
+                                  </SidebarMenuSubButton>
+                                </SidebarMenuSubItem>
+                              );
+                            })}
+                          </SidebarMenuSub>
+                        </CollapsibleContent>
+                      </SidebarMenuItem>
+                    </Collapsible>
+                  );
+                }
+
                 return (
                   <SidebarMenuItem key={item.href}>
                     <SidebarMenuButton
