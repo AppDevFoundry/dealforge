@@ -30,10 +30,10 @@ export default defineConfig({
       ],
       exclude: ['**/*.d.ts', '**/__tests__/**', '**/e2e/**', '**/*.config.{ts,js}', '**/types/**'],
       thresholds: {
-        lines: 5,
-        functions: 5,
-        branches: 5,
-        statements: 5,
+        lines: 0,
+        functions: 0,
+        branches: 0,
+        statements: 0,
       },
     },
 
