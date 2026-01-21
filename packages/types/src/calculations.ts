@@ -253,6 +253,125 @@ export interface HouseHackResults {
 }
 
 // ============================================
+// Multi-family Calculator (5-50 units)
+// ============================================
+
+export interface UnitMix {
+  unitType: string; // e.g., "Studio", "1BR", "2BR", "3BR"
+  unitCount: number;
+  monthlyRent: number;
+}
+
+export interface MultifamilyInputs {
+  // Property Info
+  purchasePrice: number;
+  closingCostsPercent: number;
+  totalUnits: number;
+  squareFootage: number; // Total rentable sq ft
+
+  // Unit Mix (simplified to 4 types)
+  studioCount: number;
+  studioRent: number;
+  oneBedCount: number;
+  oneBedRent: number;
+  twoBedCount: number;
+  twoBedRent: number;
+  threeBedCount: number;
+  threeBedRent: number;
+
+  // Other Income (monthly)
+  laundryIncome: number;
+  parkingIncome: number;
+  storageIncome: number;
+  petFees: number;
+  otherIncome: number;
+
+  // Vacancy & Credit Loss
+  vacancyRate: number; // % of gross potential rent
+  creditLossRate: number; // % for bad debt/non-payment
+
+  // Operating Expenses
+  useExpenseRatio: boolean; // If true, use expense ratio instead of itemized
+  expenseRatio: number; // As % of EGI (typical 40-55%)
+
+  // Itemized Expenses (used if useExpenseRatio is false)
+  propertyTaxAnnual: number;
+  insuranceAnnual: number;
+  utilitiesAnnual: number; // Owner-paid utilities
+  repairsMaintenanceAnnual: number;
+  managementPercent: number; // % of collected rent
+  payrollAnnual: number; // On-site staff
+  advertisingAnnual: number;
+  legalAccountingAnnual: number;
+  landscapingAnnual: number;
+  contractServicesAnnual: number; // Trash, pest, etc.
+  reservesPercent: number; // CapEx reserves as % of EGI
+
+  // Financing
+  downPaymentPercent: number;
+  interestRate: number;
+  loanTermYears: number;
+  amortizationYears: number; // Can differ from term (balloon)
+  loanPointsPercent: number;
+
+  // Valuation
+  marketCapRate: number; // For estimating market value
+}
+
+export interface MultifamilyResults {
+  // Income Analysis
+  grossPotentialRent: number; // Annual GPR from all units
+  grossPotentialRentMonthly: number;
+  otherIncomeAnnual: number;
+  grossPotentialIncome: number; // GPR + Other Income (annual)
+  vacancyLoss: number;
+  creditLoss: number;
+  effectiveGrossIncome: number; // EGI (annual)
+  effectiveGrossIncomeMonthly: number;
+
+  // Expense Analysis
+  totalOperatingExpenses: number; // Annual
+  totalOperatingExpensesMonthly: number;
+  expenseRatioActual: number; // Actual expense ratio (expenses / EGI)
+
+  // Net Operating Income
+  netOperatingIncome: number; // NOI (annual)
+  netOperatingIncomeMonthly: number;
+
+  // Financing
+  loanAmount: number;
+  downPayment: number;
+  closingCosts: number;
+  loanPoints: number;
+  totalInvestment: number; // Down + closing + points
+  monthlyDebtService: number;
+  annualDebtService: number;
+
+  // Key Metrics
+  capRatePurchase: number; // NOI / Purchase Price
+  capRateMarket: number; // Using input market cap rate
+  debtServiceCoverageRatio: number; // NOI / Annual Debt Service
+  cashOnCashReturn: number; // Annual Cash Flow / Total Investment
+  monthlyCashFlow: number;
+  annualCashFlow: number;
+
+  // Valuation Metrics
+  pricePerUnit: number;
+  pricePerSqFt: number;
+  grossRentMultiplier: number; // Purchase Price / Annual GPR
+  estimatedMarketValue: number; // NOI / Market Cap Rate
+
+  // Break-Even Analysis
+  breakEvenOccupancy: number; // % occupancy to cover expenses + debt
+  breakEvenRentPerUnit: number; // Average rent needed to break even
+
+  // Per Unit Analysis
+  noiPerUnit: number;
+  expensesPerUnit: number;
+  rentPerUnit: number; // Average
+}
+
+// ============================================
 // Common Types
 // ============================================
 
