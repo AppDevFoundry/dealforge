@@ -249,6 +249,93 @@ export interface MultifamilyResults {
 }
 
 // ============================================
+// Syndication Calculator
+// ============================================
+
+export interface SyndicationInputs {
+  // Capital Structure
+  totalCapitalization: number;
+  lpEquityPercent: number;
+  gpEquityPercent: number;
+
+  // Fees
+  acquisitionFeePercent: number;
+  assetManagementFeePercent: number;
+
+  // Preferred Return
+  preferredReturnPercent: number;
+
+  // Waterfall Tiers (LP/GP splits after preferred return)
+  tier2LpPercent: number;
+  tier2GpPercent: number;
+  tier2IrrHurdle: number;
+  tier3LpPercent: number;
+  tier3GpPercent: number;
+  tier3IrrHurdle: number;
+  tier4LpPercent: number;
+  tier4GpPercent: number;
+
+  // Operations
+  holdPeriodYears: number;
+  year1NOI: number;
+  noiGrowthPercent: number;
+
+  // Exit
+  exitCapRate: number;
+  exitCostPercent: number;
+}
+
+export interface SyndicationYearlyData {
+  year: number;
+  noi: number;
+  assetManagementFee: number;
+  distributableCash: number;
+  lpDistribution: number;
+  gpDistribution: number;
+  cumulativeLpDistributions: number;
+  cumulativeGpDistributions: number;
+}
+
+export interface SyndicationSensitivityRow {
+  exitCapRate: number;
+  exitPrice: number;
+  lpIrr: number;
+  gpIrr: number;
+  lpEquityMultiple: number;
+  gpEquityMultiple: number;
+}
+
+export interface SyndicationResults {
+  // LP Metrics
+  lpTotalDistributions: number;
+  lpIrr: number;
+  lpEquityMultiple: number;
+  lpEquityContribution: number;
+
+  // GP Metrics
+  gpTotalDistributions: number;
+  gpIrr: number;
+  gpEquityMultiple: number;
+  gpEquityContribution: number;
+  gpPromote: number;
+
+  // Fees
+  totalAcquisitionFees: number;
+  totalAssetManagementFees: number;
+
+  // Project Level
+  totalProjectProfit: number;
+  exitPrice: number;
+  totalEquity: number;
+
+  // Yearly Breakdown
+  yearlyData: SyndicationYearlyData[];
+
+  // Sensitivity
+  sensitivityData: SyndicationSensitivityRow[];
+}
+
+// ============================================
 // Common Types
 // ============================================
 
