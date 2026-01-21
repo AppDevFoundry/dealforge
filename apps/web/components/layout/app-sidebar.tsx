@@ -6,10 +6,13 @@ import {
   HelpCircle,
   LayoutDashboard,
   LogOut,
+  MapPin,
   PanelLeftClose,
   PanelLeftOpen,
+  Search,
   Settings,
   Sparkles,
+  TrendingUp,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -62,6 +65,29 @@ const mainNavItems = [
   {
     title: 'Analyze',
     href: '/analyze',
+    icon: Calculator,
+  },
+];
+
+const mhParksNavItems = [
+  {
+    title: 'Park Map',
+    href: '/mh-parks/map',
+    icon: MapPin,
+  },
+  {
+    title: 'Market Activity',
+    href: '/mh-parks/activity',
+    icon: TrendingUp,
+  },
+  {
+    title: 'Park Search',
+    href: '/mh-parks/search',
+    icon: Search,
+  },
+  {
+    title: 'Park Calculator',
+    href: '/mh-parks/calculator',
     icon: Calculator,
   },
 ];
@@ -126,6 +152,43 @@ export function AppSidebar({ user }: AppSidebarProps) {
           <SidebarGroupContent>
             <SidebarMenu>
               {mainNavItems.map((item) => {
+                const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+                return (
+                  <SidebarMenuItem key={item.href}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={isActive}
+                      tooltip={item.title}
+                      className={`
+                        transition-colors duration-200
+                        ${
+                          isActive
+                            ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium border-accent-left'
+                            : 'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50'
+                        }
+                      `}
+                    >
+                      <Link href={item.href} className="group/nav">
+                        <item.icon
+                          className={`size-4 transition-transform duration-200 ${isActive ? 'text-primary' : 'group-hover/nav:scale-110'}`}
+                        />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+            MH Parks
+          </SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {mhParksNavItems.map((item) => {
                 const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
                 return (
                   <SidebarMenuItem key={item.href}>

@@ -6,9 +6,12 @@ import {
   HelpCircle,
   LayoutDashboard,
   LogOut,
+  MapPin,
   Menu,
+  Search,
   Settings,
   Sparkles,
+  TrendingUp,
   X,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -52,6 +55,29 @@ const navItems = [
   {
     title: 'Analyze',
     href: '/analyze',
+    icon: Calculator,
+  },
+];
+
+const mhParksItems = [
+  {
+    title: 'Park Map',
+    href: '/mh-parks/map',
+    icon: MapPin,
+  },
+  {
+    title: 'Market Activity',
+    href: '/mh-parks/activity',
+    icon: TrendingUp,
+  },
+  {
+    title: 'Park Search',
+    href: '/mh-parks/search',
+    icon: Search,
+  },
+  {
+    title: 'Park Calculator',
+    href: '/mh-parks/calculator',
     icon: Calculator,
   },
 ];
@@ -126,6 +152,32 @@ export function MobileNav({ user }: MobileNavProps) {
                 Main
               </p>
               {navItems.map((item) => {
+                const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setOpen(false)}
+                    className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+                      isActive
+                        ? 'bg-accent text-accent-foreground'
+                        : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
+                    }`}
+                  >
+                    <item.icon className="size-5" />
+                    {item.title}
+                  </Link>
+                );
+              })}
+            </div>
+
+            <Separator className="my-4" />
+
+            <div className="space-y-1">
+              <p className="px-3 text-xs font-medium uppercase tracking-wider text-muted-foreground mb-2">
+                MH Parks
+              </p>
+              {mhParksItems.map((item) => {
                 const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
                 return (
                   <Link
