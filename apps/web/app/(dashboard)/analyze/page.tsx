@@ -32,8 +32,9 @@ export default function AnalyzePage() {
           description="Buy-Rehab-Rent-Refinance-Repeat modeling with refinance projections."
           href="/analyze/brrrr"
           complexity="Beginner"
-          available={false}
+          available
           delay="delay-150"
+          isNew
         />
         <CalculatorCard
           title="Flip/Rehab"

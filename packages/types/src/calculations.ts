@@ -62,22 +62,39 @@ export interface RentalResults {
 // BRRRR Calculator
 // ============================================
 
-export interface BRRRRInputs extends RentalInputs {
-  // Additional BRRRR-specific
+export interface BRRRRInputs extends Omit<RentalInputs, 'downPaymentPercent' | 'interestRate' | 'loanTermYears'> {
+  // Initial/Hard Money Financing (acquisition phase)
+  initialLoanPercent: number; // LTV for acquisition (e.g., 90%)
+  initialInterestRate: number; // Hard money rate (10-14%)
+  initialPointsPercent: number; // Origination points (1-3%)
+  initialTermMonths: number; // Loan term (6-18 months)
+
+  // Rehab & Holding
+  rehabDurationMonths: number;
+  holdingCostsMonthly: number;
+
+  // Refinance phase
   afterRepairValue: number;
   refinanceLtv: number;
   refinanceRate: number;
   refinanceTermYears: number;
   refinanceClosingCosts: number;
-  holdingCostsMonthly: number;
-  rehabDurationMonths: number;
 }
 
 export interface BRRRRResults extends RentalResults {
+  // Initial Financing Phase
+  initialLoanAmount: number;
+  initialDownPayment: number;
+  initialPointsCost: number;
+  initialMonthlyPayment: number;
+  totalHoldingCosts: number;
+  totalHoldingInterest: number;
+
   // BRRRR-specific results
+  allInCost: number;
   cashLeftInDeal: number;
   cashRecoveredAtRefi: number;
-  allInCost: number;
+  cashRecoveredPercent: number;
   equityAtRefi: number;
   newLoanAmount: number;
   newMonthlyPayment: number;
