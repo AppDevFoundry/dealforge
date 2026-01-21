@@ -113,6 +113,8 @@ export interface FlipResults {
   totalCosts: number;
   totalInvestment: number;
   breakEvenPrice: number;
+  profitMargin: number;
+  maxAllowableOffer: number;
 }
 
 // ============================================
