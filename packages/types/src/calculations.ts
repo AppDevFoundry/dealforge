@@ -513,4 +513,4 @@ export interface CalculationError {
   message: string;
 }
 
-export type CalculationType = 'rental' | 'brrrr' | 'flip' | 'house_hack' | 'multifamily' | 'syndication';
+export type CalculationType = 'rental' | 'brrrr' | 'flip' | 'house_hack' | 'multifamily' | 'syndication' | 'mh_park';

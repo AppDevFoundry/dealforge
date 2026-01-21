@@ -16,6 +16,7 @@ export const DealTypeSchema = z.enum([
   'multifamily',
   'commercial',
   'syndication',
+  'mh_park',
 ]);
 export type DealType = z.infer<typeof DealTypeSchema>;
 
