@@ -68,8 +68,9 @@ export default function AnalyzePage() {
           description="Waterfall distributions, LP/GP splits, IRR, and equity multiple modeling."
           href="/analyze/syndication"
           complexity="Advanced"
-          available={false}
+          available
           delay="delay-500"
+          isNew
         />
       </div>
     </div>

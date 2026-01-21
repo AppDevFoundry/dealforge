@@ -372,6 +372,139 @@ export interface MultifamilyResults {
 }
 
 // ============================================
+// Syndication Calculator (Advanced)
+// ============================================
+
+export interface WaterfallTier {
+  name: string;
+  lpSplit: number; // LP percentage (0-100)
+  gpSplit: number; // GP percentage (0-100)
+  irrHurdle?: number; // IRR hurdle to reach this tier (optional, % - e.g., 8 for 8%)
+}
+
+export interface YearlyProjection {
+  year: number;
+  noi: number;
+  cashFlowBeforeDebt: number;
+  debtService: number;
+  cashFlowAfterDebt: number;
+  lpDistribution: number;
+  gpDistribution: number;
+  cumulativeLpDistributions: number;
+  cumulativeGpDistributions: number;
+}
+
+export interface SyndicationInputs {
+  // Project Capitalization
+  purchasePrice: number;
+  closingCosts: number;
+  capexReserves: number;
+  totalCapitalization: number; // Calculated or input
+
+  // Equity Structure
+  lpEquityPercent: number; // LP contribution as % of total equity
+  gpEquityPercent: number; // GP contribution as % of total equity (often 5-10%)
+
+  // Debt
+  loanToValue: number; // LTV percentage
+  interestRate: number;
+  loanTermYears: number;
+  amortizationYears: number;
+  interestOnly: boolean;
+  interestOnlyYears: number;
+
+  // Fees
+  acquisitionFeePercent: number; // % of purchase price, paid to GP at close
+  assetManagementFeePercent: number; // Annual % of equity, paid to GP
+
+  // Preferred Return
+  preferredReturn: number; // Annual % to LPs before any GP promote
+
+  // Waterfall Tiers (simplified to 3 tiers)
+  tier1LpSplit: number; // After pref return (e.g., 70)
+  tier1GpSplit: number; // After pref return (e.g., 30)
+  tier2IrrHurdle: number; // IRR hurdle for tier 2 (e.g., 12)
+  tier2LpSplit: number; // After tier 2 hurdle (e.g., 60)
+  tier2GpSplit: number; // After tier 2 hurdle (e.g., 40)
+  tier3IrrHurdle: number; // IRR hurdle for tier 3 (e.g., 18)
+  tier3LpSplit: number; // After tier 3 hurdle (e.g., 50)
+  tier3GpSplit: number; // After tier 3 hurdle (e.g., 50)
+
+  // Property Operations (Year 1)
+  grossPotentialRent: number;
+  vacancyRate: number;
+  otherIncome: number;
+  operatingExpenseRatio: number; // As % of EGI
+
+  // Growth Assumptions
+  rentGrowthRate: number; // Annual rent growth %
+  expenseGrowthRate: number; // Annual expense growth %
+  holdPeriodYears: number; // Investment hold period
+
+  // Exit Assumptions
+  exitCapRate: number; // Cap rate at sale
+  dispositionFeePercent: number; // Selling costs as % of sale price
+}
+
+export interface SyndicationResults {
+  // Capitalization Summary
+  totalEquity: number;
+  lpEquity: number;
+  gpEquity: number;
+  loanAmount: number;
+  totalCapitalization: number;
+
+  // Fee Summary
+  acquisitionFee: number;
+  totalAssetManagementFees: number; // Over hold period
+
+  // Operating Projections
+  yearlyProjections: YearlyProjection[];
+  totalNoiOverHold: number;
+
+  // Exit Analysis
+  exitNoi: number;
+  exitValue: number;
+  dispositionCosts: number;
+  netSaleProceeds: number;
+  loanPayoff: number;
+  equityAtSale: number;
+
+  // LP Returns
+  lpTotalDistributions: number;
+  lpEquityMultiple: number; // Total distributions / LP equity
+  lpIrr: number;
+  lpPreferredReturnTotal: number;
+  lpCashFlowDistributions: number;
+  lpSaleProceedsDistribution: number;
+
+  // GP Returns
+  gpTotalDistributions: number;
+  gpEquityMultiple: number;
+  gpIrr: number;
+  gpAcquisitionFee: number;
+  gpAssetManagementFees: number;
+  gpPromote: number; // Promote/carried interest
+  gpCashFlowDistributions: number;
+  gpSaleProceedsDistribution: number;
+
+  // Deal Metrics
+  goingInCapRate: number;
+  averageCashOnCash: number;
+  totalProfitOverHold: number;
+
+  // Sensitivity Analysis (exit cap rate variations)
+  sensitivityAnalysis: {
+    exitCapRate: number;
+    exitValue: number;
+    lpIrr: number;
+    lpEquityMultiple: number;
+    gpIrr: number;
+    gpEquityMultiple: number;
+  }[];
+}
+
+// ============================================
 // Common Types
 // ============================================
 
