@@ -32,40 +32,45 @@ export default function AnalyzePage() {
           description="Buy-Rehab-Rent-Refinance-Repeat modeling with refinance projections."
           href="/analyze/brrrr"
           complexity="Beginner"
-          available={false}
+          available
           delay="delay-150"
+          isNew
         />
         <CalculatorCard
           title="Flip/Rehab"
           description="ARV-based profit projections for fix-and-flip investments."
           href="/analyze/flip"
           complexity="Beginner"
-          available={false}
+          available
           delay="delay-200"
+          isNew
         />
         <CalculatorCard
           title="House Hack"
           description="Owner-occupied multi-unit analysis with living cost offsets."
           href="/analyze/house-hack"
           complexity="Beginner"
-          available={false}
+          available
           delay="delay-300"
+          isNew
         />
         <CalculatorCard
           title="Multi-family"
           description="5-50 unit analysis with NOI, DSCR, and expense ratio calculations."
           href="/analyze/multifamily"
           complexity="Intermediate"
-          available={false}
+          available
           delay="delay-400"
+          isNew
         />
         <CalculatorCard
           title="Syndication"
           description="Waterfall distributions, LP/GP splits, IRR, and equity multiple modeling."
           href="/analyze/syndication"
           complexity="Advanced"
-          available={false}
+          available
           delay="delay-500"
+          isNew
         />
       </div>
     </div>
