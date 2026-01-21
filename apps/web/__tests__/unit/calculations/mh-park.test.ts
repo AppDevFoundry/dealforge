@@ -148,7 +148,9 @@ describe('calculateMhParkMetrics', () => {
       const results = calculateMhParkMetrics(inputs);
 
       // With 0% interest, monthly payment = principal / number of payments
-      const expectedPayment = inputs.purchasePrice * (1 - inputs.downPaymentPercent / 100) / (inputs.amortizationYears * 12);
+      const expectedPayment =
+        (inputs.purchasePrice * (1 - inputs.downPaymentPercent / 100)) /
+        (inputs.amortizationYears * 12);
       expect(results.monthlyDebtService).toBeCloseTo(expectedPayment, 2);
     });
 

@@ -45,7 +45,7 @@ describe('mhParkInputSchema', () => {
       const result = mhParkInputSchema.safeParse({ ...MH_PARK_DEFAULTS, lotCount: 0 });
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toBe('Must have at least 1 lot');
+        expect(result.error.issues[0]?.message).toBe('Must have at least 1 lot');
       }
     });
 
@@ -58,7 +58,7 @@ describe('mhParkInputSchema', () => {
       const result = mhParkInputSchema.safeParse({ ...MH_PARK_DEFAULTS, lotCount: 2001 });
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toBe('Lot count too high');
+        expect(result.error.issues[0]?.message).toBe('Lot count too high');
       }
     });
 
@@ -66,7 +66,7 @@ describe('mhParkInputSchema', () => {
       const result = mhParkInputSchema.safeParse({ ...MH_PARK_DEFAULTS, lotCount: 'abc' });
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toBe('Must be a number');
+        expect(result.error.issues[0]?.message).toBe('Must be a number');
       }
     });
   });
@@ -81,7 +81,7 @@ describe('mhParkInputSchema', () => {
       const result = mhParkInputSchema.safeParse({ ...MH_PARK_DEFAULTS, averageLotRent: 5001 });
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toBe('Rent too high');
+        expect(result.error.issues[0]?.message).toBe('Rent too high');
       }
     });
   });
@@ -101,7 +101,7 @@ describe('mhParkInputSchema', () => {
       const result = mhParkInputSchema.safeParse({ ...MH_PARK_DEFAULTS, occupancyRate: -1 });
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toBe('Cannot be negative');
+        expect(result.error.issues[0]?.message).toBe('Cannot be negative');
       }
     });
 
@@ -109,7 +109,7 @@ describe('mhParkInputSchema', () => {
       const result = mhParkInputSchema.safeParse({ ...MH_PARK_DEFAULTS, occupancyRate: 101 });
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toBe('Cannot exceed 100%');
+        expect(result.error.issues[0]?.message).toBe('Cannot exceed 100%');
       }
     });
   });
@@ -141,7 +141,7 @@ describe('mhParkInputSchema', () => {
       const result = mhParkInputSchema.safeParse({ ...MH_PARK_DEFAULTS, purchasePrice: 500000001 });
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toBe('Purchase price too high');
+        expect(result.error.issues[0]?.message).toBe('Purchase price too high');
       }
     });
   });
@@ -166,7 +166,7 @@ describe('mhParkInputSchema', () => {
       const result = mhParkInputSchema.safeParse({ ...MH_PARK_DEFAULTS, interestRate: 31 });
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toBe('Rate too high');
+        expect(result.error.issues[0]?.message).toBe('Rate too high');
       }
     });
 
@@ -179,7 +179,7 @@ describe('mhParkInputSchema', () => {
       const result = mhParkInputSchema.safeParse({ ...MH_PARK_DEFAULTS, loanTermYears: 41 });
       expect(result.success).toBe(false);
       if (!result.success) {
-        expect(result.error.issues[0].message).toBe('Term too long');
+        expect(result.error.issues[0]?.message).toBe('Term too long');
       }
     });
 
