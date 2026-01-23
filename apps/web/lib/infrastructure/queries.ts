@@ -284,6 +284,7 @@ export async function getInfrastructureAtPoint(
   const pointWkt = `POINT(${lng} ${lat})`;
 
   // Query CCN areas containing the point
+  // Use ST_Covers with geography types instead of ST_Contains with geometry cast
   const ccnRows = await sql`
     SELECT
       id,
@@ -292,7 +293,7 @@ export async function getInfrastructureAtPoint(
       service_type,
       county
     FROM ccn_areas
-    WHERE ST_Contains(boundary::geometry, ST_GeomFromText(${pointWkt}, 4326))
+    WHERE ST_Covers(boundary, ST_GeogFromText(${pointWkt}))
   `;
 
   // Query CCN facilities near the point (within 100m since lines don't "contain" points)
@@ -308,6 +309,7 @@ export async function getInfrastructureAtPoint(
   `;
 
   // Query flood zones containing the point
+  // Use ST_Covers with geography types instead of ST_Contains with geometry cast
   const floodRows = await sql`
     SELECT
       id,
@@ -315,7 +317,7 @@ export async function getInfrastructureAtPoint(
       zone_description,
       county
     FROM flood_zones
-    WHERE ST_Contains(boundary::geometry, ST_GeomFromText(${pointWkt}, 4326))
+    WHERE ST_Covers(boundary, ST_GeogFromText(${pointWkt}))
   `;
 
   const ccnAreas: CcnArea[] = ccnRows.map((row: Record<string, unknown>) => ({
