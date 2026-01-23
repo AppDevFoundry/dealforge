@@ -2,9 +2,9 @@
 
 import type { TaxLienWithCommunity } from '@dealforge/types';
 import { format } from 'date-fns';
-import { ArrowDown, ArrowUp, ArrowUpDown, ExternalLink } from 'lucide-react';
+import { ArrowDown, ArrowUp, ArrowUpDown, Download, ExternalLink } from 'lucide-react';
 import Link from 'next/link';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -30,10 +30,13 @@ interface TaxLiensTableProps {
   liens: TaxLienWithCommunity[];
   isLoading?: boolean;
   counties: string[];
+  years: number[];
   selectedCounty: string | undefined;
   onCountyChange: (county: string | undefined) => void;
   selectedStatus: 'active' | 'released' | undefined;
   onStatusChange: (status: 'active' | 'released' | undefined) => void;
+  selectedYear: number | undefined;
+  onYearChange: (year: number | undefined) => void;
 }
 
 type SortField = 'county' | 'amount' | 'year' | 'filedDate';
@@ -43,13 +46,57 @@ export function TaxLiensTable({
   liens,
   isLoading,
   counties,
+  years,
   selectedCounty,
   onCountyChange,
   selectedStatus,
   onStatusChange,
+  selectedYear,
+  onYearChange,
 }: TaxLiensTableProps) {
   const [sortField, setSortField] = useState<SortField>('filedDate');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
+
+  const handleExportCSV = useCallback(() => {
+    if (liens.length === 0) return;
+
+    const headers = [
+      'County',
+      'Status',
+      'Serial Number',
+      'HUD Label',
+      'Amount',
+      'Year',
+      'Filed Date',
+      'Released Date',
+      'Community',
+    ];
+    const rows = liens.map((lien) => [
+      lien.county,
+      lien.status,
+      lien.serialNumber ?? '',
+      lien.hudLabel ?? '',
+      lien.amount?.toString() ?? '',
+      lien.year?.toString() ?? '',
+      lien.filedDate ? format(new Date(lien.filedDate), 'yyyy-MM-dd') : '',
+      lien.releasedDate ? format(new Date(lien.releasedDate), 'yyyy-MM-dd') : '',
+      lien.community?.name ?? '',
+    ]);
+
+    const csvContent = [headers, ...rows]
+      .map((row) => row.map((cell) => `"${cell}"`).join(','))
+      .join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `tax-liens-${format(new Date(), 'yyyy-MM-dd')}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }, [liens]);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -136,12 +183,23 @@ export function TaxLiensTable({
   return (
     <Card>
       <CardHeader>
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <CardTitle>Tax Liens</CardTitle>
-            <CardDescription>{liens.length} liens found</CardDescription>
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <CardTitle>Tax Liens</CardTitle>
+              <CardDescription>{liens.length} liens found</CardDescription>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleExportCSV}
+              disabled={liens.length === 0}
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Export CSV
+            </Button>
           </div>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Select
               value={selectedCounty ?? 'all'}
               onValueChange={(v) => onCountyChange(v === 'all' ? undefined : v)}
@@ -171,6 +229,22 @@ export function TaxLiensTable({
                 <SelectItem value="all">All Statuses</SelectItem>
                 <SelectItem value="active">Active</SelectItem>
                 <SelectItem value="released">Released</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select
+              value={selectedYear?.toString() ?? 'all'}
+              onValueChange={(v) => onYearChange(v === 'all' ? undefined : Number(v))}
+            >
+              <SelectTrigger className="w-[120px]">
+                <SelectValue placeholder="All Years" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Years</SelectItem>
+                {years.map((year) => (
+                  <SelectItem key={year} value={year.toString()}>
+                    {year}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
           </div>

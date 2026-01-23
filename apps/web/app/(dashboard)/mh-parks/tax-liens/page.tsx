@@ -6,23 +6,29 @@ import {
   TaxLienStatsCards,
   TaxLiensByCountyChart,
   TaxLiensTable,
+  TaxLiensTrendChart,
 } from '@/components/mh-parks/tax-liens';
 import { useTaxLienStats, useTaxLiens } from '@/lib/hooks/use-tax-liens';
 
 // MVP counties for Texas
 const COUNTIES = ['Bexar', 'Hidalgo', 'Cameron', 'Nueces', 'Travis'];
 
+// Available tax years
+const YEARS = [2024, 2023, 2022];
+
 export default function TaxLiensPage() {
   const [selectedCounty, setSelectedCounty] = useState<string | undefined>(undefined);
   const [selectedStatus, setSelectedStatus] = useState<'active' | 'released' | undefined>(
     undefined
   );
+  const [selectedYear, setSelectedYear] = useState<number | undefined>(undefined);
 
   const { data: stats, isLoading: isLoadingStats } = useTaxLienStats(selectedCounty);
   const { data: liensResponse, isLoading: isLoadingLiens } = useTaxLiens({
     county: selectedCounty,
     status: selectedStatus,
-    perPage: 100,
+    year: selectedYear,
+    perPage: 500,
   });
 
   const liens = liensResponse?.data ?? [];
@@ -37,19 +43,25 @@ export default function TaxLiensPage() {
       {/* Summary Cards */}
       <TaxLienStatsCards stats={stats} isLoading={isLoadingStats} />
 
-      {/* Chart and Table */}
+      {/* Charts Row */}
       <div className="grid gap-6 lg:grid-cols-2">
         <TaxLiensByCountyChart stats={stats} isLoading={isLoadingStats} />
-        <TaxLiensTable
-          liens={liens}
-          isLoading={isLoadingLiens}
-          counties={COUNTIES}
-          selectedCounty={selectedCounty}
-          onCountyChange={setSelectedCounty}
-          selectedStatus={selectedStatus}
-          onStatusChange={setSelectedStatus}
-        />
+        <TaxLiensTrendChart liens={liens} isLoading={isLoadingLiens} />
       </div>
+
+      {/* Table - Full Width */}
+      <TaxLiensTable
+        liens={liens}
+        isLoading={isLoadingLiens}
+        counties={COUNTIES}
+        years={YEARS}
+        selectedCounty={selectedCounty}
+        onCountyChange={setSelectedCounty}
+        selectedStatus={selectedStatus}
+        onStatusChange={setSelectedStatus}
+        selectedYear={selectedYear}
+        onYearChange={setSelectedYear}
+      />
     </div>
   );
 }
