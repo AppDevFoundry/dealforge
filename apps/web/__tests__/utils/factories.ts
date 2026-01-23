@@ -266,10 +266,72 @@ export function createMockMhCommunity(overrides: Partial<MhCommunity> = {}): MhC
 }
 
 // ============================================
+// Flood Zone Factories
+// ============================================
+import type {
+  FloodRiskLevel,
+  FloodZone,
+  FloodZoneFeature,
+  FloodZoneFeatureCollection,
+} from '@dealforge/types';
+
+let floodZoneIdCounter = 0;
+
+export function createMockFloodZone(overrides: Partial<FloodZone> = {}): FloodZone {
+  floodZoneIdCounter++;
+  return {
+    id: `fz_${floodZoneIdCounter}`,
+    zoneCode: 'AE',
+    zoneDescription: 'Special Flood Hazard Area with base flood elevation',
+    county: 'Bexar',
+    riskLevel: 'high' as FloodRiskLevel,
+    ...overrides,
+  };
+}
+
+export function createMockFloodZoneFeature(overrides: Partial<FloodZone> = {}): FloodZoneFeature {
+  const zone = createMockFloodZone(overrides);
+  return {
+    type: 'Feature',
+    geometry: {
+      type: 'Polygon',
+      coordinates: [
+        [
+          [-98.5, 29.4],
+          [-98.49, 29.4],
+          [-98.49, 29.41],
+          [-98.5, 29.41],
+          [-98.5, 29.4],
+        ],
+      ],
+    },
+    properties: zone,
+  };
+}
+
+export function createMockFloodZoneFeatureCollection(count = 3): FloodZoneFeatureCollection {
+  const zoneDefs: Array<Partial<FloodZone>> = [
+    { zoneCode: 'AE', riskLevel: 'high', zoneDescription: 'SFHA with BFE' },
+    { zoneCode: 'X', riskLevel: 'low', zoneDescription: 'Minimal flood hazard' },
+    { zoneCode: 'X SHADED', riskLevel: 'moderate', zoneDescription: 'Moderate flood hazard' },
+  ];
+
+  const features = Array.from({ length: Math.min(count, zoneDefs.length) }, (_, i) =>
+    createMockFloodZoneFeature(zoneDefs[i])
+  );
+
+  return {
+    type: 'FeatureCollection',
+    features,
+  };
+}
+
+// ============================================
 // Reset counters (useful for test isolation)
 // ============================================
 export function resetFactoryCounters() {
   userIdCounter = 0;
   sessionIdCounter = 0;
   communityIdCounter = 0;
+  floodZoneIdCounter = 0;
 }

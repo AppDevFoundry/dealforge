@@ -262,8 +262,8 @@ Note: Only data for MVP counties will be loaded.
   const riskDistribution = await sql`
     SELECT
       CASE
-        WHEN zone_code IN ('A', 'AE', 'AH', 'AO', 'AR', 'A99', 'V', 'VE') THEN 'high'
-        WHEN zone_code = 'B' OR zone_code LIKE '%SHADED%' THEN 'moderate'
+        WHEN split_part(zone_code, ' ', 1) IN ('A', 'AE', 'AH', 'AO', 'AR', 'A99', 'V', 'VE') THEN 'high'
+        WHEN split_part(zone_code, ' ', 1) = 'B' OR (zone_code LIKE '%SHADED%' AND zone_code NOT LIKE '%UNSHADED%') THEN 'moderate'
         WHEN zone_code = 'D' THEN 'undetermined'
         ELSE 'low'
       END as risk_level,

@@ -186,7 +186,7 @@ export async function getFloodZonesByBbox(
           ST_AsGeoJSON(boundary)::json as geometry
         FROM flood_zones
         WHERE ST_Intersects(boundary, ST_GeogFromText(${bboxWkt}))
-          AND zone_code = ANY(${highRiskZones})
+          AND split_part(zone_code, ' ', 1) = ANY(${highRiskZones})
         LIMIT 500
       `
     : await sql`
@@ -240,7 +240,7 @@ export async function getFloodZonesByCounty(
           ST_AsGeoJSON(boundary)::json as geometry
         FROM flood_zones
         WHERE county = ${county}
-          AND zone_code = ANY(${highRiskZones})
+          AND split_part(zone_code, ' ', 1) = ANY(${highRiskZones})
         LIMIT 500
       `
     : await sql`
