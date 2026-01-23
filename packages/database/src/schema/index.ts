@@ -7,3 +7,4 @@ export * from './sessions';
 export * from './deals';
 export * from './mh-parks';
 export * from './infrastructure';
+export * from './tdhca';

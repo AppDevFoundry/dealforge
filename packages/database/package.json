@@ -27,7 +27,13 @@
     "db:seed": "tsx src/seed.ts",
     "db:seed:mh-parks": "tsx src/seed-mh-parks.ts",
     "sync:ccn": "tsx src/scripts/sync-ccn-data.ts",
-    "sync:flood": "tsx src/scripts/sync-flood-data.ts"
+    "sync:flood": "tsx src/scripts/sync-flood-data.ts",
+    "sync:flood:seed": "tsx src/scripts/seed-flood-data.ts",
+    "sync:tdhca:titles": "tsx src/scripts/sync-tdhca-titles.ts",
+    "sync:tdhca:liens": "tsx src/scripts/sync-tdhca-liens.ts",
+    "discover:parks": "tsx src/scripts/discover-parks.ts",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",
@@ -41,6 +47,7 @@
     "dotenv": "^17.2.3",
     "drizzle-kit": "^0.30.1",
     "tsx": "^4.19.2",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "vitest": "^3.0.0"
   }
 }
