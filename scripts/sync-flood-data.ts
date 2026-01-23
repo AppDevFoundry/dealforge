@@ -16,7 +16,8 @@ import { parseArgs } from 'node:util';
 import { neon } from '@neondatabase/serverless';
 import { createId } from '@paralleldrive/cuid2';
 import { open } from 'shapefile';
-import 'dotenv/config';
+import { config } from 'dotenv';
+config({ path: ['.env.local', '.env'] });
 
 const ZONE_DESCRIPTIONS: Record<string, string> = {
   A: '1% annual chance flood (no BFE determined)',
@@ -60,13 +61,13 @@ async function main() {
 
   let count = 0;
   let skipped = 0;
-  let batch: string[] = [];
-  const BATCH_SIZE = 50;
+  let pending: Promise<unknown>[] = [];
+  const CONCURRENCY = 10;
 
-  async function flushBatch() {
-    if (batch.length === 0) return;
-    await sql(batch.join(';'));
-    batch = [];
+  async function flushPending() {
+    if (pending.length === 0) return;
+    await Promise.all(pending);
+    pending = [];
   }
 
   while (true) {
@@ -89,25 +90,26 @@ async function main() {
     const zoneDescription = ZONE_DESCRIPTIONS[zoneCode] || properties.ZONE_SUBTY || null;
     const geojson = JSON.stringify(geometry);
 
-    const descValue = zoneDescription ? `'${zoneDescription.replace(/'/g, "''")}'` : 'NULL';
-
-    batch.push(
-      `INSERT INTO flood_zones (id, zone_code, zone_description, county, boundary)
-       VALUES ('${id}', '${zoneCode}', ${descValue}, '${county.replace(/'/g, "''")}', ST_GeomFromGeoJSON('${geojson}')::geography)
-       ON CONFLICT (id) DO NOTHING`
+    pending.push(
+      sql(
+        `INSERT INTO flood_zones (id, zone_code, zone_description, county, boundary)
+         VALUES ($1, $2, $3, $4, ST_GeomFromGeoJSON($5)::geography)
+         ON CONFLICT (id) DO NOTHING`,
+        [id, zoneCode, zoneDescription, county.replace(/'/g, "''"), geojson]
+      )
     );
 
     count++;
 
-    if (batch.length >= BATCH_SIZE) {
-      await flushBatch();
+    if (pending.length >= CONCURRENCY) {
+      await flushPending();
       if (count % 500 === 0) {
         console.log(`  Processed ${count} features...`);
       }
     }
   }
 
-  await flushBatch();
+  await flushPending();
   console.log(`Synced ${count} flood zones (${skipped} skipped).`);
 }
 

@@ -4,29 +4,41 @@
  * Parses PUC Texas CCN shapefiles and loads them into the ccn_areas table.
  *
  * Usage:
- *   pnpm sync:ccn --file <path-to-shapefile>
+ *   pnpm sync:ccn --file <path-to-shapefile> --service-type <water|sewer|both>
  *
  * The shapefile should contain CCN boundary polygons with attributes:
  * - CCN_NO: CCN certificate number
- * - UTILITY_NA: Utility name
- * - SERVICE_TY: Service type ('W' = water, 'S' = sewer, 'B' = both)
+ * - UTILITY or UTILITY_NA: Utility name
  * - COUNTY: County name
+ *
+ * The --service-type flag is required since PUC Texas distributes water and
+ * sewer CCNs as separate shapefiles without a service type attribute.
  */
 
 import { parseArgs } from 'node:util';
 import { neon } from '@neondatabase/serverless';
 import { createId } from '@paralleldrive/cuid2';
 import { open } from 'shapefile';
-import 'dotenv/config';
+import { config } from 'dotenv';
+config({ path: ['.env.local', '.env'] });
 
 const { values } = parseArgs({
   options: {
     file: { type: 'string', short: 'f' },
+    'service-type': { type: 'string', short: 's' },
   },
 });
 
-if (!values.file) {
-  console.error('Usage: pnpm sync:ccn --file <path-to-shapefile>');
+if (!values.file || !values['service-type']) {
+  console.error(
+    'Usage: pnpm sync:ccn --file <path-to-shapefile> --service-type <water|sewer|both>'
+  );
+  process.exit(1);
+}
+
+const validServiceTypes = ['water', 'sewer', 'both'];
+if (!validServiceTypes.includes(values['service-type'])) {
+  console.error(`Invalid service type: ${values['service-type']}. Must be one of: water, sewer, both`);
   process.exit(1);
 }
 
@@ -36,28 +48,23 @@ if (!connectionString) {
   process.exit(1);
 }
 
-function mapServiceType(raw: string): string {
-  const normalized = raw?.toUpperCase().trim();
-  if (normalized === 'W' || normalized === 'WATER') return 'water';
-  if (normalized === 'S' || normalized === 'SEWER') return 'sewer';
-  if (normalized === 'B' || normalized === 'BOTH') return 'both';
-  return 'water'; // default
-}
-
 async function main() {
   const sql = neon(connectionString!);
+  const serviceType = values['service-type']!;
 
   console.log(`Reading shapefile: ${values.file}`);
+  console.log(`Service type: ${serviceType}`);
   const source = await open(values.file!);
 
   let count = 0;
-  let batch: string[] = [];
-  const BATCH_SIZE = 50;
+  let skipped = 0;
+  let pending: Promise<unknown>[] = [];
+  const CONCURRENCY = 10;
 
-  async function flushBatch() {
-    if (batch.length === 0) return;
-    await sql(batch.join(';'));
-    batch = [];
+  async function flushPending() {
+    if (pending.length === 0) return;
+    await Promise.all(pending);
+    pending = [];
   }
 
   while (true) {
@@ -65,37 +72,44 @@ async function main() {
     if (result.done) break;
 
     const { properties, geometry } = result.value;
-    if (!geometry || !properties) continue;
+    if (!geometry || !properties) {
+      skipped++;
+      continue;
+    }
 
     const id = `ccn_${createId()}`;
     const ccnNumber = (properties.CCN_NO || properties.ccn_no || '').toString().trim();
-    const utilityName = (properties.UTILITY_NA || properties.utility_name || 'Unknown')
+    const utilityName = (
+      properties.UTILITY || properties.UTILITY_NA || properties.utility_name || 'Unknown'
+    )
       .toString()
       .trim();
-    const serviceType = mapServiceType(
-      (properties.SERVICE_TY || properties.service_type || 'W').toString()
-    );
     const county = (properties.COUNTY || properties.county || 'Unknown').toString().trim();
     const geojson = JSON.stringify(geometry);
 
-    batch.push(
-      `INSERT INTO ccn_areas (id, ccn_number, utility_name, service_type, county, boundary)
-       VALUES ('${id}', '${ccnNumber.replace(/'/g, "''")}', '${utilityName.replace(/'/g, "''")}', '${serviceType}', '${county.replace(/'/g, "''")}', ST_GeomFromGeoJSON('${geojson}')::geography)
-       ON CONFLICT (id) DO NOTHING`
+    const esc = (s: string) => s.replace(/'/g, "''");
+
+    pending.push(
+      sql(
+        `INSERT INTO ccn_areas (id, ccn_number, utility_name, service_type, county, boundary)
+         VALUES ($1, $2, $3, $4, $5, ST_GeomFromGeoJSON($6)::geography)
+         ON CONFLICT (id) DO NOTHING`,
+        [id, esc(ccnNumber), esc(utilityName), serviceType, esc(county), geojson]
+      )
     );
 
     count++;
 
-    if (batch.length >= BATCH_SIZE) {
-      await flushBatch();
+    if (pending.length >= CONCURRENCY) {
+      await flushPending();
       if (count % 500 === 0) {
         console.log(`  Processed ${count} features...`);
       }
     }
   }
 
-  await flushBatch();
-  console.log(`Synced ${count} CCN areas successfully.`);
+  await flushPending();
+  console.log(`Synced ${count} CCN areas (${skipped} skipped).`);
 }
 
 main().catch((err) => {

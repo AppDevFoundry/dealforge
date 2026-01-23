@@ -5,15 +5,11 @@ const DEBUG_AUTH = process.env.DEBUG_AUTH === 'true' || process.env.VERCEL_ENV =
 /**
  * Route protection middleware
  *
- * Protects dashboard routes and redirects unauthenticated users.
- * Also redirects authenticated users away from auth pages.
+ * Protects dashboard routes and redirects unauthenticated users to sign-in.
  */
 
 // Routes that require authentication
-const protectedRoutes = ['/dashboard', '/deals', '/analyze'];
-
-// Routes that should redirect to dashboard if already authenticated
-const authRoutes = ['/sign-in', '/sign-up'];
+const protectedRoutes = ['/dashboard', '/deals', '/analyze', '/mh-parks'];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -50,13 +46,10 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(signInUrl);
   }
 
-  // Redirect authenticated users away from auth pages
-  const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
-
-  if (isAuthRoute && isAuthenticated) {
-    if (DEBUG_AUTH) console.log('[middleware] Redirecting authenticated user to dashboard');
-    return NextResponse.redirect(new URL('/dashboard', request.url));
-  }
+  // Note: We intentionally do NOT redirect authenticated users away from auth pages
+  // in middleware. Cookie existence doesn't guarantee a valid session (it may be expired),
+  // and redirecting here causes infinite loops when the session is stale.
+  // The sign-in page handles the "already authenticated" case client-side instead.
 
   return NextResponse.next();
 }

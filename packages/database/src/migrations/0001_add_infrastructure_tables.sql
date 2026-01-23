@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS ccn_areas (
   utility_name TEXT NOT NULL,
   service_type TEXT NOT NULL, -- 'water', 'sewer', 'both'
   county TEXT NOT NULL,
-  boundary GEOGRAPHY(POLYGON, 4326) NOT NULL,
+  boundary GEOGRAPHY NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -26,7 +26,7 @@ CREATE TABLE IF NOT EXISTS flood_zones (
   zone_code TEXT NOT NULL,
   zone_description TEXT,
   county TEXT NOT NULL,
-  boundary GEOGRAPHY(MULTIPOLYGON, 4326) NOT NULL,
+  boundary GEOGRAPHY NOT NULL,
   effective_date TIMESTAMPTZ,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
