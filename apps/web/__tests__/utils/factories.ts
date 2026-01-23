@@ -266,10 +266,94 @@ export function createMockMhCommunity(overrides: Partial<MhCommunity> = {}): MhC
 }
 
 // ============================================
+// Tax Lien Factory
+// ============================================
+export interface MockTaxLien {
+  id: string;
+  serialNumber: string | null;
+  hudLabel: string | null;
+  county: string;
+  taxingEntity: string | null;
+  amount: number | null;
+  year: number | null;
+  status: 'active' | 'released';
+  filedDate: Date | null;
+  releasedDate: Date | null;
+  communityId: string | null;
+  sourceUpdatedAt: Date | null;
+  createdAt: Date;
+  community?: {
+    id: string;
+    name: string;
+    city: string;
+  } | null;
+}
+
+let taxLienIdCounter = 0;
+
+export function createMockTaxLien(overrides: Partial<MockTaxLien> = {}): MockTaxLien {
+  taxLienIdCounter++;
+  return {
+    id: `mtl_${taxLienIdCounter}`,
+    serialNumber: `TEX${100000 + taxLienIdCounter}A`,
+    hudLabel: `TEX99${1000 + taxLienIdCounter}`,
+    county: 'Bexar',
+    taxingEntity: 'City of San Antonio',
+    amount: 1500 + taxLienIdCounter * 100,
+    year: 2024,
+    status: 'active',
+    filedDate: new Date('2024-03-15'),
+    releasedDate: null,
+    communityId: null,
+    sourceUpdatedAt: new Date(),
+    createdAt: new Date(),
+    community: null,
+    ...overrides,
+  };
+}
+
+// ============================================
+// Tax Lien Stats Factory
+// ============================================
+export interface MockTaxLienStats {
+  totalActive: number;
+  totalReleased: number;
+  totalAmount: number;
+  avgAmount: number;
+  byCounty: { county: string; count: number; amount: number }[];
+  byYear: { year: number; count: number }[];
+}
+
+export function createMockTaxLienStats(
+  overrides: Partial<MockTaxLienStats> = {}
+): MockTaxLienStats {
+  return {
+    totalActive: 88,
+    totalReleased: 98,
+    totalAmount: 132000,
+    avgAmount: 1500,
+    byCounty: [
+      { county: 'Bexar', count: 25, amount: 37500 },
+      { county: 'Hidalgo', count: 20, amount: 30000 },
+      { county: 'Travis', count: 18, amount: 27000 },
+      { county: 'Cameron', count: 15, amount: 22500 },
+      { county: 'Nueces', count: 10, amount: 15000 },
+    ],
+    byYear: [
+      { year: 2024, count: 45 },
+      { year: 2023, count: 30 },
+      { year: 2022, count: 13 },
+    ],
+    ...overrides,
+  };
+}
+
+// ============================================
 // Reset counters (useful for test isolation)
 // ============================================
 export function resetFactoryCounters() {
   userIdCounter = 0;
   sessionIdCounter = 0;
   communityIdCounter = 0;
+  taxLienIdCounter = 0;
 }

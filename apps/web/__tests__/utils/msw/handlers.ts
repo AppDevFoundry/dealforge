@@ -181,6 +181,75 @@ export const dealsHandlers = [
 ];
 
 // ============================================
+// Tax Liens Handlers
+// ============================================
+export const taxLiensHandlers = [
+  // List tax liens
+  http.get(`${BASE_URL}/api/v1/tax-liens`, ({ request }) => {
+    const url = new URL(request.url);
+    const county = url.searchParams.get('county');
+    const status = url.searchParams.get('status');
+
+    // Generate mock tax liens
+    const liens = Array.from({ length: 10 }, (_, i) => ({
+      id: `mtl_${i + 1}`,
+      serialNumber: `TEX${100000 + i}A`,
+      hudLabel: `TEX99${1000 + i}`,
+      county: county || ['Bexar', 'Hidalgo', 'Travis', 'Cameron', 'Nueces'][i % 5],
+      taxingEntity: 'City of San Antonio',
+      amount: 1500 + i * 100,
+      year: 2024 - (i % 3),
+      status: status || (i % 2 === 0 ? 'active' : 'released'),
+      filedDate: new Date('2024-03-15').toISOString(),
+      releasedDate: i % 2 === 1 ? new Date('2024-06-15').toISOString() : null,
+      communityId: i < 3 ? `mhc_${i + 1}` : null,
+      sourceUpdatedAt: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+      community:
+        i < 3 ? { id: `mhc_${i + 1}`, name: `Test Park ${i + 1}`, city: 'San Antonio' } : null,
+    }));
+
+    return HttpResponse.json({
+      ...createApiResponse(liens),
+      meta: {
+        timestamp: new Date().toISOString(),
+        requestId: crypto.randomUUID(),
+        pagination: {
+          page: 1,
+          perPage: 20,
+          total: 186,
+          totalPages: 10,
+        },
+      },
+    });
+  }),
+
+  // Get tax lien stats
+  http.get(`${BASE_URL}/api/v1/tax-liens/stats`, () => {
+    return HttpResponse.json(
+      createApiResponse({
+        totalActive: 88,
+        totalReleased: 98,
+        totalAmount: 132000,
+        avgAmount: 1500,
+        byCounty: [
+          { county: 'Bexar', count: 25, amount: 37500 },
+          { county: 'Hidalgo', count: 20, amount: 30000 },
+          { county: 'Travis', count: 18, amount: 27000 },
+          { county: 'Cameron', count: 15, amount: 22500 },
+          { county: 'Nueces', count: 10, amount: 15000 },
+        ],
+        byYear: [
+          { year: 2024, count: 45 },
+          { year: 2023, count: 30 },
+          { year: 2022, count: 13 },
+        ],
+      })
+    );
+  }),
+];
+
+// ============================================
 // Combined Handlers
 // ============================================
-export const handlers = [...authHandlers, ...healthHandlers, ...dealsHandlers];
+export const handlers = [...authHandlers, ...healthHandlers, ...dealsHandlers, ...taxLiensHandlers];

@@ -248,6 +248,61 @@ export class MhParkDashboardPage {
   }
 }
 
+export class TaxLiensPage {
+  constructor(private page: import('@playwright/test').Page) {}
+
+  async goto() {
+    await this.page.goto('/mh-parks/tax-liens');
+  }
+
+  async expectPageLoaded() {
+    await expect(this.page.getByRole('heading', { name: /tax lien tracker/i })).toBeVisible();
+  }
+
+  async expectStatsCardsVisible() {
+    await expect(this.page.getByText(/active liens/i)).toBeVisible();
+    await expect(this.page.getByText(/total amount/i)).toBeVisible();
+    await expect(this.page.getByText(/avg amount/i)).toBeVisible();
+  }
+
+  async expectChartVisible() {
+    // Check that the bar chart container is visible
+    await expect(this.page.locator('.recharts-responsive-container')).toBeVisible();
+  }
+
+  async expectTableVisible() {
+    await expect(this.page.getByRole('table')).toBeVisible();
+  }
+
+  async selectCountyFilter(county: string) {
+    const countySelect = this.page.getByRole('combobox').first();
+    await countySelect.click();
+    await this.page.getByRole('option', { name: new RegExp(county, 'i') }).click();
+  }
+
+  async selectStatusFilter(status: 'active' | 'released') {
+    const statusSelect = this.page.getByRole('combobox').nth(1);
+    await statusSelect.click();
+    await this.page.getByRole('option', { name: new RegExp(status, 'i') }).click();
+  }
+
+  async clearCountyFilter() {
+    const countySelect = this.page.getByRole('combobox').first();
+    await countySelect.click();
+    await this.page.getByRole('option', { name: /all counties/i }).click();
+  }
+
+  async expectLienCount(expectedText: RegExp) {
+    await expect(this.page.getByText(expectedText)).toBeVisible();
+  }
+
+  async expectCommunityLink(communityName: string) {
+    await expect(
+      this.page.getByRole('link', { name: new RegExp(communityName, 'i') })
+    ).toBeVisible();
+  }
+}
+
 // ============================================
 // Extended Test Fixture
 // ============================================
@@ -260,6 +315,7 @@ type TestFixtures = {
   mhParkMapPage: MhParkMapPage;
   mhParkSearchPage: MhParkSearchPage;
   mhParkDashboardPage: MhParkDashboardPage;
+  taxLiensPage: TaxLiensPage;
 };
 
 export const test = base.extend<TestFixtures>({
@@ -283,6 +339,9 @@ export const test = base.extend<TestFixtures>({
   },
   mhParkDashboardPage: async ({ page }, use) => {
     await use(new MhParkDashboardPage(page));
+  },
+  taxLiensPage: async ({ page }, use) => {
+    await use(new TaxLiensPage(page));
   },
 });
 
