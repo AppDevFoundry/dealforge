@@ -18,6 +18,8 @@
     "db:push": "turbo db:push",
     "db:studio": "turbo db:studio",
     "db:seed": "turbo db:seed",
+    "sync:ccn": "pnpm --filter @dealforge/database sync:ccn",
+    "sync:flood": "pnpm --filter @dealforge/database sync:flood",
     "clean": "turbo clean && rm -rf node_modules"
   },
   "devDependencies": {

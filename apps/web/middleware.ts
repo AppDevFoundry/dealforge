@@ -7,13 +7,15 @@ const DEBUG_AUTH = process.env.DEBUG_AUTH === 'true' || process.env.VERCEL_ENV =
  *
  * Protects dashboard routes and redirects unauthenticated users.
  * Also redirects authenticated users away from auth pages.
+ *
+ * Note: We only check cookie presence here, not validity.
+ * Server components validate sessions against the database.
+ * To prevent redirect loops from stale cookies, auth routes
+ * don't redirect to dashboard - they let the sign-in page handle it.
  */
 
 // Routes that require authentication
 const protectedRoutes = ['/dashboard', '/deals', '/analyze'];
-
-// Routes that should redirect to dashboard if already authenticated
-const authRoutes = ['/sign-in', '/sign-up'];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -50,13 +52,9 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(signInUrl);
   }
 
-  // Redirect authenticated users away from auth pages
-  const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
-
-  if (isAuthRoute && isAuthenticated) {
-    if (DEBUG_AUTH) console.log('[middleware] Redirecting authenticated user to dashboard');
-    return NextResponse.redirect(new URL('/dashboard', request.url));
-  }
+  // For auth routes: Don't auto-redirect to dashboard even with cookie present.
+  // This prevents redirect loops when cookies are stale (exist but session invalid).
+  // The sign-in page itself will redirect if user has a valid session.
 
   return NextResponse.next();
 }

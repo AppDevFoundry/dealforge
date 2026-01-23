@@ -1,4 +1,4 @@
-CREATE TABLE "mh_communities" (
+CREATE TABLE IF NOT EXISTS "mh_communities" (
 	"id" text PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
 	"address" text,
@@ -19,7 +19,7 @@ CREATE TABLE "mh_communities" (
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "mh_titlings" (
+CREATE TABLE IF NOT EXISTS "mh_titlings" (
 	"id" text PRIMARY KEY NOT NULL,
 	"county" text NOT NULL,
 	"month" timestamp with time zone NOT NULL,
@@ -30,7 +30,7 @@ CREATE TABLE "mh_titlings" (
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "texas_counties" (
+CREATE TABLE IF NOT EXISTS "texas_counties" (
 	"id" text PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
 	"fips_code" text NOT NULL,
@@ -43,8 +43,12 @@ CREATE TABLE "texas_counties" (
 	CONSTRAINT "texas_counties_fips_code_unique" UNIQUE("fips_code")
 );
 --> statement-breakpoint
-CREATE INDEX "mh_communities_county_idx" ON "mh_communities" USING btree ("county");--> statement-breakpoint
-CREATE INDEX "mh_communities_city_idx" ON "mh_communities" USING btree ("city");--> statement-breakpoint
-CREATE INDEX "mh_communities_lot_count_idx" ON "mh_communities" USING btree ("lot_count");--> statement-breakpoint
-CREATE INDEX "mh_titlings_county_idx" ON "mh_titlings" USING btree ("county");--> statement-breakpoint
-CREATE INDEX "mh_titlings_month_idx" ON "mh_titlings" USING btree ("month");
+CREATE INDEX IF NOT EXISTS "mh_communities_county_idx" ON "mh_communities" USING btree ("county");
+--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "mh_communities_city_idx" ON "mh_communities" USING btree ("city");
+--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "mh_communities_lot_count_idx" ON "mh_communities" USING btree ("lot_count");
+--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "mh_titlings_county_idx" ON "mh_titlings" USING btree ("county");
+--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "mh_titlings_month_idx" ON "mh_titlings" USING btree ("month");

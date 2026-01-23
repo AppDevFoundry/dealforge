@@ -15,6 +15,13 @@
       "when": 1768976336670,
       "tag": "0001_peaceful_skullbuster",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1769186400000,
+      "tag": "0002_infrastructure_postgis",
+      "breakpoints": true
     }
   ]
 }
