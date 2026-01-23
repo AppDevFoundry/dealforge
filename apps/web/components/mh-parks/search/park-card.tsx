@@ -1,7 +1,8 @@
 'use client';
 
 import type { MhCommunity } from '@dealforge/types';
-import { Building2, MapPin, User, Users } from 'lucide-react';
+import { Building2, ExternalLink, MapPin, User, Users } from 'lucide-react';
+import Link from 'next/link';
 
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -100,6 +101,15 @@ export function ParkCard({ park, onClick, isSelected }: ParkCardProps) {
             <span className="truncate">{park.ownerName}</span>
           </div>
         )}
+
+        <Link
+          href={`/mh-parks/${park.id}`}
+          className="flex items-center gap-1 text-xs text-primary hover:underline pt-2"
+          onClick={(e) => e.stopPropagation()}
+        >
+          View Details
+          <ExternalLink className="h-3 w-3" />
+        </Link>
       </CardContent>
     </Card>
   );

@@ -185,3 +185,41 @@ export interface TitlingTrendDataPoint {
   transfers: number;
   totalActive: number | null;
 }
+
+// ============================================
+// TDHCA Data Types
+// ============================================
+
+/**
+ * Tax lien summary for a community
+ */
+export interface TaxLienSummary {
+  communityId: string;
+  totalLiens: number;
+  activeLiens: number;
+  releasedLiens: number;
+  totalTaxAmount: number;
+  avgTaxAmount: number;
+  mostRecentLienDate: string | null;
+  taxYearsSpanned: number[];
+}
+
+/**
+ * Title activity record for a community
+ */
+export interface TitleActivity {
+  certificateNumber: string;
+  ownerName: string;
+  saleDate: string;
+  sellerName: string;
+  electionType: string;
+  issueDate: string;
+}
+
+/**
+ * Combined TDHCA data for a park
+ */
+export interface ParkTdhcaData {
+  lienSummary: TaxLienSummary | null;
+  titleActivity: TitleActivity[];
+}
