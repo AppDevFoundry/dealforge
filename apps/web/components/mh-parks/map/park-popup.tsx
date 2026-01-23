@@ -1,7 +1,8 @@
 'use client';
 
 import type { MhCommunity } from '@dealforge/types';
-import { Building2, MapPin, Users } from 'lucide-react';
+import { Building2, ExternalLink, MapPin, Users } from 'lucide-react';
+import Link from 'next/link';
 
 import { Badge } from '@/components/ui/badge';
 
@@ -62,6 +63,14 @@ export function ParkPopup({ park }: ParkPopupProps) {
             <span className="text-muted-foreground truncate">{park.ownerName}</span>
           )}
         </div>
+
+        <Link
+          href={`/mh-parks/${park.id}`}
+          className="flex items-center gap-1 text-xs text-primary hover:underline pt-2"
+        >
+          View Details
+          <ExternalLink className="size-3" />
+        </Link>
       </div>
     </div>
   );

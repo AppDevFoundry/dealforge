@@ -3,6 +3,7 @@ import type {
   MhCommunity,
   MhParkSearchQuery,
   MhParkStats,
+  ParkTdhcaData,
   TexasCounty,
   TitlingActivityQuery,
   TitlingTrendDataPoint,
@@ -63,6 +64,7 @@ export const mhParkKeys = {
     [...mhParkKeys.titlings(), query] as const,
   counties: () => [...mhParkKeys.all, 'counties'] as const,
   countiesList: (activeOnly?: boolean) => [...mhParkKeys.counties(), { activeOnly }] as const,
+  tdhca: (id: string) => [...mhParkKeys.all, 'tdhca', id] as const,
   stats: () => [...mhParkKeys.all, 'stats'] as const,
   statsByCounty: (county?: string) => [...mhParkKeys.stats(), { county }] as const,
 };
@@ -146,5 +148,19 @@ export function useMhParkStats(county?: string) {
   return useQuery({
     queryKey: mhParkKeys.statsByCounty(county),
     queryFn: () => fetchApi<ApiSuccessResponse<MhParkStats>>(url).then((res) => res.data),
+  });
+}
+
+/**
+ * Hook to fetch TDHCA data (lien summary + title activity) for a park
+ */
+export function useParkTdhcaData(id: string | undefined) {
+  return useQuery({
+    queryKey: mhParkKeys.tdhca(id!),
+    queryFn: () =>
+      fetchApi<ApiSuccessResponse<ParkTdhcaData>>(`/api/v1/mh-parks/${id}/tdhca`).then(
+        (res) => res.data
+      ),
+    enabled: !!id,
   });
 }

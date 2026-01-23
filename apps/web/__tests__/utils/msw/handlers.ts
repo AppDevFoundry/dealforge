@@ -181,6 +181,140 @@ export const dealsHandlers = [
 ];
 
 // ============================================
+// Infrastructure Handlers
+// ============================================
+export const infrastructureHandlers = [
+  // Get flood zones
+  http.get(`${BASE_URL}/api/v1/infrastructure/flood-zones`, ({ request }) => {
+    const url = new URL(request.url);
+    const bbox = url.searchParams.get('bbox');
+    const county = url.searchParams.get('county');
+
+    if (!bbox && !county) {
+      return HttpResponse.json(
+        createApiErrorResponse('VALIDATION_ERROR', 'Either bbox or county must be provided'),
+        { status: 400 }
+      );
+    }
+
+    if (bbox) {
+      const parts = bbox.split(',').map(Number);
+      if (parts.length !== 4 || parts.some(Number.isNaN)) {
+        return HttpResponse.json(
+          createApiErrorResponse(
+            'VALIDATION_ERROR',
+            'Invalid bbox format. Expected: minLng,minLat,maxLng,maxLat'
+          ),
+          { status: 400 }
+        );
+      }
+    }
+
+    return HttpResponse.json(
+      createApiResponse({
+        type: 'FeatureCollection',
+        features: [
+          {
+            type: 'Feature',
+            geometry: {
+              type: 'Polygon',
+              coordinates: [
+                [
+                  [-98.5, 29.4],
+                  [-98.49, 29.4],
+                  [-98.49, 29.41],
+                  [-98.5, 29.41],
+                  [-98.5, 29.4],
+                ],
+              ],
+            },
+            properties: {
+              id: 'fz_mock_1',
+              zoneCode: 'AE',
+              zoneDescription: 'Special Flood Hazard Area with base flood elevation',
+              county: 'Bexar',
+              riskLevel: 'high',
+            },
+          },
+          {
+            type: 'Feature',
+            geometry: {
+              type: 'Polygon',
+              coordinates: [
+                [
+                  [-98.48, 29.4],
+                  [-98.47, 29.4],
+                  [-98.47, 29.41],
+                  [-98.48, 29.41],
+                  [-98.48, 29.4],
+                ],
+              ],
+            },
+            properties: {
+              id: 'fz_mock_2',
+              zoneCode: 'X',
+              zoneDescription: 'Minimal flood hazard area',
+              county: 'Bexar',
+              riskLevel: 'low',
+            },
+          },
+        ],
+      })
+    );
+  }),
+
+  // Check infrastructure at point
+  http.get(`${BASE_URL}/api/v1/infrastructure/check-point`, ({ request }) => {
+    const url = new URL(request.url);
+    const lat = url.searchParams.get('lat');
+    const lng = url.searchParams.get('lng');
+
+    if (!lat || !lng) {
+      return HttpResponse.json(
+        createApiErrorResponse('VALIDATION_ERROR', 'lat and lng are required'),
+        { status: 400 }
+      );
+    }
+
+    return HttpResponse.json(
+      createApiResponse({
+        ccnAreas: [
+          {
+            id: 'ccn_mock_1',
+            ccnNumber: '10001',
+            utilityName: 'San Antonio Water System',
+            serviceType: 'water',
+            county: 'Bexar',
+          },
+        ],
+        ccnFacilities: [],
+        floodZones: [
+          {
+            id: 'fz_mock_1',
+            zoneCode: 'AE',
+            zoneDescription: 'Special Flood Hazard Area with base flood elevation',
+            county: 'Bexar',
+            riskLevel: 'high',
+          },
+        ],
+        summary: {
+          hasWaterService: true,
+          hasSewerService: false,
+          highestFloodRisk: 'high',
+          ccnCount: 1,
+          floodZoneCount: 1,
+        },
+      })
+    );
+  }),
+];
+
+// ============================================
 // Combined Handlers
 // ============================================
-export const handlers = [...authHandlers, ...healthHandlers, ...dealsHandlers];
+export const handlers = [
+  ...authHandlers,
+  ...healthHandlers,
+  ...dealsHandlers,
+  ...infrastructureHandlers,
+];

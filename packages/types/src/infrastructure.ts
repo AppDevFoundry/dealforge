@@ -22,12 +22,12 @@ export const HIGH_RISK_ZONES = ['A', 'AE', 'AH', 'AO', 'AR', 'A99', 'V', 'VE'] a
 /**
  * Moderate risk flood zones
  */
-export const MODERATE_RISK_ZONES = ['B', 'X'] as const;
+export const MODERATE_RISK_ZONES = ['B', 'X SHADED'] as const;
 
 /**
  * Low risk flood zones
  */
-export const LOW_RISK_ZONES = ['C', 'X'] as const;
+export const LOW_RISK_ZONES = ['C', 'X', 'X UNSHADED'] as const;
 
 // ============================================
 // CCN Area Types
@@ -209,7 +209,7 @@ export function getFloodRiskLevel(zoneCode: string): FloodRiskLevel {
   }
 
   // Check for moderate risk (shaded X zones or B zones)
-  if (code === 'B' || code === 'X SHADED' || code.includes('SHADED')) {
+  if (code === 'B' || code === 'X SHADED' || (code.includes('SHADED') && !code.includes('UNSHADED'))) {
     return 'moderate';
   }
 
