@@ -40,7 +40,9 @@ export function getBaseUrl(): string {
     return process.env.BETTER_AUTH_URL;
   }
 
-  // Local development fallback
-  if (DEBUG_AUTH) console.log('[getBaseUrl] Using fallback: http://localhost:3000');
-  return 'http://localhost:3000';
+  // Local development fallback - check PORT env var or default to 3000
+  const port = process.env.PORT || '3000';
+  const url = `http://localhost:${port}`;
+  if (DEBUG_AUTH) console.log('[getBaseUrl] Using fallback:', url);
+  return url;
 }

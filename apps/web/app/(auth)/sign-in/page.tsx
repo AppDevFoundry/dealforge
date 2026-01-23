@@ -1,5 +1,7 @@
 import { SignInForm } from '@/components/auth/sign-in-form';
+import { getServerSession } from '@/lib/auth-server';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 
 export const metadata = {
@@ -7,7 +9,13 @@ export const metadata = {
   description: 'Sign in to your DealForge account',
 };
 
-export default function SignInPage() {
+export default async function SignInPage() {
+  // If user is already authenticated with a valid session, redirect to dashboard
+  const session = await getServerSession();
+  if (session) {
+    redirect('/dashboard');
+  }
+
   return (
     <div className="flex min-h-screen flex-col items-center justify-center">
       <div className="mx-auto w-full max-w-md space-y-6 px-4">

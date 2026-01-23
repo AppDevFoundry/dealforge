@@ -1,4 +1,4 @@
-CREATE TABLE "accounts" (
+CREATE TABLE IF NOT EXISTS "accounts" (
 	"id" text PRIMARY KEY NOT NULL,
 	"user_id" text NOT NULL,
 	"account_id" text NOT NULL,
@@ -14,7 +14,7 @@ CREATE TABLE "accounts" (
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "users" (
+CREATE TABLE IF NOT EXISTS "users" (
 	"id" text PRIMARY KEY NOT NULL,
 	"email" text NOT NULL,
 	"email_verified" boolean DEFAULT false NOT NULL,
@@ -25,7 +25,7 @@ CREATE TABLE "users" (
 	CONSTRAINT "users_email_unique" UNIQUE("email")
 );
 --> statement-breakpoint
-CREATE TABLE "verifications" (
+CREATE TABLE IF NOT EXISTS "verifications" (
 	"id" text PRIMARY KEY NOT NULL,
 	"identifier" text NOT NULL,
 	"value" text NOT NULL,
@@ -34,7 +34,7 @@ CREATE TABLE "verifications" (
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "sessions" (
+CREATE TABLE IF NOT EXISTS "sessions" (
 	"id" text PRIMARY KEY NOT NULL,
 	"user_id" text NOT NULL,
 	"token" text NOT NULL,
@@ -46,14 +46,14 @@ CREATE TABLE "sessions" (
 	CONSTRAINT "sessions_token_unique" UNIQUE("token")
 );
 --> statement-breakpoint
-CREATE TABLE "deal_tags" (
+CREATE TABLE IF NOT EXISTS "deal_tags" (
 	"id" text PRIMARY KEY NOT NULL,
 	"deal_id" text NOT NULL,
 	"tag" text NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE "deals" (
+CREATE TABLE IF NOT EXISTS "deals" (
 	"id" text PRIMARY KEY NOT NULL,
 	"user_id" text NOT NULL,
 	"org_id" text,
@@ -73,7 +73,7 @@ CREATE TABLE "deals" (
 	CONSTRAINT "deals_public_slug_unique" UNIQUE("public_slug")
 );
 --> statement-breakpoint
-CREATE TABLE "user_preferences" (
+CREATE TABLE IF NOT EXISTS "user_preferences" (
 	"user_id" text PRIMARY KEY NOT NULL,
 	"default_assumptions" jsonb DEFAULT '{}'::jsonb,
 	"notification_prefs" jsonb DEFAULT '{}'::jsonb,
@@ -82,13 +82,32 @@ CREATE TABLE "user_preferences" (
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-ALTER TABLE "accounts" ADD CONSTRAINT "accounts_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "sessions" ADD CONSTRAINT "sessions_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "deal_tags" ADD CONSTRAINT "deal_tags_deal_id_deals_id_fk" FOREIGN KEY ("deal_id") REFERENCES "public"."deals"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "deals" ADD CONSTRAINT "deals_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "user_preferences" ADD CONSTRAINT "user_preferences_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
-CREATE INDEX "deal_tags_deal_id_idx" ON "deal_tags" USING btree ("deal_id");--> statement-breakpoint
-CREATE INDEX "deals_user_id_idx" ON "deals" USING btree ("user_id");--> statement-breakpoint
-CREATE INDEX "deals_type_idx" ON "deals" USING btree ("type");--> statement-breakpoint
-CREATE INDEX "deals_status_idx" ON "deals" USING btree ("status");--> statement-breakpoint
-CREATE INDEX "deals_created_at_idx" ON "deals" USING btree ("created_at");
+DO $$ BEGIN
+  ALTER TABLE "accounts" ADD CONSTRAINT "accounts_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+  ALTER TABLE "sessions" ADD CONSTRAINT "sessions_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+  ALTER TABLE "deal_tags" ADD CONSTRAINT "deal_tags_deal_id_deals_id_fk" FOREIGN KEY ("deal_id") REFERENCES "public"."deals"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+  ALTER TABLE "deals" ADD CONSTRAINT "deals_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+  ALTER TABLE "user_preferences" ADD CONSTRAINT "user_preferences_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION WHEN duplicate_object THEN NULL; END $$;
+--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "deal_tags_deal_id_idx" ON "deal_tags" USING btree ("deal_id");
+--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "deals_user_id_idx" ON "deals" USING btree ("user_id");
+--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "deals_type_idx" ON "deals" USING btree ("type");
+--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "deals_status_idx" ON "deals" USING btree ("status");
+--> statement-breakpoint
+CREATE INDEX IF NOT EXISTS "deals_created_at_idx" ON "deals" USING btree ("created_at");

@@ -24,12 +24,17 @@
     "./market": {
       "types": "./src/market.ts",
       "default": "./src/market.ts"
+    },
+    "./infrastructure": {
+      "types": "./src/infrastructure.ts",
+      "default": "./src/infrastructure.ts"
     }
   },
   "scripts": {
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
+    "@types/geojson": "^7946.0.15",
     "typescript": "^5.7.2"
   },
   "dependencies": {

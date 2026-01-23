@@ -10,6 +10,10 @@ const DEBUG_AUTH = process.env.DEBUG_AUTH === 'true' || process.env.VERCEL_ENV =
 const baseURL = getBaseUrl();
 const trustedOrigins = [
   baseURL,
+  // Always trust common local dev ports (Next.js increments when port is in use)
+  'http://localhost:3000',
+  'http://localhost:3001',
+  'http://localhost:3002',
   // Trust production URL from preview deployments (for OAuth callbacks)
   process.env.VERCEL_PROJECT_PRODUCTION_URL
     ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
