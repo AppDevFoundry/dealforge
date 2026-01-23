@@ -1,9 +1,10 @@
 'use client';
 
 import type { MhCommunity } from '@dealforge/types';
-import { useMemo, useState } from 'react';
+import type { InfrastructureLayerVisibility } from '@dealforge/types';
+import { useCallback, useMemo, useState } from 'react';
 
-import { MhParkMap } from '@/components/mh-parks/map';
+import { LayerControls, MapLegend, MhParkMap } from '@/components/mh-parks/map';
 import { Label } from '@/components/ui/label';
 import {
   Select,
@@ -12,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { useCcnAreas, useFloodZones } from '@/lib/hooks/use-infrastructure';
 import { useMhParks } from '@/lib/hooks/use-mh-parks';
 
 type PropertyTypeFilter = 'all' | 'all_ages' | 'senior_55+' | 'family';
@@ -19,13 +21,28 @@ type PropertyTypeFilter = 'all' | 'all_ages' | 'senior_55+' | 'family';
 export default function MhParksPage() {
   const [selectedPark, setSelectedPark] = useState<MhCommunity | null>(null);
   const [propertyTypeFilter, setPropertyTypeFilter] = useState<PropertyTypeFilter>('all');
+  const [bbox, setBbox] = useState<string | null>(null);
+  const [infraVisibility, setInfraVisibility] = useState<InfrastructureLayerVisibility>({
+    communities: true,
+    waterCcn: false,
+    sewerCcn: false,
+    floodZonesHigh: false,
+    floodZonesModerate: false,
+  });
 
   // Fetch all parks with coordinates for the map
   const { data: parksResponse, isLoading } = useMhParks({
-    perPage: 1000, // Get all parks for map
+    perPage: 1000,
     sortBy: 'name',
     sortOrder: 'asc',
   });
+
+  // Fetch infrastructure data when layers are enabled and bbox is available
+  const ccnEnabled = infraVisibility.waterCcn || infraVisibility.sewerCcn;
+  const floodEnabled = infraVisibility.floodZonesHigh || infraVisibility.floodZonesModerate;
+
+  const { data: ccnData } = useCcnAreas(ccnEnabled ? bbox : null);
+  const { data: floodData } = useFloodZones(floodEnabled ? bbox : null);
 
   const allParks = parksResponse?.data ?? [];
 
@@ -38,6 +55,10 @@ export default function MhParksPage() {
   const handleParkSelect = (park: MhCommunity | null) => {
     setSelectedPark(park);
   };
+
+  const handleBboxChange = useCallback((newBbox: string) => {
+    setBbox(newBbox);
+  }, []);
 
   return (
     <div className="flex flex-col gap-6 p-6">
@@ -79,7 +100,19 @@ export default function MhParksPage() {
           <p className="text-muted-foreground">Loading map data...</p>
         </div>
       ) : (
-        <MhParkMap parks={parks} selectedPark={selectedPark} onParkSelect={handleParkSelect} />
+        <div className="relative">
+          <MhParkMap
+            parks={parks}
+            selectedPark={selectedPark}
+            onParkSelect={handleParkSelect}
+            infraVisibility={infraVisibility}
+            ccnData={ccnData}
+            floodData={floodData}
+            onBboxChange={handleBboxChange}
+          />
+          <LayerControls visibility={infraVisibility} onVisibilityChange={setInfraVisibility} />
+          <MapLegend visibility={infraVisibility} />
+        </div>
       )}
 
       {selectedPark && (

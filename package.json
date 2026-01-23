@@ -18,10 +18,15 @@
     "db:push": "turbo db:push",
     "db:studio": "turbo db:studio",
     "db:seed": "turbo db:seed",
-    "clean": "turbo clean && rm -rf node_modules"
+    "clean": "turbo clean && rm -rf node_modules",
+    "sync:ccn": "tsx scripts/sync-ccn-data.ts",
+    "sync:flood": "tsx scripts/sync-flood-data.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
+    "dotenv": "^17.2.3",
+    "shapefile": "^0.6.6",
+    "tsx": "^4.19.2",
     "turbo": "^2.3.3",
     "typescript": "^5.7.2"
   },

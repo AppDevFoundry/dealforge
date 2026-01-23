@@ -181,6 +181,141 @@ export const dealsHandlers = [
 ];
 
 // ============================================
+// Infrastructure Handlers
+// ============================================
+export const infrastructureHandlers = [
+  // CCN areas
+  http.get(`${BASE_URL}/api/v1/infrastructure/ccn`, ({ request }) => {
+    const url = new URL(request.url);
+    const bbox = url.searchParams.get('bbox');
+
+    if (!bbox) {
+      return HttpResponse.json(createApiErrorResponse('VALIDATION_ERROR', 'bbox is required'), {
+        status: 400,
+      });
+    }
+
+    return HttpResponse.json(
+      createApiResponse({
+        type: 'FeatureCollection',
+        features: [
+          {
+            type: 'Feature',
+            geometry: {
+              type: 'Polygon',
+              coordinates: [
+                [
+                  [-98.5, 29.4],
+                  [-98.4, 29.4],
+                  [-98.4, 29.5],
+                  [-98.5, 29.5],
+                  [-98.5, 29.4],
+                ],
+              ],
+            },
+            properties: {
+              id: 'ccn_test1',
+              ccnNumber: '12345',
+              utilityName: 'Test Water Utility',
+              serviceType: 'water',
+              county: 'Bexar',
+            },
+          },
+        ],
+      })
+    );
+  }),
+
+  // Flood zones
+  http.get(`${BASE_URL}/api/v1/infrastructure/flood-zones`, ({ request }) => {
+    const url = new URL(request.url);
+    const bbox = url.searchParams.get('bbox');
+
+    if (!bbox) {
+      return HttpResponse.json(createApiErrorResponse('VALIDATION_ERROR', 'bbox is required'), {
+        status: 400,
+      });
+    }
+
+    return HttpResponse.json(
+      createApiResponse({
+        type: 'FeatureCollection',
+        features: [
+          {
+            type: 'Feature',
+            geometry: {
+              type: 'MultiPolygon',
+              coordinates: [
+                [
+                  [
+                    [-98.5, 29.4],
+                    [-98.4, 29.4],
+                    [-98.4, 29.5],
+                    [-98.5, 29.5],
+                    [-98.5, 29.4],
+                  ],
+                ],
+              ],
+            },
+            properties: {
+              id: 'fz_test1',
+              zoneCode: 'AE',
+              zoneDescription: '1% annual chance flood',
+              county: 'Bexar',
+              riskLevel: 'high',
+            },
+          },
+        ],
+      })
+    );
+  }),
+
+  // Check point
+  http.get(`${BASE_URL}/api/v1/infrastructure/check-point`, ({ request }) => {
+    const url = new URL(request.url);
+    const lat = url.searchParams.get('lat');
+    const lng = url.searchParams.get('lng');
+
+    if (!lat || !lng) {
+      return HttpResponse.json(
+        createApiErrorResponse('VALIDATION_ERROR', 'lat and lng are required'),
+        { status: 400 }
+      );
+    }
+
+    return HttpResponse.json(
+      createApiResponse({
+        ccnAreas: [
+          {
+            id: 'ccn_test1',
+            ccnNumber: '12345',
+            utilityName: 'Test Water Utility',
+            serviceType: 'water',
+            county: 'Bexar',
+          },
+        ],
+        floodZone: {
+          id: 'fz_test1',
+          zoneCode: 'AE',
+          zoneDescription: '1% annual chance flood',
+          county: 'Bexar',
+          riskLevel: 'high',
+        },
+        hasWaterService: true,
+        hasSewerService: false,
+        floodRiskLevel: 'high',
+        isHighRiskFlood: true,
+      })
+    );
+  }),
+];
+
+// ============================================
 // Combined Handlers
 // ============================================
-export const handlers = [...authHandlers, ...healthHandlers, ...dealsHandlers];
+export const handlers = [
+  ...authHandlers,
+  ...healthHandlers,
+  ...dealsHandlers,
+  ...infrastructureHandlers,
+];
