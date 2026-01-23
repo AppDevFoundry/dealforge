@@ -89,6 +89,40 @@ export const texasCounties = pgTable('texas_counties', {
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
 });
 
+/**
+ * MH Tax Liens table
+ *
+ * Stores tax lien records for manufactured homes from TDHCA.
+ * This surfaces distressed MH properties in Texas.
+ */
+export const mhTaxLiens = pgTable(
+  'mh_tax_liens',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => `mtl_${createId()}`),
+    serialNumber: text('serial_number'),
+    hudLabel: text('hud_label'),
+    county: text('county').notNull(),
+    taxingEntity: text('taxing_entity'),
+    amount: real('amount'),
+    year: integer('year'),
+    status: text('status').notNull(), // 'active', 'released'
+    filedDate: timestamp('filed_date', { withTimezone: true }),
+    releasedDate: timestamp('released_date', { withTimezone: true }),
+    // Link to community (optional, matched by address)
+    communityId: text('community_id').references(() => mhCommunities.id),
+    sourceUpdatedAt: timestamp('source_updated_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index('mh_tax_liens_county_idx').on(table.county),
+    index('mh_tax_liens_status_idx').on(table.status),
+    index('mh_tax_liens_serial_number_idx').on(table.serialNumber),
+    index('mh_tax_liens_community_id_idx').on(table.communityId),
+  ]
+);
+
 // Type exports
 export type MhCommunity = typeof mhCommunities.$inferSelect;
 export type NewMhCommunity = typeof mhCommunities.$inferInsert;
@@ -96,3 +130,5 @@ export type MhTitling = typeof mhTitlings.$inferSelect;
 export type NewMhTitling = typeof mhTitlings.$inferInsert;
 export type TexasCounty = typeof texasCounties.$inferSelect;
 export type NewTexasCounty = typeof texasCounties.$inferInsert;
+export type MhTaxLien = typeof mhTaxLiens.$inferSelect;
+export type NewMhTaxLien = typeof mhTaxLiens.$inferInsert;

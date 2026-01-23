@@ -27,7 +27,9 @@
     "db:seed": "tsx src/seed.ts",
     "db:seed:mh-parks": "tsx src/seed-mh-parks.ts",
     "sync:ccn": "tsx src/scripts/sync-ccn-data.ts",
-    "sync:flood": "tsx src/scripts/sync-flood-data.ts"
+    "sync:flood": "tsx src/scripts/sync-flood-data.ts",
+    "db:seed:flood-zones": "tsx src/seed-flood-zones.ts",
+    "db:seed:tax-liens": "tsx src/seed-tax-liens.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",

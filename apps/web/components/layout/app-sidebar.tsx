@@ -1,5 +1,6 @@
 'use client';
 import {
+  AlertTriangle,
   BarChart3,
   Calculator,
   ChevronRight,
@@ -92,6 +93,11 @@ const mainNavItems = [
         title: 'Calculator',
         href: '/mh-parks/calculator',
         icon: Calculator,
+      },
+      {
+        title: 'Tax Liens',
+        href: '/mh-parks/tax-liens',
+        icon: AlertTriangle,
       },
     ],
   },
