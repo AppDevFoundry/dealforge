@@ -1,8 +1,8 @@
 'use client';
 
 import { Badge } from '@/components/ui/badge';
-import type { CcnArea, FloodRiskLevel, FloodZone } from '@dealforge/types';
-import { AlertTriangle, Building2, Droplets } from 'lucide-react';
+import type { CcnArea, CcnFacility, FloodRiskLevel, FloodZone } from '@dealforge/types';
+import { AlertTriangle, Building2, Droplets, GitBranch } from 'lucide-react';
 
 // ============================================================================
 // CCN Popup
@@ -154,11 +154,57 @@ export function FloodZonePopup({ floodZone }: FloodZonePopupProps) {
 }
 
 // ============================================================================
+// CCN Facility Popup (Infrastructure Lines)
+// ============================================================================
+
+interface FacilityPopupProps {
+  facility: CcnFacility;
+}
+
+export function FacilityPopup({ facility }: FacilityPopupProps) {
+  return (
+    <div className="min-w-[200px] max-w-[280px] p-3 bg-card text-card-foreground">
+      <div className="flex items-center gap-2 mb-2">
+        <GitBranch className="size-4 text-cyan-500" />
+        <h3 className="font-semibold text-sm">Infrastructure Line</h3>
+      </div>
+
+      <div className="space-y-2 text-xs">
+        <div>
+          <span className="text-muted-foreground">Utility:</span>
+          <p className="font-medium">{facility.utilityName}</p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <span className="text-muted-foreground">Type:</span>
+          <Badge
+            variant="outline"
+            className={`text-xs ${getServiceTypeColor(facility.serviceType)}`}
+          >
+            {getServiceTypeLabel(facility.serviceType)}
+          </Badge>
+        </div>
+
+        {facility.ccnNumber && (
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Building2 className="size-3 shrink-0" />
+            <span>CCN #{facility.ccnNumber}</span>
+          </div>
+        )}
+
+        {facility.county && <div className="text-muted-foreground">{facility.county} County</div>}
+      </div>
+    </div>
+  );
+}
+
+// ============================================================================
 // Combined Infrastructure Popup
 // ============================================================================
 
 export type InfrastructurePopupData =
   | { type: 'ccn'; data: CcnArea }
+  | { type: 'facility'; data: CcnFacility }
   | { type: 'flood'; data: FloodZone };
 
 interface InfrastructurePopupProps {
@@ -168,6 +214,9 @@ interface InfrastructurePopupProps {
 export function InfrastructurePopup({ popupData }: InfrastructurePopupProps) {
   if (popupData.type === 'ccn') {
     return <CcnPopup ccnArea={popupData.data} />;
+  }
+  if (popupData.type === 'facility') {
+    return <FacilityPopup facility={popupData.data} />;
   }
   return <FloodZonePopup floodZone={popupData.data} />;
 }

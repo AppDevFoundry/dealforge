@@ -53,6 +53,29 @@ export interface CcnAreaGeoJson extends CcnArea {
 }
 
 // ============================================
+// CCN Facility Types
+// ============================================
+
+/**
+ * CCN Facility - Infrastructure lines (pipes, etc.)
+ * Unlike service areas (polygons), these are LineString geometries
+ */
+export interface CcnFacility {
+  id: string;
+  ccnNumber: string | null;
+  utilityName: string;
+  serviceType: CcnServiceType;
+  county: string | null;
+}
+
+/**
+ * CCN Facility with GeoJSON geometry for map rendering
+ */
+export interface CcnFacilityGeoJson extends CcnFacility {
+  geometry: GeoJSON.LineString | GeoJSON.MultiLineString;
+}
+
+// ============================================
 // Flood Zone Types
 // ============================================
 
@@ -121,6 +144,7 @@ export interface InfrastructurePointQuery {
  */
 export interface InfrastructureAtPoint {
   ccnAreas: CcnArea[];
+  ccnFacilities: CcnFacility[];
   floodZones: FloodZone[];
 }
 
@@ -129,6 +153,14 @@ export interface InfrastructureAtPoint {
  */
 export interface CcnFeature extends GeoJSON.Feature<GeoJSON.Polygon> {
   properties: CcnArea;
+}
+
+/**
+ * GeoJSON Feature for CCN facility
+ */
+export interface CcnFacilityFeature
+  extends GeoJSON.Feature<GeoJSON.LineString | GeoJSON.MultiLineString> {
+  properties: CcnFacility;
 }
 
 /**
@@ -143,6 +175,14 @@ export interface FloodZoneFeature extends GeoJSON.Feature<GeoJSON.Polygon | GeoJ
  */
 export interface CcnFeatureCollection extends GeoJSON.FeatureCollection<GeoJSON.Polygon> {
   features: CcnFeature[];
+}
+
+/**
+ * GeoJSON FeatureCollection for CCN facilities
+ */
+export interface CcnFacilityFeatureCollection
+  extends GeoJSON.FeatureCollection<GeoJSON.LineString | GeoJSON.MultiLineString> {
+  features: CcnFacilityFeature[];
 }
 
 /**

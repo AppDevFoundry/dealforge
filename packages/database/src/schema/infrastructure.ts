@@ -66,8 +66,43 @@ export const floodZones = pgTable(
   ]
 );
 
+/**
+ * CCN Facilities table
+ *
+ * Stores water/sewer utility facility lines (pipes, infrastructure).
+ * Unlike service areas (polygons), these are LineString geometries showing
+ * where actual infrastructure runs.
+ *
+ * Note: The `geometry` column is GEOGRAPHY(GEOMETRY, 4326) to support both
+ * LineString and MultiLineString types.
+ */
+export const ccnFacilities = pgTable(
+  'ccn_facilities',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => `ccnf_${createId()}`),
+    ccnNumber: text('ccn_number'),
+    utilityName: text('utility_name').notNull(),
+    serviceType: text('service_type').notNull(), // 'water', 'sewer', 'both'
+    county: text('county'),
+    // Note: geometry is GEOGRAPHY(GEOMETRY, 4326) in the actual table
+    // Supports LineString and MultiLineString
+    geometry: text('geometry'),
+    sourceUpdatedAt: timestamp('source_updated_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index('ccn_facilities_county_idx').on(table.county),
+    index('ccn_facilities_service_type_idx').on(table.serviceType),
+    index('ccn_facilities_utility_name_idx').on(table.utilityName),
+  ]
+);
+
 // Type exports
 export type CcnArea = typeof ccnAreas.$inferSelect;
 export type NewCcnArea = typeof ccnAreas.$inferInsert;
+export type CcnFacility = typeof ccnFacilities.$inferSelect;
+export type NewCcnFacility = typeof ccnFacilities.$inferInsert;
 export type FloodZone = typeof floodZones.$inferSelect;
 export type NewFloodZone = typeof floodZones.$inferInsert;

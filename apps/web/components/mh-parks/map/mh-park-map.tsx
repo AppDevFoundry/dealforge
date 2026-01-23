@@ -1,6 +1,6 @@
 'use client';
 
-import type { BBox, CcnArea, FloodZone } from '@dealforge/types';
+import type { BBox, CcnArea, CcnFacility, FloodZone } from '@dealforge/types';
 import type { MhCommunity } from '@dealforge/types';
 import type { MapRef, MarkerEvent, ViewStateChangeEvent } from '@vis.gl/react-mapbox';
 import 'mapbox-gl/dist/mapbox-gl.css';
@@ -55,6 +55,17 @@ const CCN_SEWER_LINE_PAINT = {
   'line-width': 1,
 };
 
+// Facility (infrastructure line) paint configurations
+const FACILITY_WATER_LINE_PAINT = {
+  'line-color': '#06b6d4', // cyan-500
+  'line-width': 2,
+};
+
+const FACILITY_SEWER_LINE_PAINT = {
+  'line-color': '#d946ef', // fuchsia-500
+  'line-width': 2,
+};
+
 // Flood zone paint based on risk level
 const FLOOD_ZONE_FILL_PAINT = {
   'fill-color': [
@@ -106,6 +117,8 @@ export function MhParkMap({ parks, selectedPark, onParkSelect }: MhParkMapProps)
     communities: true,
     ccnWater: false,
     ccnSewer: false,
+    facilityWater: false,
+    facilitySewer: false,
     floodZones: false,
   });
 
@@ -115,6 +128,8 @@ export function MhParkMap({ parks, selectedPark, onParkSelect }: MhParkMapProps)
   const {
     ccnWaterGeoJson,
     ccnSewerGeoJson,
+    facilityWaterGeoJson,
+    facilitySewerGeoJson,
     floodZonesGeoJson,
     isLoading: isInfrastructureLoading,
   } = useInfrastructure(mapBbox, { debounceMs: 500 });
@@ -178,7 +193,13 @@ export function MhParkMap({ parks, selectedPark, onParkSelect }: MhParkMapProps)
 
     // Query rendered features at click point
     const features = map.queryRenderedFeatures(event.point, {
-      layers: ['ccn-water-fill', 'ccn-sewer-fill', 'flood-zones-fill'].filter((layerId) => {
+      layers: [
+        'ccn-water-fill',
+        'ccn-sewer-fill',
+        'facility-water-line',
+        'facility-sewer-line',
+        'flood-zones-fill',
+      ].filter((layerId) => {
         try {
           return map.getLayer(layerId);
         } catch {
@@ -208,6 +229,19 @@ export function MhParkMap({ parks, selectedPark, onParkSelect }: MhParkMapProps)
       };
       setInfrastructurePopup({
         data: { type: 'ccn', data: ccnArea },
+        lng: lngLat.lng,
+        lat: lngLat.lat,
+      });
+    } else if (feature.layer?.id?.startsWith('facility-')) {
+      const facility: CcnFacility = {
+        id: properties.id,
+        ccnNumber: properties.ccnNumber,
+        utilityName: properties.utilityName,
+        serviceType: properties.serviceType,
+        county: properties.county,
+      };
+      setInfrastructurePopup({
+        data: { type: 'facility', data: facility },
         lng: lngLat.lng,
         lat: lngLat.lat,
       });
@@ -256,7 +290,12 @@ export function MhParkMap({ parks, selectedPark, onParkSelect }: MhParkMapProps)
   }
 
   // Check if any infrastructure layers are active
-  const hasActiveInfrastructureLayers = layers.ccnWater || layers.ccnSewer || layers.floodZones;
+  const hasActiveInfrastructureLayers =
+    layers.ccnWater ||
+    layers.ccnSewer ||
+    layers.facilityWater ||
+    layers.facilitySewer ||
+    layers.floodZones;
 
   return (
     <div className="relative h-[500px] rounded-lg overflow-hidden border">
@@ -282,7 +321,13 @@ export function MhParkMap({ parks, selectedPark, onParkSelect }: MhParkMapProps)
         style={{ width: '100%', height: '100%' }}
         interactiveLayerIds={
           hasActiveInfrastructureLayers
-            ? ['ccn-water-fill', 'ccn-sewer-fill', 'flood-zones-fill']
+            ? [
+                'ccn-water-fill',
+                'ccn-sewer-fill',
+                'facility-water-line',
+                'facility-sewer-line',
+                'flood-zones-fill',
+              ]
             : undefined
         }
         onMouseEnter={handleMouseEnter}
@@ -321,6 +366,20 @@ export function MhParkMap({ parks, selectedPark, onParkSelect }: MhParkMapProps)
           <Source id="ccn-sewer" type="geojson" data={ccnSewerGeoJson ?? EMPTY_GEOJSON}>
             <Layer id="ccn-sewer-fill" type="fill" paint={CCN_SEWER_FILL_PAINT} />
             <Layer id="ccn-sewer-line" type="line" paint={CCN_SEWER_LINE_PAINT} />
+          </Source>
+        )}
+
+        {/* Water Facility Lines */}
+        {layers.facilityWater && (
+          <Source id="facility-water" type="geojson" data={facilityWaterGeoJson ?? EMPTY_GEOJSON}>
+            <Layer id="facility-water-line" type="line" paint={FACILITY_WATER_LINE_PAINT} />
+          </Source>
+        )}
+
+        {/* Sewer Facility Lines */}
+        {layers.facilitySewer && (
+          <Source id="facility-sewer" type="geojson" data={facilitySewerGeoJson ?? EMPTY_GEOJSON}>
+            <Layer id="facility-sewer-line" type="line" paint={FACILITY_SEWER_LINE_PAINT} />
           </Source>
         )}
 

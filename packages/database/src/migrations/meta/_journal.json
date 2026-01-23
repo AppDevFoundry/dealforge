@@ -22,6 +22,13 @@
       "when": 1769186400000,
       "tag": "0002_infrastructure_postgis",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1769234400000,
+      "tag": "0003_ccn_facilities",
+      "breakpoints": true
     }
   ]
 }

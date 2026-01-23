@@ -10,6 +10,8 @@ export interface LayerVisibility {
   communities: boolean;
   ccnWater: boolean;
   ccnSewer: boolean;
+  facilityWater: boolean;
+  facilitySewer: boolean;
   floodZones: boolean;
 }
 
@@ -85,6 +87,44 @@ export function LayerControls({ layers, onLayersChange, isLoading }: LayerContro
                   id="layer-ccn-sewer"
                   checked={layers.ccnSewer}
                   onCheckedChange={() => handleToggle('ccnSewer')}
+                  className="scale-90"
+                />
+              </div>
+
+              {/* Facility Water layer (lines) */}
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <span className="h-0.5 w-3 bg-cyan-500" />
+                  <Label
+                    htmlFor="layer-facility-water"
+                    className="text-xs font-normal cursor-pointer"
+                  >
+                    Water Lines
+                  </Label>
+                </div>
+                <Switch
+                  id="layer-facility-water"
+                  checked={layers.facilityWater}
+                  onCheckedChange={() => handleToggle('facilityWater')}
+                  className="scale-90"
+                />
+              </div>
+
+              {/* Facility Sewer layer (lines) */}
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <span className="h-0.5 w-3 bg-fuchsia-500" />
+                  <Label
+                    htmlFor="layer-facility-sewer"
+                    className="text-xs font-normal cursor-pointer"
+                  >
+                    Sewer Lines
+                  </Label>
+                </div>
+                <Switch
+                  id="layer-facility-sewer"
+                  checked={layers.facilitySewer}
+                  onCheckedChange={() => handleToggle('facilitySewer')}
                   className="scale-90"
                 />
               </div>

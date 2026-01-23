@@ -5,7 +5,11 @@
  * Filters to MVP counties: Bexar, Hidalgo, Cameron, Nueces, Travis
  *
  * Usage:
- *   pnpm --filter @dealforge/database sync:ccn [path-to-shapefile.zip]
+ *   pnpm --filter @dealforge/database sync:ccn [path-to-shapefile.zip] [service-type]
+ *
+ * Arguments:
+ *   path-to-shapefile.zip - Path to the CCN shapefile
+ *   service-type - Optional: 'water', 'sewer', or 'both' (overrides auto-detection)
  *
  * Data source: Texas Public Utility Commission
  * GIS Download: https://www.puc.texas.gov/industry/water/utilities/gis/
@@ -20,30 +24,80 @@ import * as fs from 'node:fs';
 // Load environment
 config({ path: '../../.env.local' });
 
-// MVP counties for Phase 2
-const MVP_COUNTIES = ['Bexar', 'Hidalgo', 'Cameron', 'Nueces', 'Travis'];
+// MVP counties for Phase 2 - Expanded to include Coastal Bend, SA-Corpus corridor, and RGV
+const MVP_COUNTIES = [
+  // Original MVP
+  'Bexar',
+  'Travis',
+  // Coastal Bend
+  'Nueces',
+  'San Patricio',
+  'Aransas',
+  'Kleberg',
+  'Jim Wells',
+  'Refugio',
+  'Calhoun',
+  'Victoria',
+  'Bee',
+  'Live Oak',
+  'Brooks',
+  // SA to Corpus corridor
+  'Karnes',
+  'Wilson',
+  'Atascosa',
+  'Mcmullen',
+  'La Salle',
+  'Frio',
+  'Medina',
+  'Uvalde',
+  'Goliad',
+  // Rio Grande Valley
+  'Hidalgo',
+  'Cameron',
+  'Starr',
+  'Zapata',
+  'Webb',
+  'Jim Hogg',
+  'Kenedy',
+  'Willacy',
+];
 
 interface CcnFeatureProperties {
+  // CCN Number variations
+  CCN_NO?: string;
   CCN_NUMBER?: string;
   ccn_number?: string;
+  // Utility name variations
+  UTILITY?: string;
   UTILITY_NA?: string;
   utility_name?: string;
   UTILITY_NAME?: string;
+  // Service type variations
   SERVICE_TY?: string;
   service_type?: string;
   SERVICE_TYPE?: string;
+  // County variations
   COUNTY?: string;
   county?: string;
   [key: string]: unknown;
 }
 
+type GeometryType = 'Polygon' | 'MultiPolygon' | 'LineString' | 'MultiLineString';
+
 interface GeoJsonFeature {
   type: 'Feature';
   geometry: {
-    type: 'Polygon' | 'MultiPolygon';
-    coordinates: number[][][] | number[][][][];
+    type: GeometryType;
+    coordinates: number[][] | number[][][] | number[][][][];
   };
   properties: CcnFeatureProperties;
+}
+
+/**
+ * Check if geometry is a line type (facility) vs polygon (service area)
+ */
+function isLineGeometry(type: GeometryType): boolean {
+  return type === 'LineString' || type === 'MultiLineString';
 }
 
 interface GeoJsonCollection {
@@ -51,10 +105,20 @@ interface GeoJsonCollection {
   features: GeoJsonFeature[];
 }
 
+type ServiceType = 'water' | 'sewer' | 'both';
+
 /**
- * Parse service type from shapefile properties
+ * Parse service type from shapefile properties or use override
  */
-function parseServiceType(props: CcnFeatureProperties): 'water' | 'sewer' | 'both' {
+function parseServiceType(
+  props: CcnFeatureProperties,
+  override?: ServiceType
+): ServiceType {
+  // If explicit override provided, use it
+  if (override) {
+    return override;
+  }
+
   const serviceType = (
     props.SERVICE_TY ||
     props.service_type ||
@@ -74,16 +138,34 @@ function parseServiceType(props: CcnFeatureProperties): 'water' | 'sewer' | 'bot
 }
 
 /**
- * Normalize county name
+ * Normalize county name (capitalize first letter of each word)
  */
 function normalizeCounty(county: string | undefined): string | null {
   if (!county) return null;
-  // Capitalize first letter of each word
   return county
     .toLowerCase()
     .split(' ')
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
+}
+
+/**
+ * Check if a county string matches any MVP county
+ * Handles multi-county fields like "CAMERON, WILLACY"
+ */
+function matchesMvpCounty(countyRaw: string | undefined): string | null {
+  if (!countyRaw) return null;
+
+  // Split by comma for multi-county entries
+  const counties = countyRaw.split(',').map((c) => normalizeCounty(c.trim()));
+
+  // Return the first matching MVP county
+  for (const county of counties) {
+    if (county && MVP_COUNTIES.includes(county)) {
+      return county;
+    }
+  }
+  return null;
 }
 
 /**
@@ -101,7 +183,7 @@ function normalizeGeometry(geometry: GeoJsonFeature['geometry']): string {
   return JSON.stringify(geometry);
 }
 
-async function syncCcnData(shapefilePath?: string) {
+async function syncCcnData(shapefilePath?: string, serviceTypeOverride?: ServiceType) {
   const databaseUrl = process.env.DATABASE_URL;
   if (!databaseUrl) {
     console.error('DATABASE_URL is not set');
@@ -114,6 +196,9 @@ async function syncCcnData(shapefilePath?: string) {
   // Otherwise, show instructions for manual data loading
   if (shapefilePath) {
     console.log('Loading CCN shapefile:', shapefilePath);
+    if (serviceTypeOverride) {
+      console.log('Using explicit service type:', serviceTypeOverride);
+    }
 
     // Dynamic import for shpjs (ESM module)
     const shpjs = await import('shpjs');
@@ -125,7 +210,8 @@ async function syncCcnData(shapefilePath?: string) {
     // Handle both single and array results from shpjs
     const collections = Array.isArray(geojson) ? geojson : [geojson];
 
-    let insertedCount = 0;
+    let areasInserted = 0;
+    let facilitiesInserted = 0;
     let skippedCount = 0;
 
     for (const collection of collections) {
@@ -133,49 +219,82 @@ async function syncCcnData(shapefilePath?: string) {
 
       for (const feature of collection.features) {
         const props = feature.properties;
-        const county = normalizeCounty(props.COUNTY || props.county);
+        const countyRaw = props.COUNTY || props.county;
 
-        // Filter to MVP counties
-        if (county && !MVP_COUNTIES.includes(county)) {
+        // Filter to MVP counties (handles multi-county fields like "CAMERON, WILLACY")
+        const county = matchesMvpCounty(countyRaw);
+        if (!county) {
           skippedCount++;
           continue;
         }
 
-        const ccnNumber = props.CCN_NUMBER || props.ccn_number || null;
+        const ccnNumber = props.CCN_NO || props.CCN_NUMBER || props.ccn_number || null;
         const utilityName =
-          props.UTILITY_NA || props.utility_name || props.UTILITY_NAME || 'Unknown Utility';
-        const serviceType = parseServiceType(props);
+          props.UTILITY || props.UTILITY_NA || props.utility_name || props.UTILITY_NAME || 'Unknown Utility';
+        const serviceType = parseServiceType(props, serviceTypeOverride);
+        const geometryJson = JSON.stringify(feature.geometry);
 
-        const id = `ccn_${createId()}`;
-        const boundaryGeoJson = normalizeGeometry(feature.geometry);
+        // Handle line geometries (facilities) vs polygon geometries (service areas)
+        if (isLineGeometry(feature.geometry.type)) {
+          // Insert into ccn_facilities table
+          const id = `ccnf_${createId()}`;
 
-        try {
-          await sql`
-            INSERT INTO ccn_areas (id, ccn_number, utility_name, service_type, county, boundary, created_at)
-            VALUES (
-              ${id},
-              ${ccnNumber},
-              ${utilityName},
-              ${serviceType},
-              ${county},
-              ST_GeomFromGeoJSON(${boundaryGeoJson})::geography,
-              NOW()
-            )
-          `;
-          insertedCount++;
+          try {
+            await sql`
+              INSERT INTO ccn_facilities (id, ccn_number, utility_name, service_type, county, geometry, created_at)
+              VALUES (
+                ${id},
+                ${ccnNumber},
+                ${utilityName},
+                ${serviceType},
+                ${county},
+                ST_GeomFromGeoJSON(${geometryJson})::geography,
+                NOW()
+              )
+            `;
+            facilitiesInserted++;
 
-          if (insertedCount % 100 === 0) {
-            console.log(`Inserted ${insertedCount} CCN areas...`);
+            if (facilitiesInserted % 100 === 0) {
+              console.log(`Inserted ${facilitiesInserted} CCN facilities...`);
+            }
+          } catch (error) {
+            console.error('Error inserting CCN facility:', error);
+            skippedCount++;
           }
-        } catch (error) {
-          console.error('Error inserting CCN area:', error);
-          skippedCount++;
+        } else {
+          // Insert into ccn_areas table (polygons)
+          const id = `ccn_${createId()}`;
+          const boundaryGeoJson = normalizeGeometry(feature.geometry);
+
+          try {
+            await sql`
+              INSERT INTO ccn_areas (id, ccn_number, utility_name, service_type, county, boundary, created_at)
+              VALUES (
+                ${id},
+                ${ccnNumber},
+                ${utilityName},
+                ${serviceType},
+                ${county},
+                ST_GeomFromGeoJSON(${boundaryGeoJson})::geography,
+                NOW()
+              )
+            `;
+            areasInserted++;
+
+            if (areasInserted % 100 === 0) {
+              console.log(`Inserted ${areasInserted} CCN areas...`);
+            }
+          } catch (error) {
+            console.error('Error inserting CCN area:', error);
+            skippedCount++;
+          }
         }
       }
     }
 
     console.log(`\nSync complete:`);
-    console.log(`  Inserted: ${insertedCount} CCN areas`);
+    console.log(`  Inserted: ${areasInserted} CCN areas (service boundaries)`);
+    console.log(`  Inserted: ${facilitiesInserted} CCN facilities (infrastructure lines)`);
     console.log(`  Skipped: ${skippedCount} (non-MVP counties or errors)`);
   } else {
     // Show instructions for obtaining and loading data
@@ -193,8 +312,10 @@ Data Source:
 
 Instructions:
 1. Go to https://www.puc.texas.gov/industry/water/utilities/gis/
-2. Download the CCN shapefile (statewide dataset)
-3. Run: pnpm --filter @dealforge/database sync:ccn path/to/ccn-shapefile.zip
+2. Download the CCN shapefiles (water and sewer separately)
+3. Run:
+   pnpm --filter @dealforge/database sync:ccn path/to/water.zip water
+   pnpm --filter @dealforge/database sync:ccn path/to/sewer.zip sewer
 
 MVP Counties (Phase 2):
   ${MVP_COUNTIES.join(', ')}
@@ -204,10 +325,18 @@ Note: Only data for MVP counties will be loaded to keep the database manageable.
   }
 
   // Show current counts
-  const result = await sql`SELECT COUNT(*) as count FROM ccn_areas`;
-  console.log(`\nCurrent CCN areas in database: ${result[0]?.count || 0}`);
+  const areasResult = await sql`SELECT COUNT(*) as count FROM ccn_areas`;
+  const facilitiesResult = await sql`SELECT COUNT(*) as count FROM ccn_facilities`;
+  console.log(`\nCurrent database counts:`);
+  console.log(`  CCN areas (service boundaries): ${areasResult[0]?.count || 0}`);
+  console.log(`  CCN facilities (infrastructure lines): ${facilitiesResult[0]?.count || 0}`);
 }
 
 // Run if called directly
 const args = process.argv.slice(2);
-syncCcnData(args[0]).catch(console.error);
+const serviceTypeArg = args[1] as ServiceType | undefined;
+if (serviceTypeArg && !['water', 'sewer', 'both'].includes(serviceTypeArg)) {
+  console.error('Invalid service type. Must be: water, sewer, or both');
+  process.exit(1);
+}
+syncCcnData(args[0], serviceTypeArg).catch(console.error);

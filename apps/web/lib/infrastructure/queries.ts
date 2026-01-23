@@ -8,6 +8,9 @@
 import type {
   BBox,
   CcnArea,
+  CcnFacility,
+  CcnFacilityFeature,
+  CcnFacilityFeatureCollection,
   CcnFeature,
   CcnFeatureCollection,
   CcnServiceType,
@@ -86,6 +89,63 @@ export async function getCcnAreasByBbox(
   const features: CcnFeature[] = rows.map((row: Record<string, unknown>) => ({
     type: 'Feature' as const,
     geometry: row.geometry as GeoJSON.Polygon,
+    properties: {
+      id: asString(row.id),
+      ccnNumber: asStringOrNull(row.ccn_number),
+      utilityName: asString(row.utility_name),
+      serviceType: asString(row.service_type) as CcnServiceType,
+      county: asStringOrNull(row.county),
+    },
+  }));
+
+  return {
+    type: 'FeatureCollection',
+    features,
+  };
+}
+
+/**
+ * Get CCN facilities (infrastructure lines) that intersect with a bounding box
+ */
+export async function getCcnFacilitiesByBbox(
+  bbox: BBox,
+  serviceType?: CcnServiceType
+): Promise<CcnFacilityFeatureCollection> {
+  const sql = getSql();
+  const [minLng, minLat, maxLng, maxLat] = bbox;
+
+  const bboxWkt = `POLYGON((${minLng} ${minLat}, ${maxLng} ${minLat}, ${maxLng} ${maxLat}, ${minLng} ${maxLat}, ${minLng} ${minLat}))`;
+
+  const rows = serviceType
+    ? await sql`
+        SELECT
+          id,
+          ccn_number,
+          utility_name,
+          service_type,
+          county,
+          ST_AsGeoJSON(geometry)::json as geometry
+        FROM ccn_facilities
+        WHERE ST_Intersects(geometry, ST_GeogFromText(${bboxWkt}))
+          AND service_type = ${serviceType}
+        LIMIT 1000
+      `
+    : await sql`
+        SELECT
+          id,
+          ccn_number,
+          utility_name,
+          service_type,
+          county,
+          ST_AsGeoJSON(geometry)::json as geometry
+        FROM ccn_facilities
+        WHERE ST_Intersects(geometry, ST_GeogFromText(${bboxWkt}))
+        LIMIT 1000
+      `;
+
+  const features: CcnFacilityFeature[] = rows.map((row: Record<string, unknown>) => ({
+    type: 'Feature' as const,
+    geometry: row.geometry as GeoJSON.LineString | GeoJSON.MultiLineString,
     properties: {
       id: asString(row.id),
       ccnNumber: asStringOrNull(row.ccn_number),
@@ -214,7 +274,7 @@ export async function getFloodZonesByCounty(
 }
 
 /**
- * Get infrastructure data (CCN areas and flood zones) at a specific point
+ * Get infrastructure data (CCN areas, facilities, and flood zones) at a specific point
  */
 export async function getInfrastructureAtPoint(
   lat: number,
@@ -233,6 +293,18 @@ export async function getInfrastructureAtPoint(
       county
     FROM ccn_areas
     WHERE ST_Contains(boundary::geometry, ST_GeomFromText(${pointWkt}, 4326))
+  `;
+
+  // Query CCN facilities near the point (within 100m since lines don't "contain" points)
+  const facilityRows = await sql`
+    SELECT
+      id,
+      ccn_number,
+      utility_name,
+      service_type,
+      county
+    FROM ccn_facilities
+    WHERE ST_DWithin(geometry, ST_GeogFromText(${pointWkt}), 100)
   `;
 
   // Query flood zones containing the point
@@ -254,6 +326,14 @@ export async function getInfrastructureAtPoint(
     county: asStringOrNull(row.county),
   }));
 
+  const ccnFacilities: CcnFacility[] = facilityRows.map((row: Record<string, unknown>) => ({
+    id: asString(row.id),
+    ccnNumber: asStringOrNull(row.ccn_number),
+    utilityName: asString(row.utility_name),
+    serviceType: asString(row.service_type) as CcnServiceType,
+    county: asStringOrNull(row.county),
+  }));
+
   const floodZones: FloodZone[] = floodRows.map((row: Record<string, unknown>) => ({
     id: asString(row.id),
     zoneCode: asString(row.zone_code),
@@ -264,6 +344,7 @@ export async function getInfrastructureAtPoint(
 
   return {
     ccnAreas,
+    ccnFacilities,
     floodZones,
   };
 }

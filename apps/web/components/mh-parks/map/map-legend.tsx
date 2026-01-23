@@ -13,6 +13,7 @@ interface LegendItem {
   borderColor: string;
   visibilityKey: keyof LayerVisibility;
   subLabel?: string;
+  isLine?: boolean;
 }
 
 const legendItems: LegendItem[] = [
@@ -29,6 +30,24 @@ const legendItems: LegendItem[] = [
     color: 'bg-purple-500/30',
     borderColor: 'border-purple-500',
     visibilityKey: 'ccnSewer',
+  },
+  {
+    key: 'facilityWater',
+    label: 'Water Infrastructure',
+    color: 'bg-cyan-500',
+    borderColor: 'border-cyan-500',
+    visibilityKey: 'facilityWater',
+    subLabel: 'Pipes & mains',
+    isLine: true,
+  },
+  {
+    key: 'facilitySewer',
+    label: 'Sewer Infrastructure',
+    color: 'bg-fuchsia-500',
+    borderColor: 'border-fuchsia-500',
+    visibilityKey: 'facilitySewer',
+    subLabel: 'Pipes & mains',
+    isLine: true,
   },
   {
     key: 'floodHigh',
@@ -71,7 +90,11 @@ export function MapLegend({ layers }: MapLegendProps) {
         <div className="space-y-2">
           {activeItems.map((item) => (
             <div key={item.key} className="flex items-center gap-2">
-              <span className={`size-4 rounded-sm ${item.color} border ${item.borderColor}`} />
+              {item.isLine ? (
+                <span className={`h-0.5 w-4 ${item.color}`} />
+              ) : (
+                <span className={`size-4 rounded-sm ${item.color} border ${item.borderColor}`} />
+              )}
               <div className="flex flex-col">
                 <span className="text-xs">{item.label}</span>
                 {item.subLabel && (

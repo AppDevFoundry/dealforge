@@ -1,6 +1,7 @@
 import type { ApiSuccessResponse } from '@/lib/api';
 import type {
   BBox,
+  CcnFacilityFeatureCollection,
   CcnFeatureCollection,
   CcnServiceType,
   FloodZoneFeatureCollection,
@@ -54,6 +55,9 @@ export const infrastructureKeys = {
   ccn: () => [...infrastructureKeys.all, 'ccn'] as const,
   ccnByBbox: (bbox: string, serviceType?: CcnServiceType) =>
     [...infrastructureKeys.ccn(), 'bbox', bbox, serviceType] as const,
+  ccnFacilities: () => [...infrastructureKeys.all, 'ccn-facilities'] as const,
+  ccnFacilitiesByBbox: (bbox: string, serviceType?: CcnServiceType) =>
+    [...infrastructureKeys.ccnFacilities(), 'bbox', bbox, serviceType] as const,
   floodZones: () => [...infrastructureKeys.all, 'flood-zones'] as const,
   floodZonesByBbox: (bbox: string, highRiskOnly?: boolean) =>
     [...infrastructureKeys.floodZones(), 'bbox', bbox, highRiskOnly] as const,
@@ -79,16 +83,39 @@ export function useCcnAreasByBbox(bbox: BBox | null, serviceType?: CcnServiceTyp
 
   return useQuery({
     queryKey: infrastructureKeys.ccnByBbox(bboxStr, serviceType),
-    queryFn: () => {
+    queryFn: async () => {
       const params = new URLSearchParams({ bbox: bboxStr });
       if (serviceType) params.set('serviceType', serviceType);
-      return fetchApi<ApiSuccessResponse<CcnFeatureCollection>>(
+      const res = await fetchApi<ApiSuccessResponse<CcnFeatureCollection>>(
         `/api/v1/infrastructure/ccn?${params}`
-      ).then((res) => res.data);
+      );
+      return res.data;
     },
     enabled: !!bbox,
     staleTime: 30000, // 30 seconds
     gcTime: 300000, // 5 minutes
+  });
+}
+
+/**
+ * Hook to fetch CCN facilities (infrastructure lines) by bounding box
+ */
+export function useCcnFacilitiesByBbox(bbox: BBox | null, serviceType?: CcnServiceType) {
+  const bboxStr = bbox ? formatBBox(bbox) : '';
+
+  return useQuery({
+    queryKey: infrastructureKeys.ccnFacilitiesByBbox(bboxStr, serviceType),
+    queryFn: async () => {
+      const params = new URLSearchParams({ bbox: bboxStr });
+      if (serviceType) params.set('serviceType', serviceType);
+      const res = await fetchApi<CcnFacilityFeatureCollection>(
+        `/api/v1/infrastructure/facilities?${params}`
+      );
+      return res;
+    },
+    enabled: !!bbox,
+    staleTime: 30000,
+    gcTime: 300000,
   });
 }
 
@@ -100,12 +127,13 @@ export function useFloodZonesByBbox(bbox: BBox | null, highRiskOnly = false) {
 
   return useQuery({
     queryKey: infrastructureKeys.floodZonesByBbox(bboxStr, highRiskOnly),
-    queryFn: () => {
+    queryFn: async () => {
       const params = new URLSearchParams({ bbox: bboxStr });
       if (highRiskOnly) params.set('highRiskOnly', 'true');
-      return fetchApi<ApiSuccessResponse<FloodZoneFeatureCollection>>(
+      const res = await fetchApi<ApiSuccessResponse<FloodZoneFeatureCollection>>(
         `/api/v1/infrastructure/flood-zones?${params}`
-      ).then((res) => res.data);
+      );
+      return res.data;
     },
     enabled: !!bbox,
     staleTime: 30000,
@@ -119,10 +147,12 @@ export function useFloodZonesByBbox(bbox: BBox | null, highRiskOnly = false) {
 export function useInfrastructureAtPoint(lat: number | null, lng: number | null) {
   return useQuery({
     queryKey: infrastructureKeys.atPoint(lat ?? 0, lng ?? 0),
-    queryFn: () =>
-      fetchApi<ApiSuccessResponse<InfrastructureAtPointResponse>>(
+    queryFn: async () => {
+      const res = await fetchApi<ApiSuccessResponse<InfrastructureAtPointResponse>>(
         `/api/v1/infrastructure/check-point?lat=${lat}&lng=${lng}`
-      ).then((res) => res.data),
+      );
+      return res.data;
+    },
     enabled: lat !== null && lng !== null,
     staleTime: 60000, // 1 minute
     gcTime: 300000,
@@ -163,6 +193,9 @@ export function useInfrastructure(bbox: BBox | null, options?: { debounceMs?: nu
   // Fetch CCN areas (water and sewer combined)
   const ccnQuery = useCcnAreasByBbox(debouncedBbox);
 
+  // Fetch CCN facilities (infrastructure lines)
+  const facilitiesQuery = useCcnFacilitiesByBbox(debouncedBbox);
+
   // Fetch flood zones
   const floodZonesQuery = useFloodZonesByBbox(debouncedBbox);
 
@@ -185,13 +218,34 @@ export function useInfrastructure(bbox: BBox | null, options?: { debounceMs?: nu
       }
     : undefined;
 
+  // Separate water and sewer facilities
+  const facilityWaterGeoJson: CcnFacilityFeatureCollection | undefined = facilitiesQuery.data
+    ? {
+        type: 'FeatureCollection',
+        features: facilitiesQuery.data.features.filter(
+          (f) => f.properties.serviceType === 'water' || f.properties.serviceType === 'both'
+        ),
+      }
+    : undefined;
+
+  const facilitySewerGeoJson: CcnFacilityFeatureCollection | undefined = facilitiesQuery.data
+    ? {
+        type: 'FeatureCollection',
+        features: facilitiesQuery.data.features.filter(
+          (f) => f.properties.serviceType === 'sewer' || f.properties.serviceType === 'both'
+        ),
+      }
+    : undefined;
+
   return {
     ccnWaterGeoJson,
     ccnSewerGeoJson,
+    facilityWaterGeoJson,
+    facilitySewerGeoJson,
     floodZonesGeoJson: floodZonesQuery.data,
-    isLoading: ccnQuery.isLoading || floodZonesQuery.isLoading,
-    isError: ccnQuery.isError || floodZonesQuery.isError,
-    error: ccnQuery.error || floodZonesQuery.error,
+    isLoading: ccnQuery.isLoading || facilitiesQuery.isLoading || floodZonesQuery.isLoading,
+    isError: ccnQuery.isError || facilitiesQuery.isError || floodZonesQuery.isError,
+    error: ccnQuery.error || facilitiesQuery.error || floodZonesQuery.error,
   };
 }
 
