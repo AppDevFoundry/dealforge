@@ -31,6 +31,8 @@ export const mhCommunities = pgTable(
     longitude: real('longitude'),
     lotCount: integer('lot_count'),
     estimatedOccupancy: real('estimated_occupancy'),
+    distressScore: real('distress_score'), // 0-100 score
+    distressUpdatedAt: timestamp('distress_updated_at', { withTimezone: true }),
     propertyType: text('property_type'), // 'all_ages', 'senior_55+', 'family'
     ownerName: text('owner_name'),
     source: text('source').notNull(), // 'tdhca', 'manual', 'cad'
@@ -43,6 +45,7 @@ export const mhCommunities = pgTable(
     index('mh_communities_county_idx').on(table.county),
     index('mh_communities_city_idx').on(table.city),
     index('mh_communities_lot_count_idx').on(table.lotCount),
+    index('mh_communities_distress_score_idx').on(table.distressScore),
   ]
 );
 

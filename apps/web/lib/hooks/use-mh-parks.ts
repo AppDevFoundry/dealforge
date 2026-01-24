@@ -1,5 +1,7 @@
 import type { ApiSuccessResponse } from '@/lib/api';
 import type {
+  DistressedParkWithScore,
+  DistressedParksQuery,
   MhCommunity,
   MhParkSearchQuery,
   MhParkStats,
@@ -15,6 +17,19 @@ import { useQuery } from '@tanstack/react-query';
 // ============================================================================
 
 interface PaginatedMhParksResponse extends ApiSuccessResponse<MhCommunity[]> {
+  meta: {
+    timestamp: string;
+    requestId: string;
+    pagination: {
+      page: number;
+      perPage: number;
+      total: number;
+      totalPages: number;
+    };
+  };
+}
+
+interface PaginatedDistressedParksResponse extends ApiSuccessResponse<DistressedParkWithScore[]> {
   meta: {
     timestamp: string;
     requestId: string;
@@ -67,6 +82,9 @@ export const mhParkKeys = {
   tdhca: (id: string) => [...mhParkKeys.all, 'tdhca', id] as const,
   stats: () => [...mhParkKeys.all, 'stats'] as const,
   statsByCounty: (county?: string) => [...mhParkKeys.stats(), { county }] as const,
+  distressed: () => [...mhParkKeys.all, 'distressed'] as const,
+  distressedList: (filters: Partial<DistressedParksQuery>) =>
+    [...mhParkKeys.distressed(), filters] as const,
 };
 
 // ============================================================================
@@ -162,5 +180,26 @@ export function useParkTdhcaData(id: string | undefined) {
         (res) => res.data
       ),
     enabled: !!id,
+  });
+}
+
+/**
+ * Hook to fetch distressed parks with filtering and pagination
+ */
+export function useDistressedParks(options: Partial<DistressedParksQuery> = {}) {
+  const searchParams = new URLSearchParams();
+
+  for (const [key, value] of Object.entries(options)) {
+    if (value !== undefined) {
+      searchParams.set(key, String(value));
+    }
+  }
+
+  const queryString = searchParams.toString();
+  const url = `/api/v1/mh-parks/distressed${queryString ? `?${queryString}` : ''}`;
+
+  return useQuery({
+    queryKey: mhParkKeys.distressedList(options),
+    queryFn: () => fetchApi<PaginatedDistressedParksResponse>(url),
   });
 }
