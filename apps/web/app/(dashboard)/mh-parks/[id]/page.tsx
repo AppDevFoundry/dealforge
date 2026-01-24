@@ -2,6 +2,7 @@
 
 import { useParams } from 'next/navigation';
 
+import { DistressSummaryPanel } from '@/components/mh-parks/detail/distress-summary-panel';
 import { LienSummaryPanel } from '@/components/mh-parks/detail/lien-summary-panel';
 import { ParkDetailHeader } from '@/components/mh-parks/detail/park-detail-header';
 import { ParkInfoGrid } from '@/components/mh-parks/detail/park-info-grid';
@@ -35,6 +36,11 @@ export default function ParkDetailPage() {
     <div className="flex flex-col gap-6 p-6">
       <ParkDetailHeader park={park} />
       <ParkInfoGrid park={park} />
+      <DistressSummaryPanel
+        distressScore={park.distressScore}
+        distressFactors={park.distressFactors}
+        distressUpdatedAt={park.distressUpdatedAt}
+      />
 
       {isTdhcaLoading ? (
         <div className="space-y-4">
