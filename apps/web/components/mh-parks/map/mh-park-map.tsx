@@ -385,41 +385,52 @@ export function MhParkMap({ parks, selectedPark, onParkSelect }: MhParkMapProps)
 
         {/* Park Markers (rendered above infrastructure layers) */}
         {layers.communities &&
-          parksWithCoords.map((park) => (
-            <Marker
-              key={park.id}
-              latitude={park.latitude!}
-              longitude={park.longitude!}
-              anchor="bottom"
-              onClick={(e: MarkerEvent<MouseEvent>) => {
-                e.originalEvent.stopPropagation();
-                handleMarkerClick(park);
-              }}
-            >
-              <div
-                className={`cursor-pointer transition-transform hover:scale-110 ${
-                  selectedPark?.id === park.id ? 'scale-125' : ''
-                }`}
+          parksWithCoords.map((park) => {
+            const markerColor =
+              selectedPark?.id === park.id
+                ? 'text-primary'
+                : park.distressScore != null && park.distressScore >= 60
+                  ? 'text-red-600'
+                  : park.distressScore != null && park.distressScore >= 30
+                    ? 'text-amber-500'
+                    : 'text-blue-600';
+
+            return (
+              <Marker
+                key={park.id}
+                latitude={park.latitude!}
+                longitude={park.longitude!}
+                anchor="bottom"
+                onClick={(e: MarkerEvent<MouseEvent>) => {
+                  e.originalEvent.stopPropagation();
+                  handleMarkerClick(park);
+                }}
               >
-                <svg
-                  width="24"
-                  height="32"
-                  viewBox="0 0 24 32"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                  className={selectedPark?.id === park.id ? 'text-primary' : 'text-blue-600'}
-                  role="img"
-                  aria-label={`Map marker for ${park.name}`}
+                <div
+                  className={`cursor-pointer transition-transform hover:scale-110 ${
+                    selectedPark?.id === park.id ? 'scale-125' : ''
+                  }`}
                 >
-                  <path
-                    d="M12 0C5.373 0 0 5.373 0 12c0 9 12 20 12 20s12-11 12-20c0-6.627-5.373-12-12-12z"
-                    fill="currentColor"
-                  />
-                  <circle cx="12" cy="12" r="5" fill="white" />
-                </svg>
-              </div>
-            </Marker>
-          ))}
+                  <svg
+                    width="24"
+                    height="32"
+                    viewBox="0 0 24 32"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    className={markerColor}
+                    role="img"
+                    aria-label={`Map marker for ${park.name}`}
+                  >
+                    <path
+                      d="M12 0C5.373 0 0 5.373 0 12c0 9 12 20 12 20s12-11 12-20c0-6.627-5.373-12-12-12z"
+                      fill="currentColor"
+                    />
+                    <circle cx="12" cy="12" r="5" fill="white" />
+                  </svg>
+                </div>
+              </Marker>
+            );
+          })}
 
         {/* Park Popup */}
         {popupPark?.latitude && popupPark.longitude && (

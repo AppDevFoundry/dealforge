@@ -1,5 +1,6 @@
 'use client';
 import {
+  AlertTriangle,
   BarChart3,
   Calculator,
   ChevronRight,
@@ -87,6 +88,11 @@ const mainNavItems = [
         title: 'Search',
         href: '/mh-parks/search',
         icon: Search,
+      },
+      {
+        title: 'Distressed',
+        href: '/mh-parks/distressed',
+        icon: AlertTriangle,
       },
       {
         title: 'Calculator',

@@ -36,6 +36,13 @@
       "when": 1769320800000,
       "tag": "0004_harsh_ultimo",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1769222037126,
+      "tag": "0005_charming_photon",
+      "breakpoints": true
     }
   ]
 }

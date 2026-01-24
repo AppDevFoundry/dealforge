@@ -1,5 +1,7 @@
 import type { ApiSuccessResponse } from '@/lib/api';
 import type {
+  DistressedParkResult,
+  DistressedParksQuery,
   MhCommunity,
   MhParkSearchQuery,
   MhParkStats,
@@ -64,6 +66,9 @@ export const mhParkKeys = {
     [...mhParkKeys.titlings(), query] as const,
   counties: () => [...mhParkKeys.all, 'counties'] as const,
   countiesList: (activeOnly?: boolean) => [...mhParkKeys.counties(), { activeOnly }] as const,
+  distressed: () => [...mhParkKeys.all, 'distressed'] as const,
+  distressedList: (query: Partial<DistressedParksQuery>) =>
+    [...mhParkKeys.distressed(), query] as const,
   tdhca: (id: string) => [...mhParkKeys.all, 'tdhca', id] as const,
   stats: () => [...mhParkKeys.all, 'stats'] as const,
   statsByCounty: (county?: string) => [...mhParkKeys.stats(), { county }] as const,
@@ -148,6 +153,28 @@ export function useMhParkStats(county?: string) {
   return useQuery({
     queryKey: mhParkKeys.statsByCounty(county),
     queryFn: () => fetchApi<ApiSuccessResponse<MhParkStats>>(url).then((res) => res.data),
+  });
+}
+
+/**
+ * Hook to fetch distressed parks ranked by distress score
+ */
+export function useDistressedParks(query: Partial<DistressedParksQuery> = {}) {
+  const searchParams = new URLSearchParams();
+
+  for (const [key, value] of Object.entries(query)) {
+    if (value !== undefined) {
+      searchParams.set(key, String(value));
+    }
+  }
+
+  const queryString = searchParams.toString();
+  const url = `/api/v1/mh-parks/distressed${queryString ? `?${queryString}` : ''}`;
+
+  return useQuery({
+    queryKey: mhParkKeys.distressedList(query),
+    queryFn: () =>
+      fetchApi<ApiSuccessResponse<DistressedParkResult[]>>(url).then((res) => res.data),
   });
 }
 

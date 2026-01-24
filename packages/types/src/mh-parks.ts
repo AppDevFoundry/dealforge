@@ -97,6 +97,9 @@ export interface MhCommunity {
   source: string;
   sourceUpdatedAt: Date | null;
   metadata: Record<string, unknown> | null;
+  distressScore: number | null;
+  distressFactors: DistressFactors | null;
+  distressUpdatedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -184,6 +187,41 @@ export interface TitlingTrendDataPoint {
   newTitles: number;
   transfers: number;
   totalActive: number | null;
+}
+
+// ============================================
+// Distress Scoring Types
+// ============================================
+
+export interface DistressFactors {
+  lienRatio: number;
+  taxBurden: number;
+  recency: number;
+  persistence: number;
+  activeLienCount: number;
+  totalTaxOwed: number;
+  taxYearsWithLiens: number;
+}
+
+export interface DistressedParkResult {
+  communityId: string;
+  name: string;
+  address: string | null;
+  city: string;
+  county: string;
+  lotCount: number | null;
+  latitude: number | null;
+  longitude: number | null;
+  distressScore: number;
+  distressFactors: DistressFactors;
+  distressUpdatedAt: string;
+}
+
+export interface DistressedParksQuery {
+  county?: string;
+  minScore?: number;
+  limit?: number;
+  sortBy?: 'score' | 'lienCount' | 'taxOwed';
 }
 
 // ============================================

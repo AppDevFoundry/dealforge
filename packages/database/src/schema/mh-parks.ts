@@ -36,6 +36,9 @@ export const mhCommunities = pgTable(
     source: text('source').notNull(), // 'tdhca', 'manual', 'cad'
     sourceUpdatedAt: timestamp('source_updated_at', { withTimezone: true }),
     metadata: jsonb('metadata'),
+    distressScore: real('distress_score'),
+    distressFactors: jsonb('distress_factors'),
+    distressUpdatedAt: timestamp('distress_updated_at', { withTimezone: true }),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
@@ -43,6 +46,7 @@ export const mhCommunities = pgTable(
     index('mh_communities_county_idx').on(table.county),
     index('mh_communities_city_idx').on(table.city),
     index('mh_communities_lot_count_idx').on(table.lotCount),
+    index('mh_communities_distress_score_idx').on(table.distressScore),
   ]
 );
 
