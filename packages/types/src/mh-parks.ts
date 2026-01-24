@@ -223,3 +223,45 @@ export interface ParkTdhcaData {
   lienSummary: TaxLienSummary | null;
   titleActivity: TitleActivity[];
 }
+
+// ============================================
+// Distressed Parks Types
+// ============================================
+
+/**
+ * Distressed park with calculated distress score and lien data
+ */
+export interface DistressedParkWithScore {
+  communityId: string;
+  name: string;
+  address: string | null;
+  city: string;
+  county: string;
+  lotCount: number | null;
+  latitude: number | null;
+  longitude: number | null;
+  distressScore: number;
+  distressUpdatedAt: string | null;
+  activeLienCount: number;
+  totalTaxOwed: number;
+  taxYearsWithLiens: number;
+  mostRecentLienDate: string | null;
+}
+
+/**
+ * Query parameters for distressed parks endpoint
+ */
+export interface DistressedParksQuery {
+  county?: string;
+  minScore?: number;
+  limit?: number;
+  page?: number;
+  perPage?: number;
+  sortBy?: 'score' | 'lienCount' | 'taxOwed';
+  sortOrder?: 'asc' | 'desc';
+}
+
+/**
+ * Distress level classification
+ */
+export type DistressLevel = 'high' | 'medium' | 'low';

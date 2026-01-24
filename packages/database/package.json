@@ -32,6 +32,7 @@
     "sync:tdhca:titles": "tsx src/scripts/sync-tdhca-titles.ts",
     "sync:tdhca:liens": "tsx src/scripts/sync-tdhca-liens.ts",
     "discover:parks": "tsx src/scripts/discover-parks.ts",
+    "calc:distress": "tsx src/scripts/calculate-distress-scores.ts",
     "test": "vitest run",
     "test:watch": "vitest"
   },
