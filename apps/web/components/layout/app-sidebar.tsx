@@ -2,6 +2,7 @@
 import {
   AlertTriangle,
   BarChart3,
+  Bot,
   Calculator,
   ChevronRight,
   ChevronUp,
@@ -105,6 +106,11 @@ const mainNavItems = [
     title: 'Analyze',
     href: '/analyze',
     icon: Calculator,
+  },
+  {
+    title: 'Deal Scout',
+    href: '/deal-scout',
+    icon: Bot,
   },
 ];
 
