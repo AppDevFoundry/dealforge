@@ -2,12 +2,29 @@
 
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';
-import { Loader2 } from 'lucide-react';
+import {
+  Calculator,
+  Database,
+  Loader2,
+  MapPin,
+  Search,
+  TrendingUp,
+} from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { ChatInput } from './chat-input';
 import { ChatMessage } from './chat-message';
 import { StarterPrompts } from './starter-prompts';
+
+// Tool name to user-friendly loading message mapping
+const toolLoadingMessages: Record<string, { message: string; icon: React.ElementType }> = {
+  searchDistressedParks: { message: 'Searching for distressed parks...', icon: Search },
+  getParkDetails: { message: 'Fetching park details...', icon: Database },
+  getParkLienHistory: { message: 'Loading tax lien history...', icon: Database },
+  analyzeDeal: { message: 'Running financial analysis...', icon: Calculator },
+  compareParksByCounty: { message: 'Comparing markets...', icon: TrendingUp },
+  getMarketOverview: { message: 'Gathering market insights...', icon: MapPin },
+};
 
 export function DealScoutChat() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -34,6 +51,28 @@ export function DealScoutChat() {
   };
 
   const isLoading = status === 'streaming' || status === 'submitted';
+
+  // Get the current active tool from the last message
+  const getCurrentTool = (): string | null => {
+    if (messages.length === 0) return null;
+    const lastMessage = messages[messages.length - 1];
+    if (!lastMessage || lastMessage.role !== 'assistant' || !lastMessage.parts) return null;
+
+    for (const part of lastMessage.parts) {
+      if (part.type.startsWith('tool-')) {
+        const toolPart = part as unknown as { toolName?: string; state?: string };
+        if (
+          toolPart.toolName &&
+          (toolPart.state === 'call' || toolPart.state === 'partial-call')
+        ) {
+          return toolPart.toolName;
+        }
+      }
+    }
+    return null;
+  };
+
+  const currentTool = getCurrentTool();
 
   // Extract content and tool invocations from message parts
   const getMessageContent = (message: (typeof messages)[0]) => {
@@ -99,11 +138,23 @@ export function DealScoutChat() {
               );
             })}
 
-            {/* Loading indicator */}
+            {/* Loading indicator with tool-specific messages */}
             {isLoading && (
               <div className="flex items-center gap-2 p-4 text-muted-foreground">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                <span className="text-sm">Deal Scout is thinking...</span>
+                {currentTool && toolLoadingMessages[currentTool] ? (
+                  <>
+                    {(() => {
+                      const IconComponent = toolLoadingMessages[currentTool].icon;
+                      return <IconComponent className="h-4 w-4 animate-pulse" />;
+                    })()}
+                    <span className="text-sm">{toolLoadingMessages[currentTool].message}</span>
+                  </>
+                ) : (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span className="text-sm">Deal Scout is thinking...</span>
+                  </>
+                )}
               </div>
             )}
 

@@ -1,6 +1,8 @@
 'use client';
 
 import { Bot, User } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 import { cn } from '@/lib/utils';
 
@@ -42,10 +44,10 @@ export function ChatMessage({ message }: ChatMessageProps) {
       <div className="flex-1 space-y-2 overflow-hidden">
         <p className="text-sm font-medium">{isUser ? 'You' : 'Deal Scout'}</p>
 
-        {/* Message content */}
+        {/* Message content with markdown rendering */}
         {message.content && (
-          <div className="prose prose-sm dark:prose-invert max-w-none">
-            <p className="whitespace-pre-wrap">{message.content}</p>
+          <div className="prose prose-sm dark:prose-invert max-w-none prose-table:border-collapse prose-table:w-full prose-th:border prose-th:border-border prose-th:bg-muted prose-th:px-3 prose-th:py-2 prose-th:text-left prose-th:font-semibold prose-td:border prose-td:border-border prose-td:px-3 prose-td:py-2 prose-pre:bg-muted prose-pre:rounded-md">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{message.content}</ReactMarkdown>
           </div>
         )}
 
