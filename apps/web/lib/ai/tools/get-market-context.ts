@@ -117,42 +117,63 @@ export const getMarketContext = tool({
     }
 
     // Fetch HUD Fair Market Rents
-    if (zipCode) {
-      const fmrRows = (await sql`
+    // First try by county/metro name since we now store entity-level data
+    // ZIP-level data is only available for areas with Small Area FMRs
+    let fmrRows: Array<Record<string, unknown>> = [];
+
+    if (resolvedCounty) {
+      // Try to find metro area containing this county, or county-level FMR
+      fmrRows = (await sql`
         SELECT
           fiscal_year, efficiency, one_bedroom, two_bedroom,
-          three_bedroom, four_bedroom, metro_name, county_name
+          three_bedroom, four_bedroom, metro_name, county_name, entity_code
+        FROM hud_fair_market_rents
+        WHERE (
+          UPPER(metro_name) LIKE ${`%${resolvedCounty}%`}
+          OR UPPER(county_name) LIKE ${`%${resolvedCounty}%`}
+        )
+        ORDER BY fiscal_year DESC
+        LIMIT 1
+      `) as Array<Record<string, unknown>>;
+    }
+
+    // Fallback: try ZIP-based lookup for Small Area FMR areas
+    if (fmrRows.length === 0 && zipCode) {
+      fmrRows = (await sql`
+        SELECT
+          fiscal_year, efficiency, one_bedroom, two_bedroom,
+          three_bedroom, four_bedroom, metro_name, county_name, entity_code
         FROM hud_fair_market_rents
         WHERE zip_code = ${zipCode}
         ORDER BY fiscal_year DESC
         LIMIT 1
       `) as Array<Record<string, unknown>>;
+    }
 
-      const fmr = fmrRows[0];
-      if (fmr) {
-        const twoBedroom = Number(fmr.two_bedroom) || 0;
+    const fmr = fmrRows[0];
+    if (fmr) {
+      const twoBedroom = Number(fmr.two_bedroom) || 0;
 
-        result.fairMarketRents = {
-          fiscalYear: Number(fmr.fiscal_year),
-          efficiency: fmr.efficiency ? Number(fmr.efficiency) : null,
-          oneBedroom: fmr.one_bedroom ? Number(fmr.one_bedroom) : null,
-          twoBedroom: fmr.two_bedroom ? Number(fmr.two_bedroom) : null,
-          threeBedroom: fmr.three_bedroom ? Number(fmr.three_bedroom) : null,
-          fourBedroom: fmr.four_bedroom ? Number(fmr.four_bedroom) : null,
-          suggestedLotRent: {
-            low: Math.round(twoBedroom * 0.30),
-            high: Math.round(twoBedroom * 0.40),
-            basis: 'Lot rent typically 30-40% of 2BR FMR',
-          },
-        };
+      result.fairMarketRents = {
+        fiscalYear: Number(fmr.fiscal_year),
+        efficiency: fmr.efficiency ? Number(fmr.efficiency) : null,
+        oneBedroom: fmr.one_bedroom ? Number(fmr.one_bedroom) : null,
+        twoBedroom: fmr.two_bedroom ? Number(fmr.two_bedroom) : null,
+        threeBedroom: fmr.three_bedroom ? Number(fmr.three_bedroom) : null,
+        fourBedroom: fmr.four_bedroom ? Number(fmr.four_bedroom) : null,
+        suggestedLotRent: {
+          low: Math.round(twoBedroom * 0.30),
+          high: Math.round(twoBedroom * 0.40),
+          basis: 'Lot rent typically 30-40% of 2BR FMR',
+        },
+      };
 
-        if (fmr.metro_name) {
-          result.location.metro = fmr.metro_name as string;
-        }
-        if (fmr.county_name && !result.location.county) {
-          result.location.county = fmr.county_name as string;
-          resolvedCounty = (fmr.county_name as string).toUpperCase();
-        }
+      if (fmr.metro_name) {
+        result.location.metro = fmr.metro_name as string;
+      }
+      if (fmr.county_name && !result.location.county) {
+        result.location.county = fmr.county_name as string;
+        resolvedCounty = (fmr.county_name as string).toUpperCase();
       }
     }
 
