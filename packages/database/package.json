@@ -33,6 +33,11 @@
     "sync:tdhca:liens": "tsx src/scripts/sync-tdhca-liens.ts",
     "discover:parks": "tsx src/scripts/discover-parks.ts",
     "calc:distress": "tsx src/scripts/calculate-distress-scores.ts",
+    "clear:fake": "tsx src/scripts/clear-fake-data.ts",
+    "verify:data": "tsx src/scripts/verify-data.ts",
+    "seed:export": "tsx src/scripts/export-seed-data.ts",
+    "seed:import": "tsx src/scripts/import-seed-data.ts",
+    "load:all": "tsx src/scripts/load-all-data.ts",
     "test": "vitest run",
     "test:watch": "vitest"
   },

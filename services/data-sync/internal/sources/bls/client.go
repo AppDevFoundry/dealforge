@@ -35,6 +35,15 @@ func NewClient(apiKey string) *Client {
 	}
 }
 
+// NewClientWithHTTPClient creates a new BLS API client with a custom HTTP client.
+// This is primarily for testing purposes.
+func NewClientWithHTTPClient(apiKey string, httpClient *http.Client) *Client {
+	return &Client{
+		apiKey:     apiKey,
+		httpClient: httpClient,
+	}
+}
+
 // GetCountyEmployment fetches LAUS employment data for a Texas county.
 func (c *Client) GetCountyEmployment(ctx context.Context, countyFIPS, countyName string, startYear, endYear int) ([]*db.BLSEmployment, error) {
 	// Build series IDs for all measures

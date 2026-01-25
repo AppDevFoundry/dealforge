@@ -79,6 +79,16 @@ services/data-sync/*.exe
 .vercel/
 
 # -------------------------------------------
+# Data Files
+# -------------------------------------------
+# Raw data (too large to commit)
+data/raw/
+data/exports/
+
+# Keep seed data for dev resets
+!data/seed/
+
+# -------------------------------------------
 # Misc
 # -------------------------------------------
 *.pem

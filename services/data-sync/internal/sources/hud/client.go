@@ -32,6 +32,15 @@ func NewClient(apiKey string) *Client {
 	}
 }
 
+// NewClientWithHTTPClient creates a new HUD API client with a custom HTTP client.
+// This is primarily for testing purposes.
+func NewClientWithHTTPClient(apiKey string, httpClient *http.Client) *Client {
+	return &Client{
+		apiKey:     apiKey,
+		httpClient: httpClient,
+	}
+}
+
 // GetStateData fetches all FMR data for a state (metro areas and non-metro counties).
 func (c *Client) GetStateData(ctx context.Context, stateCode string) (*StateDataResponse, error) {
 	url := fmt.Sprintf("%s/statedata/%s", baseURL, stateCode)

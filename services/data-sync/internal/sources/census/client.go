@@ -34,6 +34,15 @@ func NewClient(apiKey string) *Client {
 	}
 }
 
+// NewClientWithHTTPClient creates a new Census API client with a custom HTTP client.
+// This is primarily for testing purposes.
+func NewClientWithHTTPClient(apiKey string, httpClient *http.Client) *Client {
+	return &Client{
+		apiKey:     apiKey,
+		httpClient: httpClient,
+	}
+}
+
 // GetCountyDemographics fetches ACS 5-year estimates for a Texas county.
 func (c *Client) GetCountyDemographics(ctx context.Context, countyFIPS string, year int) (*db.CensusDemographic, error) {
 	// Build list of variables to query
