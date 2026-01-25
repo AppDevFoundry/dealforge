@@ -16,6 +16,7 @@ import {
   PanelLeftOpen,
   Search,
   Settings,
+  Shield,
   Sparkles,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -57,6 +58,7 @@ interface AppSidebarProps {
     email: string;
     image?: string | null;
   };
+  isAdmin?: boolean;
 }
 
 const mainNavItems = [
@@ -127,7 +129,7 @@ const secondaryNavItems = [
   },
 ];
 
-export function AppSidebar({ user }: AppSidebarProps) {
+export function AppSidebar({ user, isAdmin = false }: AppSidebarProps) {
   const pathname = usePathname();
   const { state, toggleSidebar } = useSidebar();
 
@@ -259,6 +261,41 @@ export function AppSidebar({ user }: AppSidebarProps) {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
+
+        {/* Admin Section - only shown for admin users */}
+        {isAdmin && (
+          <SidebarGroup>
+            <SidebarGroupLabel className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+              Admin
+            </SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={pathname.startsWith('/admin')}
+                    tooltip="Admin Dashboard"
+                    className={`
+                      transition-colors duration-200
+                      ${
+                        pathname.startsWith('/admin')
+                          ? 'bg-sidebar-accent text-sidebar-accent-foreground font-medium border-accent-left'
+                          : 'text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent/50'
+                      }
+                    `}
+                  >
+                    <Link href="/admin" className="group/nav">
+                      <Shield
+                        className={`size-4 transition-transform duration-200 ${pathname.startsWith('/admin') ? 'text-primary' : 'group-hover/nav:scale-110'}`}
+                      />
+                      <span>Admin Dashboard</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        )}
 
         <SidebarGroup>
           <SidebarGroupLabel className="text-xs font-medium uppercase tracking-wider text-muted-foreground">

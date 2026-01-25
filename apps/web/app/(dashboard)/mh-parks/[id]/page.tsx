@@ -1,7 +1,9 @@
 'use client';
 
 import { useParams } from 'next/navigation';
+import { useEffect } from 'react';
 
+import { useChatContext } from '@/components/ai';
 import { LienSummaryPanel } from '@/components/mh-parks/detail/lien-summary-panel';
 import { ParkDetailHeader } from '@/components/mh-parks/detail/park-detail-header';
 import { ParkInfoGrid } from '@/components/mh-parks/detail/park-info-grid';
@@ -12,11 +14,32 @@ import { useMhPark, useParkTdhcaData } from '@/lib/hooks/use-mh-parks';
 export default function ParkDetailPage() {
   const params = useParams<{ id: string }>();
   const id = params.id;
+  const { setCurrentPage, setCurrentPark } = useChatContext();
 
   const { data: parkResponse, isLoading: isParkLoading } = useMhPark(id);
   const { data: tdhcaData, isLoading: isTdhcaLoading } = useParkTdhcaData(id);
 
   const park = parkResponse?.data;
+
+  // Set chat context when park data loads
+  useEffect(() => {
+    setCurrentPage('park-detail');
+
+    if (park) {
+      setCurrentPark({
+        id: park.id,
+        name: park.name,
+        county: park.county,
+        lotCount: park.lotCount ?? null,
+        distressScore: park.distressScore ?? null,
+      });
+    }
+
+    // Clear park context when leaving the page
+    return () => {
+      setCurrentPark(null);
+    };
+  }, [park, setCurrentPage, setCurrentPark]);
 
   if (isParkLoading) {
     return <ParkDetailSkeleton />;

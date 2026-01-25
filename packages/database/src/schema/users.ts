@@ -1,4 +1,14 @@
-import { pgTable, text, timestamp, boolean } from 'drizzle-orm/pg-core';
+import { pgEnum, pgTable, text, timestamp, boolean } from 'drizzle-orm/pg-core';
+
+/**
+ * User role enum
+ *
+ * Defines access levels for the application.
+ * - user: Regular user access
+ * - admin: Admin access (data management, system settings)
+ * - owner: Full access (billing, user management)
+ */
+export const userRoleEnum = pgEnum('user_role', ['user', 'admin', 'owner']);
 
 /**
  * Users table
@@ -12,6 +22,7 @@ export const users = pgTable('users', {
   emailVerified: boolean('email_verified').notNull().default(false),
   name: text('name'),
   image: text('image'),
+  role: userRoleEnum('role').notNull().default('user'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });

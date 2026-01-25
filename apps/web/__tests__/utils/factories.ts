@@ -254,6 +254,8 @@ export function createMockMhCommunity(overrides: Partial<MhCommunity> = {}): MhC
     longitude: -98.4936 + communityIdCounter * 0.01,
     lotCount: 75,
     estimatedOccupancy: 0.9,
+    distressScore: null,
+    distressUpdatedAt: null,
     propertyType: 'all_ages',
     ownerName: `Test Owner ${communityIdCounter}`,
     source: 'manual',

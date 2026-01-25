@@ -7,14 +7,22 @@
 
 import { convertToModelMessages, stepCountIs, streamText } from 'ai';
 
-import { DEAL_SCOUT_SYSTEM_PROMPT, dealScoutModel } from '@/lib/ai/config';
+import {
+  type ChatContext,
+  DEAL_SCOUT_SYSTEM_PROMPT,
+  buildContextAwarePrompt,
+  dealScoutModel,
+} from '@/lib/ai/config';
 import { dealScoutTools } from '@/lib/ai/tools';
 
 export const maxDuration = 60;
 
 export async function POST(request: Request) {
   try {
-    const { messages } = await request.json();
+    const { messages, context } = (await request.json()) as {
+      messages: unknown;
+      context?: ChatContext;
+    };
 
     if (!messages || !Array.isArray(messages)) {
       return new Response(JSON.stringify({ error: 'Invalid messages format' }), {
@@ -26,9 +34,12 @@ export async function POST(request: Request) {
     // Convert UI messages to model messages format
     const modelMessages = await convertToModelMessages(messages);
 
+    // Build context-aware system prompt
+    const systemPrompt = buildContextAwarePrompt(DEAL_SCOUT_SYSTEM_PROMPT, context);
+
     const result = streamText({
       model: dealScoutModel,
-      system: DEAL_SCOUT_SYSTEM_PROMPT,
+      system: systemPrompt,
       messages: modelMessages,
       tools: dealScoutTools,
       stopWhen: stepCountIs(5),

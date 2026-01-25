@@ -57,9 +57,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
                     </table>
                   </div>
                 ),
-                thead: ({ children }) => (
-                  <thead className="bg-muted">{children}</thead>
-                ),
+                thead: ({ children }) => <thead className="bg-muted">{children}</thead>,
                 th: ({ children }) => (
                   <th className="border border-border px-3 py-2 text-left font-semibold">
                     {children}
@@ -68,9 +66,7 @@ export function ChatMessage({ message }: ChatMessageProps) {
                 td: ({ children }) => (
                   <td className="border border-border px-3 py-2">{children}</td>
                 ),
-                h1: ({ children }) => (
-                  <h1 className="text-xl font-bold mt-4 mb-2">{children}</h1>
-                ),
+                h1: ({ children }) => <h1 className="text-xl font-bold mt-4 mb-2">{children}</h1>,
                 h2: ({ children }) => (
                   <h2 className="text-lg font-semibold mt-4 mb-2">{children}</h2>
                 ),
@@ -85,16 +81,12 @@ export function ChatMessage({ message }: ChatMessageProps) {
                   <ol className="list-decimal list-inside mb-2 space-y-1">{children}</ol>
                 ),
                 li: ({ children }) => <li>{children}</li>,
-                strong: ({ children }) => (
-                  <strong className="font-semibold">{children}</strong>
-                ),
+                strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
                 code: ({ children }) => (
                   <code className="bg-muted px-1 py-0.5 rounded text-xs">{children}</code>
                 ),
                 pre: ({ children }) => (
-                  <pre className="bg-muted p-3 rounded-md overflow-x-auto my-2">
-                    {children}
-                  </pre>
+                  <pre className="bg-muted p-3 rounded-md overflow-x-auto my-2">{children}</pre>
                 ),
               }}
             >
