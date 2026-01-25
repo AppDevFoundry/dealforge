@@ -8,6 +8,18 @@ const DEBUG_AUTH = process.env.DEBUG_AUTH === 'true' || process.env.VERCEL_ENV =
 
 // Compute config values
 const baseURL = getBaseUrl();
+
+// Extract port from baseURL for cookie prefix (prevents conflicts when running multiple dev servers)
+const getPortFromUrl = (url: string): string => {
+  try {
+    const parsed = new URL(url);
+    return parsed.port || (parsed.protocol === 'https:' ? '443' : '80');
+  } catch {
+    return '3000';
+  }
+};
+const port = getPortFromUrl(baseURL);
+
 const trustedOrigins = [
   baseURL,
   // Always trust common local dev ports (Next.js increments when port is in use)
@@ -79,6 +91,12 @@ export const auth = betterAuth({
       enabled: true,
       maxAge: 60 * 5, // 5 minute cache
     },
+  },
+
+  advanced: {
+    // Use port-specific cookie prefix to prevent conflicts when running multiple dev servers
+    // e.g., localhost:3000 uses "df-3000" prefix, localhost:3001 uses "df-3001" prefix
+    cookiePrefix: `df-${port}`,
   },
 });
 

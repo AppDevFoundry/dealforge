@@ -2,14 +2,7 @@
 
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';
-import {
-  Calculator,
-  Database,
-  Loader2,
-  MapPin,
-  Search,
-  TrendingUp,
-} from 'lucide-react';
+import { Calculator, Database, Loader2, MapPin, Search, TrendingUp } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
 import { ChatInput } from './chat-input';
@@ -61,10 +54,7 @@ export function DealScoutChat() {
     for (const part of lastMessage.parts) {
       if (part.type.startsWith('tool-')) {
         const toolPart = part as unknown as { toolName?: string; state?: string };
-        if (
-          toolPart.toolName &&
-          (toolPart.state === 'call' || toolPart.state === 'partial-call')
-        ) {
+        if (toolPart.toolName && (toolPart.state === 'call' || toolPart.state === 'partial-call')) {
           return toolPart.toolName;
         }
       }

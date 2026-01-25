@@ -92,6 +92,8 @@ export interface MhCommunity {
   longitude: number | null;
   lotCount: number | null;
   estimatedOccupancy: number | null;
+  distressScore: number | null;
+  distressUpdatedAt: Date | null;
   propertyType: 'all_ages' | 'senior_55+' | 'family' | null;
   ownerName: string | null;
   source: string;

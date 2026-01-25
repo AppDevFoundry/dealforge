@@ -43,6 +43,13 @@
       "when": 1769222050677,
       "tag": "0005_lumpy_rawhide_kid",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1769309459261,
+      "tag": "0006_tiresome_slipstream",
+      "breakpoints": true
     }
   ]
 }

@@ -9,6 +9,20 @@ import { anthropic } from '@ai-sdk/anthropic';
 import type { LanguageModel } from 'ai';
 
 /**
+ * Context passed from the chat panel for context-aware responses
+ */
+export interface ChatContext {
+  page: string;
+  park: {
+    id: string;
+    name: string;
+    county: string;
+    lotCount: number | null;
+    distressScore: number | null;
+  } | null;
+}
+
+/**
  * Configure the AI model for Deal Scout
  * Using Claude Sonnet 4 for optimal balance of speed and capability
  */
@@ -36,6 +50,8 @@ You have access to several tools to help users:
 4. **analyzeDeal** - Run financial analysis on a potential acquisition with key metrics
 5. **compareParksByCounty** - Compare distress metrics across multiple counties
 6. **getMarketOverview** - Get market statistics and trends for a county or statewide
+7. **refreshTdhcaData** - Request a refresh of TDHCA data (titles/liens) for a county or statewide
+8. **getDataRefreshStatus** - Check the status of data refresh jobs
 
 ## Response Guidelines
 
@@ -87,3 +103,62 @@ Use markdown formatting throughout:
 **You**: Use getMarketOverview and compareParksByCounty to provide market context and trends.
 
 Remember: You're helping investors make informed decisions about significant capital deployments. Be thorough, accurate, and professional.`;
+
+/**
+ * Build a context-aware system prompt
+ *
+ * Appends current context information to the base system prompt
+ * when the user is viewing a specific park or page.
+ */
+export function buildContextAwarePrompt(basePrompt: string, context?: ChatContext): string {
+  if (!context) {
+    return basePrompt;
+  }
+
+  const contextParts: string[] = [];
+
+  // Add page context
+  const pageNames: Record<string, string> = {
+    dashboard: 'the dashboard',
+    'mh-parks': 'the MH Parks explorer',
+    'park-detail': 'a specific park detail page',
+    deals: 'their deals list',
+    'deal-scout': 'the Deal Scout chat page',
+    analyze: 'the analysis tools',
+  };
+
+  const pageName = pageNames[context.page] || context.page;
+  contextParts.push(`User is currently on: ${pageName}`);
+
+  // Add park context if available
+  if (context.park) {
+    contextParts.push('');
+    contextParts.push('**Currently Viewing Park:**');
+    contextParts.push(`- **Name:** ${context.park.name}`);
+    contextParts.push(`- **County:** ${context.park.county}`);
+    contextParts.push(`- **Park ID:** ${context.park.id}`);
+
+    if (context.park.lotCount !== null) {
+      contextParts.push(`- **Lot Count:** ${context.park.lotCount}`);
+    }
+
+    if (context.park.distressScore !== null) {
+      contextParts.push(`- **Distress Score:** ${context.park.distressScore}`);
+    }
+
+    contextParts.push('');
+    contextParts.push(
+      'When the user asks questions without specifying a park, assume they are asking about this park. ' +
+        'Use the park ID to fetch details if needed.'
+    );
+  }
+
+  if (contextParts.length === 0) {
+    return basePrompt;
+  }
+
+  return `${basePrompt}
+
+## Current Context
+${contextParts.join('\n')}`;
+}
