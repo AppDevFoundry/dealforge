@@ -76,6 +76,9 @@ func (c *Client) GetCountyEmployment(ctx context.Context, countyFIPS, countyName
 	}
 	defer resp.Body.Close()
 
+	// Rate limit: BLS v2 API allows 50 requests per 10 seconds (5/sec)
+	time.Sleep(250 * time.Millisecond)
+
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read response body: %w", err)

@@ -28,7 +28,7 @@ func Load() (*Config, error) {
 		HUDAPIKey:     os.Getenv("HUD_API_KEY"),
 		CensusAPIKey:  os.Getenv("CENSUS_API_KEY"),
 		BLSAPIKey:     os.Getenv("BLS_API_KEY"),
-		MaxConcurrent: 10, // Default concurrent requests
+		MaxConcurrent: 1, // Sequential requests to respect BLS rate limits
 		DryRun:        os.Getenv("DRY_RUN") == "true",
 	}
 
