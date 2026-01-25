@@ -32,9 +32,9 @@ func NewClient(apiKey string) *Client {
 	}
 }
 
-// GetFMRByZip fetches Fair Market Rent data for a ZIP code.
-func (c *Client) GetFMRByZip(ctx context.Context, zipCode string) (*db.HUDFairMarketRent, error) {
-	url := fmt.Sprintf("%s/data/%s", baseURL, zipCode)
+// GetStateData fetches all FMR data for a state (metro areas and non-metro counties).
+func (c *Client) GetStateData(ctx context.Context, stateCode string) (*StateDataResponse, error) {
+	url := fmt.Sprintf("%s/statedata/%s", baseURL, stateCode)
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
@@ -46,7 +46,7 @@ func (c *Client) GetFMRByZip(ctx context.Context, zipCode string) (*db.HUDFairMa
 
 	resp, err := c.httpClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("failed to fetch FMR: %w", err)
+		return nil, fmt.Errorf("failed to fetch state FMR: %w", err)
 	}
 	defer resp.Body.Close()
 
@@ -60,12 +60,137 @@ func (c *Client) GetFMRByZip(ctx context.Context, zipCode string) (*db.HUDFairMa
 		return nil, fmt.Errorf("failed to read response body: %w", err)
 	}
 
-	var fmrResp FMRResponse
-	if err := json.Unmarshal(body, &fmrResp); err != nil {
+	var stateResp StateDataResponse
+	if err := json.Unmarshal(body, &stateResp); err != nil {
 		return nil, fmt.Errorf("failed to parse response: %w", err)
 	}
 
-	return c.toDBRecord(&fmrResp), nil
+	return &stateResp, nil
+}
+
+// GetEntityData fetches FMR data for a specific entity (metro area or county).
+// entityCode format: METRO{code}M{code} for metro areas, COUNTY{fips} for counties
+func (c *Client) GetEntityData(ctx context.Context, entityCode string) (*EntityDataResponse, error) {
+	url := fmt.Sprintf("%s/data/%s", baseURL, entityCode)
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create request: %w", err)
+	}
+
+	req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", c.apiKey))
+	req.Header.Set("Accept", "application/json")
+
+	resp, err := c.httpClient.Do(req)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch entity FMR: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return nil, fmt.Errorf("API returned status %d: %s", resp.StatusCode, string(body))
+	}
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read response body: %w", err)
+	}
+
+	var entityResp EntityDataResponse
+	if err := json.Unmarshal(body, &entityResp); err != nil {
+		return nil, fmt.Errorf("failed to parse response: %w", err)
+	}
+
+	return &entityResp, nil
+}
+
+// GetFMRRecordsForState fetches all FMR data for a state and converts to DB records.
+// This includes metro area and county-level data. For areas with Small Area FMRs,
+// it also fetches ZIP-level data.
+func (c *Client) GetFMRRecordsForState(ctx context.Context, stateCode string) ([]*db.HUDFairMarketRent, error) {
+	stateData, err := c.GetStateData(ctx, stateCode)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get state data: %w", err)
+	}
+
+	var records []*db.HUDFairMarketRent
+	fiscalYear, _ := strconv.Atoi(stateData.Data.Year)
+
+	// Process metro areas
+	for _, metro := range stateData.Data.MetroAreas {
+		record := &db.HUDFairMarketRent{
+			ZipCode:      "",                             // Metro-level, no specific ZIP
+			EntityCode:   ptrString(metro.Code),          // e.g., METRO10180M10180
+			FiscalYear:   fiscalYear,
+			MetroName:    ptrString(metro.MetroName),
+			StateName:    ptrString(stateData.Data.StateName),
+			StateCode:    ptrString(stateCode),
+			Efficiency:   ptrInt(metro.Efficiency),
+			OneBedroom:   ptrInt(metro.OneBedroom),
+			TwoBedroom:   ptrInt(metro.TwoBedroom),
+			ThreeBedroom: ptrInt(metro.ThreeBedroom),
+			FourBedroom:  ptrInt(metro.FourBedroom),
+		}
+		records = append(records, record)
+	}
+
+	// Process non-metro counties
+	for _, county := range stateData.Data.Counties {
+		record := &db.HUDFairMarketRent{
+			ZipCode:      "",                            // County-level, no specific ZIP
+			EntityCode:   ptrString(county.Code),        // e.g., COUNTY48001
+			FiscalYear:   fiscalYear,
+			CountyName:   ptrString(county.CountyName),
+			StateName:    ptrString(stateData.Data.StateName),
+			StateCode:    ptrString(stateCode),
+			Efficiency:   ptrInt(county.Efficiency),
+			OneBedroom:   ptrInt(county.OneBedroom),
+			TwoBedroom:   ptrInt(county.TwoBedroom),
+			ThreeBedroom: ptrInt(county.ThreeBedroom),
+			FourBedroom:  ptrInt(county.FourBedroom),
+		}
+		records = append(records, record)
+	}
+
+	return records, nil
+}
+
+// GetZIPLevelFMR fetches ZIP-level FMR data for an entity with Small Area FMRs.
+func (c *Client) GetZIPLevelFMR(ctx context.Context, entityCode string) ([]*db.HUDFairMarketRent, error) {
+	entityData, err := c.GetEntityData(ctx, entityCode)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get entity data: %w", err)
+	}
+
+	// Check if this entity has Small Area FMRs
+	if entityData.Data.SmallAreaStatus != "1" || len(entityData.Data.SmallAreas) == 0 {
+		return nil, nil // No ZIP-level data available
+	}
+
+	fiscalYear, _ := strconv.Atoi(entityData.Data.Year)
+	var records []*db.HUDFairMarketRent
+
+	for _, sa := range entityData.Data.SmallAreas {
+		record := &db.HUDFairMarketRent{
+			ZipCode:         sa.ZipCode,
+			EntityCode:      ptrString(entityCode),
+			FiscalYear:      fiscalYear,
+			MetroName:       ptrString(entityData.Data.MetroName),
+			CountyName:      ptrString(entityData.Data.CountyName),
+			StateName:       ptrString(entityData.Data.StateName),
+			StateCode:       ptrString(entityData.Data.StateCode),
+			Efficiency:      ptrInt(sa.Efficiency),
+			OneBedroom:      ptrInt(sa.OneBedroom),
+			TwoBedroom:      ptrInt(sa.TwoBedroom),
+			ThreeBedroom:    ptrInt(sa.ThreeBedroom),
+			FourBedroom:     ptrInt(sa.FourBedroom),
+			SmallAreaStatus: ptrString("1"),
+		}
+		records = append(records, record)
+	}
+
+	return records, nil
 }
 
 // toDBRecord converts an API response to a database record.

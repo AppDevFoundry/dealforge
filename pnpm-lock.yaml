@@ -40,6 +40,12 @@ importers:
       '@hookform/resolvers':
         specifier: ^3.9.1
         version: 3.10.0(react-hook-form@7.71.1(react@19.2.3))
+      '@json-render/core':
+        specifier: ^0.3.0
+        version: 0.3.0(zod@3.25.76)
+      '@json-render/react':
+        specifier: ^0.2.0
+        version: 0.2.0(react@19.2.3)(zod@3.25.76)
       '@neondatabase/serverless':
         specifier: ^0.10.4
         version: 0.10.4
@@ -1151,6 +1157,21 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
+
+  '@json-render/core@0.2.0':
+    resolution: {integrity: sha512-LBKv4M5skz7JRpTn53g6qF/zj5u/xUhuCp6WtJn/ZTIxGEAogH8sn3Ql/Nk/O0sgbQHtriRmoJuI23/5fGCXPw==}
+    peerDependencies:
+      zod: ^4.0.0
+
+  '@json-render/core@0.3.0':
+    resolution: {integrity: sha512-/Om3SNSNkOOkcx07luCBizN8stDrpQ0haclo8iv+1U40WpTjNsJ5u4vt8GIrKMjr/Cdm+cCoV+PiwGEZ/m1yVQ==}
+    peerDependencies:
+      zod: ^4.0.0
+
+  '@json-render/react@0.2.0':
+    resolution: {integrity: sha512-4tdoMfc3t0Je+DMNsyJguz7aJkqfLhEY8/mvBchL9kweRfJHAZocT7doyqRCGAnCBtIXCKQ8YAbm0sb0Qr9OFw==}
+    peerDependencies:
+      react: ^19.0.0
 
   '@mapbox/jsonlint-lines-primitives@2.0.2':
     resolution: {integrity: sha512-rY0o9A5ECsTQRVhv7tL/OyDpGAoUB4tTvLiW1DSzQGq4bvTPhNw1VpSNjDJc5GFZ2XuyOtSWSVN05qOtcD71qQ==}
@@ -4768,6 +4789,21 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
+
+  '@json-render/core@0.2.0(zod@3.25.76)':
+    dependencies:
+      zod: 3.25.76
+
+  '@json-render/core@0.3.0(zod@3.25.76)':
+    dependencies:
+      zod: 3.25.76
+
+  '@json-render/react@0.2.0(react@19.2.3)(zod@3.25.76)':
+    dependencies:
+      '@json-render/core': 0.2.0(zod@3.25.76)
+      react: 19.2.3
+    transitivePeerDependencies:
+      - zod
 
   '@mapbox/jsonlint-lines-primitives@2.0.2': {}
 

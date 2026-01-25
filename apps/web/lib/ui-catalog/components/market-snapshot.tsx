@@ -27,42 +27,48 @@ export function MarketSnapshot({ data, className }: MarketSnapshotProps) {
       <CardContent className="space-y-4">
         {/* Key Metrics Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {fmr && (
+          {fmr && fmr.twoBedroom != null && (
             <div className="space-y-1">
               <div className="flex items-center gap-1 text-sm text-muted-foreground">
                 <DollarSign className="h-3 w-3" />
                 2BR FMR
               </div>
               <p className="text-lg font-semibold">${fmr.twoBedroom.toLocaleString()}</p>
-              <p className="text-xs text-muted-foreground">
-                Lot rent: ${fmr.suggestedLotRent.low}-${fmr.suggestedLotRent.high}
-              </p>
+              {fmr.suggestedLotRent && (
+                <p className="text-xs text-muted-foreground">
+                  Lot rent: ${fmr.suggestedLotRent.low ?? 0}-${fmr.suggestedLotRent.high ?? 0}
+                </p>
+              )}
             </div>
           )}
 
           {demographics && (
             <>
-              <div className="space-y-1">
-                <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                  <Users className="h-3 w-3" />
-                  Population
+              {demographics.population != null && (
+                <div className="space-y-1">
+                  <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                    <Users className="h-3 w-3" />
+                    Population
+                  </div>
+                  <p className="text-lg font-semibold">
+                    {demographics.population.toLocaleString()}
+                  </p>
                 </div>
-                <p className="text-lg font-semibold">
-                  {demographics.population.toLocaleString()}
-                </p>
-              </div>
+              )}
 
-              <div className="space-y-1">
-                <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                  <DollarSign className="h-3 w-3" />
-                  Median Income
+              {demographics.medianIncome != null && (
+                <div className="space-y-1">
+                  <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                    <DollarSign className="h-3 w-3" />
+                    Median Income
+                  </div>
+                  <p className="text-lg font-semibold">
+                    ${demographics.medianIncome.toLocaleString()}
+                  </p>
                 </div>
-                <p className="text-lg font-semibold">
-                  ${demographics.medianIncome.toLocaleString()}
-                </p>
-              </div>
+              )}
 
-              {demographics.mobileHomesPercent !== undefined && (
+              {demographics.mobileHomesPercent != null && (
                 <div className="space-y-1">
                   <div className="flex items-center gap-1 text-sm text-muted-foreground">
                     <Building className="h-3 w-3" />
@@ -76,7 +82,7 @@ export function MarketSnapshot({ data, className }: MarketSnapshotProps) {
             </>
           )}
 
-          {employment && (
+          {employment && employment.unemploymentRate != null && (
             <div className="space-y-1">
               <div className="flex items-center gap-1 text-sm text-muted-foreground">
                 Unemployment
@@ -107,7 +113,7 @@ export function MarketSnapshot({ data, className }: MarketSnapshotProps) {
         </div>
 
         {/* Insights */}
-        {insights.length > 0 && (
+        {insights && insights.length > 0 && (
           <div className="pt-2 border-t space-y-1">
             <p className="text-sm font-medium">Key Insights</p>
             {insights.map((insight, idx) => (

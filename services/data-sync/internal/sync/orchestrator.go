@@ -47,44 +47,58 @@ func NewOrchestrator(dbClient *db.Client, hudAPIKey, censusAPIKey, blsAPIKey str
 	}
 }
 
-// SyncHUD syncs HUD Fair Market Rent data for the given ZIP codes.
-func (o *Orchestrator) SyncHUD(ctx context.Context, zips []string) (*SyncResult, error) {
+// SyncHUD syncs HUD Fair Market Rent data for the given state.
+// It fetches state-level data (all metro areas and non-metro counties) and upserts each record.
+func (o *Orchestrator) SyncHUD(ctx context.Context, stateCode string) (*SyncResult, error) {
 	start := time.Now()
 	result := &SyncResult{Source: "HUD FMR"}
 
-	if len(zips) == 0 {
-		zips = MajorTexasZIPs
+	if stateCode == "" {
+		stateCode = "TX" // Default to Texas
 	}
 
-	slog.Info("starting HUD FMR sync", "zip_count", len(zips))
+	slog.Info("starting HUD FMR sync", "state", stateCode)
 
+	// Fetch state-level data (includes all metro areas and non-metro counties)
+	records, err := o.hudClient.GetFMRRecordsForState(ctx, stateCode)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch state FMR data: %w", err)
+	}
+
+	slog.Info("fetched HUD FMR records", "count", len(records))
+
+	if o.dryRun {
+		result.Successful = len(records)
+		result.Duration = time.Since(start)
+		slog.Info("dry run - skipping database upserts", "record_count", len(records))
+		return result, nil
+	}
+
+	// Upsert records concurrently
 	sem := semaphore.NewWeighted(o.maxConcurrent)
 	g, ctx := errgroup.WithContext(ctx)
 
-	successCh := make(chan int, len(zips))
-	failCh := make(chan string, len(zips))
+	successCh := make(chan int, len(records))
+	failCh := make(chan string, len(records))
 
-	for _, zip := range zips {
-		zip := zip // capture loop var
+	for _, record := range records {
+		record := record // capture loop var
 		g.Go(func() error {
 			if err := sem.Acquire(ctx, 1); err != nil {
 				return err
 			}
 			defer sem.Release(1)
 
-			record, err := o.hudClient.GetFMRByZip(ctx, zip)
-			if err != nil {
-				slog.Warn("failed to fetch HUD FMR", "zip", zip, "error", err)
-				failCh <- fmt.Sprintf("ZIP %s: %v", zip, err)
-				return nil // Don't fail entire sync for individual errors
-			}
-
-			if !o.dryRun {
-				if err := o.db.UpsertHUDFMR(ctx, record); err != nil {
-					slog.Warn("failed to upsert HUD FMR", "zip", zip, "error", err)
-					failCh <- fmt.Sprintf("ZIP %s DB: %v", zip, err)
-					return nil
+			if err := o.db.UpsertHUDFMR(ctx, record); err != nil {
+				name := ""
+				if record.MetroName != nil {
+					name = *record.MetroName
+				} else if record.CountyName != nil {
+					name = *record.CountyName
 				}
+				slog.Warn("failed to upsert HUD FMR", "entity", name, "error", err)
+				failCh <- fmt.Sprintf("%s: %v", name, err)
+				return nil
 			}
 
 			successCh <- 1
@@ -268,11 +282,11 @@ func (o *Orchestrator) SyncBLS(ctx context.Context, startYear, endYear int) (*Sy
 }
 
 // SyncAll runs sync for all data sources.
-func (o *Orchestrator) SyncAll(ctx context.Context, zips []string, censusYear, blsStartYear, blsEndYear int) ([]*SyncResult, error) {
+func (o *Orchestrator) SyncAll(ctx context.Context, stateCode string, censusYear, blsStartYear, blsEndYear int) ([]*SyncResult, error) {
 	var results []*SyncResult
 
 	// Run HUD sync
-	hudResult, err := o.SyncHUD(ctx, zips)
+	hudResult, err := o.SyncHUD(ctx, stateCode)
 	if err != nil {
 		return results, fmt.Errorf("HUD sync failed: %w", err)
 	}

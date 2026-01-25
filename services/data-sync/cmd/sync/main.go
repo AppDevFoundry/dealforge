@@ -21,8 +21,7 @@ import (
 
 func main() {
 	// Parse command line flags
-	zipFile := flag.String("zip-file", "", "Path to file containing ZIP codes to sync")
-	zips := flag.String("zips", "", "Comma-separated list of ZIP codes to sync")
+	stateCode := flag.String("state", "TX", "State code for HUD FMR data (default: TX)")
 	sources := flag.String("sources", "all", "Comma-separated list of sources to sync (hud,census,bls,all)")
 	censusYear := flag.Int("census-year", 0, "Census ACS survey year (default: previous year)")
 	blsStartYear := flag.Int("bls-start-year", 0, "BLS data start year (default: 3 years ago)")
@@ -54,8 +53,7 @@ func main() {
 	// Log startup
 	slog.Info("starting data sync service",
 		"sources", sourceList,
-		"zip_file", *zipFile,
-		"zips", *zips,
+		"state", *stateCode,
 		"dry_run", cfg.DryRun,
 	)
 
@@ -80,19 +78,6 @@ func main() {
 		os.Exit(1)
 	}
 	defer dbClient.Close()
-
-	// Parse ZIP codes
-	var zipList []string
-	if *zipFile != "" {
-		zipList, err = sync.LoadZIPsFromFile(*zipFile)
-		if err != nil {
-			slog.Error("failed to load ZIP file", "error", err)
-			os.Exit(1)
-		}
-	} else if *zips != "" {
-		zipList = sync.ParseZIPList(*zips)
-	}
-	// If no ZIPs specified, orchestrator will use defaults
 
 	// Create orchestrator
 	orch := sync.NewOrchestrator(
@@ -120,13 +105,13 @@ func main() {
 
 		switch source {
 		case "hud":
-			result, err = orch.SyncHUD(ctx, zipList)
+			result, err = orch.SyncHUD(ctx, *stateCode)
 		case "census":
 			result, err = orch.SyncCensus(ctx, *censusYear)
 		case "bls":
 			result, err = orch.SyncBLS(ctx, *blsStartYear, *blsEndYear)
 		case "all":
-			results, err = orch.SyncAll(ctx, zipList, *censusYear, *blsStartYear, *blsEndYear)
+			results, err = orch.SyncAll(ctx, *stateCode, *censusYear, *blsStartYear, *blsEndYear)
 			if err != nil {
 				slog.Error("sync failed", "error", err)
 				os.Exit(1)

@@ -48,8 +48,28 @@ function getTrendIcon(a: number, b: number, highlightBest?: boolean) {
 export function ComparisonTable({ data, className }: ComparisonTableProps) {
   const { title, items, metricLabels, highlightBest } = data;
 
-  // Get all metric keys from metricLabels
-  const metricKeys = Object.keys(metricLabels);
+  // Guard against missing data
+  if (!items || items.length === 0) {
+    return (
+      <Card className={cn('', className)}>
+        {title && (
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">{title}</CardTitle>
+          </CardHeader>
+        )}
+        <CardContent>
+          <p className="text-sm text-muted-foreground">No comparison data available</p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  // Get all metric keys from metricLabels or infer from first item
+  const metricKeys = metricLabels
+    ? Object.keys(metricLabels)
+    : items[0]?.metrics
+      ? Object.keys(items[0].metrics)
+      : [];
 
   return (
     <Card className={cn('', className)}>
@@ -73,14 +93,16 @@ export function ComparisonTable({ data, className }: ComparisonTableProps) {
           <TableBody>
             {metricKeys.map((metricKey) => (
               <TableRow key={metricKey}>
-                <TableCell className="font-medium">{metricLabels[metricKey]}</TableCell>
+                <TableCell className="font-medium">
+                  {metricLabels?.[metricKey] ?? metricKey}
+                </TableCell>
                 {items.map((item, itemIdx) => {
-                  const value = item.metrics[metricKey];
+                  const value = item.metrics?.[metricKey];
                   const numValue = typeof value === 'number' ? value : parseFloat(String(value));
                   const otherValues = items
                     .filter((_, i) => i !== itemIdx)
                     .map((i) => {
-                      const v = i.metrics[metricKey];
+                      const v = i.metrics?.[metricKey];
                       return typeof v === 'number' ? v : parseFloat(String(v));
                     });
 

@@ -4,8 +4,17 @@ export * from './types';
 // Zod schemas for validation
 export * from './catalog';
 
-// Registry and renderer
+// Registry and renderer (original non-streaming)
 export { renderUIElement, UIElementRenderer } from './registry';
+
+// json-render streaming integration
+export { uiCatalog } from './json-render-catalog';
+export {
+  streamingRegistry,
+  StreamingUIRenderer,
+  StreamingUIDemo,
+  useStreamingUI,
+} from './streaming-ui';
 
 // Individual components (for direct use if needed)
 export { AlertBanner } from './components/alert-banner';

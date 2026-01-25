@@ -4,9 +4,13 @@ import { createId } from '@paralleldrive/cuid2';
 /**
  * HUD Fair Market Rents table
  *
- * Stores HUD Fair Market Rent data by ZIP code.
- * Used for market rent analysis and lot rent benchmarking.
+ * Stores HUD Fair Market Rent data at multiple geographic levels:
+ * - Metro area level (entityCode like 'METRO10180M10180')
+ * - County level (entityCode like 'COUNTY48001')
+ * - ZIP code level (for areas with Small Area FMRs)
+ *
  * FMR represents the 40th percentile of gross rents in an area.
+ * Used for market rent analysis and lot rent benchmarking.
  */
 export const hudFairMarketRents = pgTable(
   'hud_fair_market_rents',
@@ -14,7 +18,10 @@ export const hudFairMarketRents = pgTable(
     id: text('id')
       .primaryKey()
       .$defaultFn(() => `hfr_${createId()}`),
-    zipCode: text('zip_code').notNull(),
+    // Entity code from HUD (e.g., 'METRO10180M10180', 'COUNTY48001')
+    entityCode: text('entity_code'),
+    // ZIP code (only populated for Small Area FMR records)
+    zipCode: text('zip_code'),
     countyName: text('county_name'),
     metroName: text('metro_name'),
     stateName: text('state_name'),
@@ -26,7 +33,7 @@ export const hudFairMarketRents = pgTable(
     twoBedroom: integer('two_bedroom'),
     threeBedroom: integer('three_bedroom'),
     fourBedroom: integer('four_bedroom'),
-    // Small area designation (true if ZIP-level, false if metro-level)
+    // Small area designation ('1' if ZIP-level data available)
     smallAreaStatus: text('small_area_status'),
     // Metadata
     sourceUpdatedAt: timestamp('source_updated_at', { withTimezone: true }),
@@ -34,8 +41,12 @@ export const hudFairMarketRents = pgTable(
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
-    uniqueIndex('hfr_zip_fiscal_year_idx').on(table.zipCode, table.fiscalYear),
+    // Entity-level records (metro/county without ZIP)
+    uniqueIndex('hfr_entity_fiscal_year_idx').on(table.entityCode, table.fiscalYear),
+    // ZIP-level records (Small Area FMRs)
+    index('hfr_zip_fiscal_year_idx').on(table.zipCode, table.fiscalYear),
     index('hfr_county_name_idx').on(table.countyName),
+    index('hfr_metro_name_idx').on(table.metroName),
     index('hfr_state_code_idx').on(table.stateCode),
   ]
 );

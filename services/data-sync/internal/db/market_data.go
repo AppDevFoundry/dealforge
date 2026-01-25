@@ -8,7 +8,8 @@ import (
 
 // HUDFairMarketRent represents a HUD FMR record.
 type HUDFairMarketRent struct {
-	ZipCode         string
+	EntityCode      *string // e.g., "METRO10180M10180", "COUNTY48001"
+	ZipCode         string  // Empty for entity-level, populated for Small Area FMRs
 	CountyName      *string
 	MetroName       *string
 	StateName       *string
@@ -67,18 +68,20 @@ type BLSEmployment struct {
 }
 
 // UpsertHUDFMR inserts or updates a HUD Fair Market Rent record.
+// Uses entity_code + fiscal_year for entity-level records (metro/county).
 func (c *Client) UpsertHUDFMR(ctx context.Context, r *HUDFairMarketRent) error {
 	query := `
 		INSERT INTO hud_fair_market_rents (
-			id, zip_code, county_name, metro_name, state_name, state_code,
+			id, entity_code, zip_code, county_name, metro_name, state_name, state_code,
 			fiscal_year, efficiency, one_bedroom, two_bedroom, three_bedroom, four_bedroom,
 			small_area_status, source_updated_at, created_at, updated_at
 		) VALUES (
 			'hfr_' || gen_random_uuid()::text,
-			$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NOW(), NOW()
+			$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, NOW(), NOW()
 		)
-		ON CONFLICT (zip_code, fiscal_year)
+		ON CONFLICT (entity_code, fiscal_year)
 		DO UPDATE SET
+			zip_code = EXCLUDED.zip_code,
 			county_name = EXCLUDED.county_name,
 			metro_name = EXCLUDED.metro_name,
 			state_name = EXCLUDED.state_name,
@@ -94,7 +97,7 @@ func (c *Client) UpsertHUDFMR(ctx context.Context, r *HUDFairMarketRent) error {
 	`
 
 	_, err := c.pool.Exec(ctx, query,
-		r.ZipCode, r.CountyName, r.MetroName, r.StateName, r.StateCode,
+		r.EntityCode, r.ZipCode, r.CountyName, r.MetroName, r.StateName, r.StateCode,
 		r.FiscalYear, r.Efficiency, r.OneBedroom, r.TwoBedroom, r.ThreeBedroom, r.FourBedroom,
 		r.SmallAreaStatus, time.Now(),
 	)
