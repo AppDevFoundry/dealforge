@@ -5,6 +5,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
 import { cn } from '@/lib/utils';
+import { UIElementRenderer, type UIElement } from '@/lib/ui-catalog';
 
 import { ToolResultDisplay } from './tool-result-display';
 
@@ -21,13 +22,15 @@ interface ChatMessageData {
   role: 'user' | 'assistant' | 'system' | 'data';
   content: string;
   toolInvocations?: ToolInvocation[];
+  ui?: UIElement[];
 }
 
 interface ChatMessageProps {
   message: ChatMessageData;
+  onParkClick?: (parkId: string) => void;
 }
 
-export function ChatMessage({ message }: ChatMessageProps) {
+export function ChatMessage({ message, onParkClick }: ChatMessageProps) {
   const isUser = message.role === 'user';
 
   return (
@@ -93,6 +96,15 @@ export function ChatMessage({ message }: ChatMessageProps) {
               {message.content}
             </ReactMarkdown>
           </div>
+        )}
+
+        {/* Dynamic UI components */}
+        {message.ui && message.ui.length > 0 && (
+          <UIElementRenderer
+            elements={message.ui}
+            onParkClick={onParkClick}
+            className="space-y-4 mt-4"
+          />
         )}
 
         {/* Tool invocations */}
