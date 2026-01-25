@@ -1,0 +1,79 @@
+name: Data Sync
+
+on:
+  # Run weekly on Sunday at 2 AM UTC
+  schedule:
+    - cron: '0 2 * * 0'
+
+  # Allow manual triggering with source selection
+  workflow_dispatch:
+    inputs:
+      sources:
+        description: 'Data sources to sync'
+        required: true
+        default: 'all'
+        type: choice
+        options:
+          - all
+          - hud
+          - census
+          - bls
+      dry_run:
+        description: 'Dry run (no database writes)'
+        required: false
+        default: false
+        type: boolean
+
+jobs:
+  sync:
+    name: Sync Market Data
+    runs-on: ubuntu-latest
+
+    env:
+      SYNC_SOURCES: ${{ inputs.sources || 'all' }}
+      DRY_RUN: ${{ inputs.dry_run || 'false' }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+          cache-dependency-path: services/data-sync/go.sum
+
+      - name: Download dependencies
+        working-directory: services/data-sync
+        run: go mod download
+
+      - name: Build sync service
+        working-directory: services/data-sync
+        run: go build -o sync-service ./cmd/sync
+
+      - name: Run sync
+        working-directory: services/data-sync
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          HUD_API_KEY: ${{ secrets.HUD_API_KEY }}
+          CENSUS_API_KEY: ${{ secrets.CENSUS_API_KEY }}
+          BLS_API_KEY: ${{ secrets.BLS_API_KEY }}
+        run: |
+          ARGS="--sources=${SYNC_SOURCES}"
+
+          if [ "${DRY_RUN}" = "true" ]; then
+            ARGS="${ARGS} --dry-run"
+          fi
+
+          ./sync-service ${ARGS}
+
+      - name: Report results
+        if: always()
+        env:
+          JOB_STATUS: ${{ job.status }}
+        run: |
+          echo "## Data Sync Complete" >> "$GITHUB_STEP_SUMMARY"
+          echo "" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Sources:** ${SYNC_SOURCES}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Dry Run:** ${DRY_RUN}" >> "$GITHUB_STEP_SUMMARY"
+          echo "- **Status:** ${JOB_STATUS}" >> "$GITHUB_STEP_SUMMARY"

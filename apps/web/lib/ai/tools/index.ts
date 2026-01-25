@@ -7,9 +7,11 @@
 import { analyzeDeal } from './analyze-deal';
 import { compareParksByCounty } from './compare-parks-by-county';
 import { getDataRefreshStatus } from './get-data-refresh-status';
+import { getMarketContext } from './get-market-context';
 import { getMarketOverview } from './get-market-overview';
 import { getParkDetails } from './get-park-details';
 import { getParkLienHistory } from './get-park-lien-history';
+import { lookupParcelData } from './lookup-parcel-data';
 import { refreshTdhcaData } from './refresh-tdhca-data';
 import { searchDistressedParks } from './search-distressed-parks';
 
@@ -23,6 +25,8 @@ export const dealScoutTools = {
   analyzeDeal,
   compareParksByCounty,
   getMarketOverview,
+  getMarketContext,
+  lookupParcelData,
   refreshTdhcaData,
   getDataRefreshStatus,
 };
@@ -35,6 +39,8 @@ export {
   analyzeDeal,
   compareParksByCounty,
   getMarketOverview,
+  getMarketContext,
+  lookupParcelData,
   refreshTdhcaData,
   getDataRefreshStatus,
 };
