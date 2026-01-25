@@ -85,8 +85,9 @@ services/data-sync/*.exe
 data/raw/
 data/exports/
 
-# Keep seed data for dev resets
-!data/seed/
+# Seed data (generated, not committed - see CLAUDE.md for regeneration)
+data/seed/*.json
+!data/seed/.gitkeep
 
 # -------------------------------------------
 # Misc
