@@ -222,6 +222,39 @@ func TestClient_GetCountyEmployment_HandlesAPIError(t *testing.T) {
 	}
 }
 
+func TestClient_GetCountyEmployment_HandlesDailyRateLimit(t *testing.T) {
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		response := LAUSResponse{
+			Status: "REQUEST_FAILED",
+			Message: []string{
+				"Request could not be serviced, as the daily threshold for total number of requests allocated to the user with registration key ABC123 has been reached.",
+			},
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(response)
+	}))
+	defer server.Close()
+
+	client := &Client{
+		apiKey: "test-api-key",
+		httpClient: &http.Client{
+			Transport: &mockTransport{baseURL: server.URL},
+		},
+	}
+
+	ctx := context.Background()
+	_, err := client.GetCountyEmployment(ctx, "029", "Bexar County", 2024, 2024)
+
+	if err == nil {
+		t.Fatal("expected error for daily rate limit, got nil")
+	}
+
+	if err != ErrDailyLimitReached {
+		t.Errorf("expected ErrDailyLimitReached, got: %v", err)
+	}
+}
+
 func TestClient_GetCountyEmployment_HandlesPreliminaryData(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		response := LAUSResponse{

@@ -2,6 +2,7 @@ package sync
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"time"
@@ -203,6 +204,7 @@ func (o *Orchestrator) SyncCensus(ctx context.Context, year int) (*SyncResult, e
 }
 
 // SyncBLS syncs BLS LAUS data for all Texas counties.
+// If the daily rate limit is reached, it will stop early and return partial results.
 func (o *Orchestrator) SyncBLS(ctx context.Context, startYear, endYear int) (*SyncResult, error) {
 	start := time.Now()
 	result := &SyncResult{Source: "BLS LAUS"}
@@ -238,6 +240,11 @@ func (o *Orchestrator) SyncBLS(ctx context.Context, startYear, endYear int) (*Sy
 
 			records, err := o.blsClient.GetCountyEmployment(ctx, county.FIPS, county.Name, startYear, endYear)
 			if err != nil {
+				// If daily rate limit reached, return the error to cancel all goroutines
+				if errors.Is(err, bls.ErrDailyLimitReached) {
+					slog.Warn("BLS daily rate limit reached, stopping sync", "county", county.Name)
+					return bls.ErrDailyLimitReached
+				}
 				slog.Warn("failed to fetch BLS data", "county", county.Name, "error", err)
 				failCh <- fmt.Sprintf("%s County: %v", county.Name, err)
 				return nil
@@ -256,9 +263,7 @@ func (o *Orchestrator) SyncBLS(ctx context.Context, startYear, endYear int) (*Sy
 		})
 	}
 
-	if err := g.Wait(); err != nil {
-		return nil, err
-	}
+	waitErr := g.Wait()
 
 	close(successCh)
 	close(failCh)
@@ -272,6 +277,22 @@ func (o *Orchestrator) SyncBLS(ctx context.Context, startYear, endYear int) (*Sy
 	}
 
 	result.Duration = time.Since(start)
+
+	// Handle daily rate limit error gracefully - return partial results
+	if errors.Is(waitErr, bls.ErrDailyLimitReached) {
+		result.Errors = append(result.Errors, "BLS API daily rate limit reached - sync stopped early")
+		slog.Warn("BLS LAUS sync stopped early due to daily rate limit",
+			"successful_records", result.Successful,
+			"failed_counties", result.Failed,
+			"duration", result.Duration,
+		)
+		return result, nil // Return partial results, not an error
+	}
+
+	if waitErr != nil {
+		return nil, waitErr
+	}
+
 	slog.Info("completed BLS LAUS sync",
 		"successful_records", result.Successful,
 		"failed_counties", result.Failed,
