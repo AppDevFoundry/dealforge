@@ -174,9 +174,23 @@ async function syncTdhcaLiens(csvPath: string) {
     if (record.status === 'active') activeCount++;
     else releasedCount++;
 
-    const id = `mhl_${createId()}`;
-
     try {
+      // Check if record already exists (by natural key: tax_roll_number + label + tax_year + county)
+      const existing = await sql`
+        SELECT id FROM mh_tax_liens
+        WHERE tax_roll_number = ${record.taxRollNumber}
+          AND label = ${record.label}
+          AND tax_year = ${record.taxYear}
+          AND county = ${record.county}
+        LIMIT 1
+      `;
+
+      if (existing.length > 0) {
+        skipped++;
+        continue;
+      }
+
+      const id = `mhl_${createId()}`;
       await sql`
         INSERT INTO mh_tax_liens (
           id, tax_roll_number, payer_name, payer_address, payer_city,
