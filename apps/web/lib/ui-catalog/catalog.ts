@@ -52,9 +52,7 @@ export const tableSchema = z.object({
       })
     )
     .describe('Column definitions'),
-  data: z
-    .array(z.record(z.union([z.string(), z.number(), z.null()])))
-    .describe('Row data'),
+  data: z.array(z.record(z.union([z.string(), z.number(), z.null()]))).describe('Row data'),
   striped: z.boolean().optional().describe('Alternate row colors'),
 });
 
@@ -84,9 +82,7 @@ export const barChartSchema = z.object({
 export const lineChartSchema = z.object({
   type: z.literal('line-chart'),
   title: z.string().optional().describe('Chart title'),
-  data: z
-    .array(z.record(z.union([z.string(), z.number()])))
-    .describe('Chart data points'),
+  data: z.array(z.record(z.union([z.string(), z.number()]))).describe('Chart data points'),
   lines: z
     .array(
       z.object({

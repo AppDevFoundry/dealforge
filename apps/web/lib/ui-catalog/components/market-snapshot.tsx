@@ -100,9 +100,7 @@ export function MarketSnapshot({ data, className }: MarketSnapshotProps) {
                     }
                     className="text-xs"
                   >
-                    {employment.trend === 'improving' && (
-                      <TrendingDown className="h-3 w-3 mr-1" />
-                    )}
+                    {employment.trend === 'improving' && <TrendingDown className="h-3 w-3 mr-1" />}
                     {employment.trend === 'declining' && <TrendingUp className="h-3 w-3 mr-1" />}
                     {employment.trend}
                   </Badge>

@@ -6,15 +6,15 @@
  * React components for rendering AI-generated UI with progressive streaming.
  */
 
-import { useCallback, useState } from 'react';
+import type { Action, UITree } from '@json-render/core';
 import {
-  useUIStream,
-  Renderer,
-  JSONUIProvider,
   type ComponentRegistry,
   type ComponentRenderProps,
+  JSONUIProvider,
+  Renderer,
+  useUIStream,
 } from '@json-render/react';
-import type { UITree, Action } from '@json-render/core';
+import { useCallback, useState } from 'react';
 
 // Local type for UIElement to avoid version mismatch between core versions
 interface UIElementLocal {
@@ -50,8 +50,17 @@ export const streamingRegistry: ComponentRegistry = {
         label: element.props.label as string,
         value: element.props.value as string | number,
         unit: element.props.unit as string | undefined,
-        icon: element.props.icon as 'dollar' | 'percent' | 'home' | 'users' | 'chart' | 'alert' | undefined,
-        change: element.props.change as { value: number; direction: 'up' | 'down' | 'neutral'; period?: string } | undefined,
+        icon: element.props.icon as
+          | 'dollar'
+          | 'percent'
+          | 'home'
+          | 'users'
+          | 'chart'
+          | 'alert'
+          | undefined,
+        change: element.props.change as
+          | { value: number; direction: 'up' | 'down' | 'neutral'; period?: string }
+          | undefined,
       }}
     />
   ),
@@ -74,7 +83,11 @@ export const streamingRegistry: ComponentRegistry = {
     <Table
       data={{
         title: element.props.title as string | undefined,
-        columns: element.props.columns as Array<{ key: string; header: string; align?: 'left' | 'center' | 'right' }>,
+        columns: element.props.columns as Array<{
+          key: string;
+          header: string;
+          align?: 'left' | 'center' | 'right';
+        }>,
         data: element.props.data as Array<Record<string, string | number | null>>,
         striped: element.props.striped as boolean | undefined,
       }}
@@ -149,9 +162,15 @@ export const streamingRegistry: ComponentRegistry = {
     <MarketSnapshot
       data={{
         county: element.props.county as string,
-        fmr: element.props.fmr as { twoBedroom: number; suggestedLotRent: { low: number; high: number } } | undefined,
-        demographics: element.props.demographics as { population: number; medianIncome: number; mobileHomesPercent?: number } | undefined,
-        employment: element.props.employment as { unemploymentRate: number; trend?: 'improving' | 'stable' | 'declining' } | undefined,
+        fmr: element.props.fmr as
+          | { twoBedroom: number; suggestedLotRent: { low: number; high: number } }
+          | undefined,
+        demographics: element.props.demographics as
+          | { population: number; medianIncome: number; mobileHomesPercent?: number }
+          | undefined,
+        employment: element.props.employment as
+          | { unemploymentRate: number; trend?: 'improving' | 'stable' | 'declining' }
+          | undefined,
         insights: element.props.insights as string[],
       }}
     />
@@ -172,7 +191,10 @@ export const streamingRegistry: ComponentRegistry = {
     <ComparisonTable
       data={{
         title: element.props.title as string | undefined,
-        items: element.props.items as Array<{ name: string; metrics: Record<string, string | number | null> }>,
+        items: element.props.items as Array<{
+          name: string;
+          metrics: Record<string, string | number | null>;
+        }>,
         metricLabels: element.props.metricLabels as Record<string, string>,
         highlightBest: element.props.highlightBest as boolean | undefined,
       }}
@@ -180,7 +202,8 @@ export const streamingRegistry: ComponentRegistry = {
   ),
 
   ActionButton: ({ element, onAction }: ComponentRenderProps) => {
-    const variant = (element.props.variant as 'default' | 'secondary' | 'outline' | 'destructive') || 'default';
+    const variant =
+      (element.props.variant as 'default' | 'secondary' | 'outline' | 'destructive') || 'default';
 
     const handleClick = () => {
       if (!onAction) return;
@@ -282,7 +305,10 @@ export function StreamingUIRenderer({
   const router = useRouter();
 
   // Default action handlers
-  const actionHandlers: Record<string, (params: Record<string, unknown>) => Promise<unknown> | unknown> = {
+  const actionHandlers: Record<
+    string,
+    (params: Record<string, unknown>) => Promise<unknown> | unknown
+  > = {
     navigate_to_park: async (params) => {
       if (params.parkId) {
         router.push(`/parks/${params.parkId}`);
@@ -323,11 +349,7 @@ export function StreamingUIRenderer({
       navigate={(path) => router.push(path)}
     >
       <div className={cn('space-y-4', className)}>
-        <Renderer
-          tree={normalizedTree}
-          registry={streamingRegistry}
-          loading={isStreaming}
-        />
+        <Renderer tree={normalizedTree} registry={streamingRegistry} loading={isStreaming} />
       </div>
     </JSONUIProvider>
   );

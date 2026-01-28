@@ -2,14 +2,14 @@
  * Tests for get-market-context AI tool
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
-  createMockSql,
-  createMockFMR,
-  createMockCensus,
-  createMockBLS,
-  setupTestEnv,
   cleanupTestEnv,
+  createMockBLS,
+  createMockCensus,
+  createMockFMR,
+  createMockSql,
+  setupTestEnv,
 } from './setup';
 
 // Mock neon module before importing the tool
@@ -19,7 +19,7 @@ vi.mock('@neondatabase/serverless', () => ({
 }));
 
 // Import after mock is set up
-import { getMarketContext, type MarketContextResult } from '../get-market-context';
+import { getMarketContext } from '../get-market-context';
 
 describe('getMarketContext', () => {
   beforeEach(() => {
@@ -33,9 +33,9 @@ describe('getMarketContext', () => {
 
   describe('input validation', () => {
     it('throws error when neither zipCode nor county is provided', async () => {
-      await expect(
-        getMarketContext.execute({})
-      ).rejects.toThrow('Either zipCode or county must be provided');
+      await expect(getMarketContext.execute({})).rejects.toThrow(
+        'Either zipCode or county must be provided'
+      );
     });
   });
 
@@ -176,7 +176,7 @@ describe('getMarketContext', () => {
       const result = await getMarketContext.execute({ county: 'Bexar' });
 
       expect(result.insights.length).toBeGreaterThan(0);
-      expect(result.insights.some(i => i.includes('FMR'))).toBe(true);
+      expect(result.insights.some((i) => i.includes('FMR'))).toBe(true);
     });
 
     it('generates affordability insights based on income', async () => {
@@ -198,7 +198,7 @@ describe('getMarketContext', () => {
 
       const result = await getMarketContext.execute({ county: 'Bexar' });
 
-      expect(result.insights.some(i => i.includes('Median household income'))).toBe(true);
+      expect(result.insights.some((i) => i.includes('Median household income'))).toBe(true);
     });
 
     it('generates high vacancy warning', async () => {
@@ -220,7 +220,7 @@ describe('getMarketContext', () => {
 
       const result = await getMarketContext.execute({ county: 'Bexar' });
 
-      expect(result.insights.some(i => i.includes('High vacancy'))).toBe(true);
+      expect(result.insights.some((i) => i.includes('High vacancy'))).toBe(true);
     });
 
     it('generates tight market insight for low vacancy', async () => {
@@ -242,7 +242,7 @@ describe('getMarketContext', () => {
 
       const result = await getMarketContext.execute({ county: 'Bexar' });
 
-      expect(result.insights.some(i => i.includes('Tight housing market'))).toBe(true);
+      expect(result.insights.some((i) => i.includes('Tight housing market'))).toBe(true);
     });
 
     it('generates MH presence insight when significant', async () => {
@@ -265,7 +265,7 @@ describe('getMarketContext', () => {
 
       const result = await getMarketContext.execute({ county: 'Bexar' });
 
-      expect(result.insights.some(i => i.includes('Strong MH presence'))).toBe(true);
+      expect(result.insights.some((i) => i.includes('Strong MH presence'))).toBe(true);
     });
 
     it('generates unemployment insight for high rates', async () => {
@@ -287,7 +287,7 @@ describe('getMarketContext', () => {
 
       const result = await getMarketContext.execute({ county: 'Bexar' });
 
-      expect(result.insights.some(i => i.includes('Above-average unemployment'))).toBe(true);
+      expect(result.insights.some((i) => i.includes('Above-average unemployment'))).toBe(true);
     });
 
     it('generates strong labor market insight for low unemployment', async () => {
@@ -309,7 +309,7 @@ describe('getMarketContext', () => {
 
       const result = await getMarketContext.execute({ county: 'Bexar' });
 
-      expect(result.insights.some(i => i.includes('Strong labor market'))).toBe(true);
+      expect(result.insights.some((i) => i.includes('Strong labor market'))).toBe(true);
     });
   });
 

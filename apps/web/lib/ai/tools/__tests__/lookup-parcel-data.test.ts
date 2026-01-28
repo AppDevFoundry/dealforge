@@ -2,16 +2,16 @@
  * Tests for lookup-parcel-data AI tool
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { http, HttpResponse } from 'msw';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { server } from '../../../../__tests__/utils/msw/server';
 import {
-  createMockSql,
-  createMockFMR,
-  createMockCommunity,
-  createMockCCNArea,
-  setupTestEnv,
   cleanupTestEnv,
+  createMockCCNArea,
+  createMockCommunity,
+  createMockFMR,
+  createMockSql,
+  setupTestEnv,
 } from './setup';
 
 // Mock neon module before importing the tool
@@ -21,7 +21,7 @@ vi.mock('@neondatabase/serverless', () => ({
 }));
 
 // Import after mock is set up
-import { lookupParcelData, type ParcelDataResult } from '../lookup-parcel-data';
+import { lookupParcelData } from '../lookup-parcel-data';
 
 describe('lookupParcelData', () => {
   beforeEach(() => {
@@ -40,15 +40,17 @@ describe('lookupParcelData', () => {
       server.use(
         http.get('https://api.mapbox.com/geocoding/v5/mapbox.places/*', () => {
           return HttpResponse.json({
-            features: [{
-              center: [-98.4936, 29.4241],
-              place_name: '123 Main St, San Antonio, TX 78201',
-              context: [
-                { id: 'postcode.123', text: '78201' },
-                { id: 'place.456', text: 'San Antonio' },
-                { id: 'district.789', text: 'Bexar County' },
-              ],
-            }],
+            features: [
+              {
+                center: [-98.4936, 29.4241],
+                place_name: '123 Main St, San Antonio, TX 78201',
+                context: [
+                  { id: 'postcode.123', text: '78201' },
+                  { id: 'place.456', text: 'San Antonio' },
+                  { id: 'district.789', text: 'Bexar County' },
+                ],
+              },
+            ],
           });
         })
       );
@@ -174,7 +176,7 @@ describe('lookupParcelData', () => {
 
       expect(result.utilities.hasWater).toBe(false);
       expect(result.utilities.hasSewer).toBe(false);
-      expect(result.insights.some(i => i.includes('No CCN utility coverage'))).toBe(true);
+      expect(result.insights.some((i) => i.includes('No CCN utility coverage'))).toBe(true);
     });
 
     it('generates full coverage insight', async () => {
@@ -205,7 +207,7 @@ describe('lookupParcelData', () => {
 
       expect(result.utilities.hasWater).toBe(true);
       expect(result.utilities.hasSewer).toBe(true);
-      expect(result.insights.some(i => i.includes('Full utility coverage'))).toBe(true);
+      expect(result.insights.some((i) => i.includes('Full utility coverage'))).toBe(true);
     });
   });
 
@@ -265,7 +267,7 @@ describe('lookupParcelData', () => {
 
       expect(result.nearbyParks.length).toBe(2);
       expect(result.nearbyParks[0].distanceMiles).toBe(2.5);
-      expect(result.insights.some(i => i.includes('Found 2 MH parks'))).toBe(true);
+      expect(result.insights.some((i) => i.includes('Found 2 MH parks'))).toBe(true);
     });
 
     it('generates insight when distressed parks found nearby', async () => {
@@ -289,7 +291,7 @@ describe('lookupParcelData', () => {
         longitude: -98.4936,
       });
 
-      expect(result.insights.some(i => i.includes('distress signals'))).toBe(true);
+      expect(result.insights.some((i) => i.includes('distress signals'))).toBe(true);
     });
 
     it('generates insight when no parks found', async () => {
@@ -301,7 +303,7 @@ describe('lookupParcelData', () => {
       });
 
       expect(result.nearbyParks.length).toBe(0);
-      expect(result.insights.some(i => i.includes('No MH parks found'))).toBe(true);
+      expect(result.insights.some((i) => i.includes('No MH parks found'))).toBe(true);
     });
 
     it('respects custom search radius', async () => {
@@ -334,15 +336,17 @@ describe('lookupParcelData', () => {
       server.use(
         http.get('https://api.mapbox.com/geocoding/v5/mapbox.places/*', () => {
           return HttpResponse.json({
-            features: [{
-              center: [-98.4936, 29.4241],
-              place_name: '123 Main St, San Antonio, TX 78201',
-              context: [
-                { id: 'postcode.123', text: '78201' },
-                { id: 'place.456', text: 'San Antonio' },
-                { id: 'district.789', text: 'Bexar County' },
-              ],
-            }],
+            features: [
+              {
+                center: [-98.4936, 29.4241],
+                place_name: '123 Main St, San Antonio, TX 78201',
+                context: [
+                  { id: 'postcode.123', text: '78201' },
+                  { id: 'place.456', text: 'San Antonio' },
+                  { id: 'district.789', text: 'Bexar County' },
+                ],
+              },
+            ],
           });
         })
       );

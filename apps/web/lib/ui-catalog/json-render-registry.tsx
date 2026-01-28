@@ -6,9 +6,9 @@
  * Maps json-render element types to React components for rendering.
  */
 
-import type { UIElement } from '@json-render/core';
-import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import type { UIElement } from '@json-render/core';
 
 // Import our existing components
 import { AlertBanner } from './components/alert-banner';
@@ -33,18 +33,24 @@ interface ComponentProps {
 /**
  * Component registry mapping element types to React components
  */
-export const componentRegistry: Record<
-  string,
-  React.ComponentType<ComponentProps>
-> = {
+export const componentRegistry: Record<string, React.ComponentType<ComponentProps>> = {
   Stat: ({ element }) => (
     <Stat
       data={{
         label: element.props.label as string,
         value: element.props.value as string | number,
         unit: element.props.unit as string | undefined,
-        icon: element.props.icon as 'dollar' | 'percent' | 'home' | 'users' | 'chart' | 'alert' | undefined,
-        change: element.props.change as { value: number; direction: 'up' | 'down' | 'neutral'; period?: string } | undefined,
+        icon: element.props.icon as
+          | 'dollar'
+          | 'percent'
+          | 'home'
+          | 'users'
+          | 'chart'
+          | 'alert'
+          | undefined,
+        change: element.props.change as
+          | { value: number; direction: 'up' | 'down' | 'neutral'; period?: string }
+          | undefined,
       }}
     />
   ),
@@ -67,7 +73,11 @@ export const componentRegistry: Record<
     <Table
       data={{
         title: element.props.title as string | undefined,
-        columns: element.props.columns as Array<{ key: string; header: string; align?: 'left' | 'center' | 'right' }>,
+        columns: element.props.columns as Array<{
+          key: string;
+          header: string;
+          align?: 'left' | 'center' | 'right';
+        }>,
         data: element.props.data as Array<Record<string, string | number | null>>,
         striped: element.props.striped as boolean | undefined,
       }}
@@ -142,9 +152,15 @@ export const componentRegistry: Record<
     <MarketSnapshot
       data={{
         county: element.props.county as string,
-        fmr: element.props.fmr as { twoBedroom: number; suggestedLotRent: { low: number; high: number } } | undefined,
-        demographics: element.props.demographics as { population: number; medianIncome: number; mobileHomesPercent?: number } | undefined,
-        employment: element.props.employment as { unemploymentRate: number; trend?: 'improving' | 'stable' | 'declining' } | undefined,
+        fmr: element.props.fmr as
+          | { twoBedroom: number; suggestedLotRent: { low: number; high: number } }
+          | undefined,
+        demographics: element.props.demographics as
+          | { population: number; medianIncome: number; mobileHomesPercent?: number }
+          | undefined,
+        employment: element.props.employment as
+          | { unemploymentRate: number; trend?: 'improving' | 'stable' | 'declining' }
+          | undefined,
         insights: element.props.insights as string[],
       }}
     />
@@ -165,7 +181,10 @@ export const componentRegistry: Record<
     <ComparisonTable
       data={{
         title: element.props.title as string | undefined,
-        items: element.props.items as Array<{ name: string; metrics: Record<string, string | number | null> }>,
+        items: element.props.items as Array<{
+          name: string;
+          metrics: Record<string, string | number | null>;
+        }>,
         metricLabels: element.props.metricLabels as Record<string, string>,
         highlightBest: element.props.highlightBest as boolean | undefined,
       }}
@@ -173,7 +192,8 @@ export const componentRegistry: Record<
   ),
 
   ActionButton: ({ element, onAction }) => {
-    const variant = (element.props.variant as 'default' | 'secondary' | 'outline' | 'destructive') || 'default';
+    const variant =
+      (element.props.variant as 'default' | 'secondary' | 'outline' | 'destructive') || 'default';
 
     const handleClick = () => {
       if (!onAction) return;

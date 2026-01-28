@@ -2,12 +2,12 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
-  Table as UITable,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
+  Table as UITable,
 } from '@/components/ui/table';
 import { cn } from '@/lib/utils';
 
@@ -55,10 +55,7 @@ export function Table({ data, className }: TableProps) {
           </TableHeader>
           <TableBody>
             {tableData.map((row, rowIdx) => (
-              <TableRow
-                key={rowIdx}
-                className={cn(striped && rowIdx % 2 === 1 && 'bg-muted/50')}
-              >
+              <TableRow key={rowIdx} className={cn(striped && rowIdx % 2 === 1 && 'bg-muted/50')}>
                 {columns.map((col) => (
                   <TableCell
                     key={col.key}

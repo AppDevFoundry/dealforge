@@ -4,8 +4,8 @@ import { Bot, User } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
+import { type UIElement, UIElementRenderer } from '@/lib/ui-catalog';
 import { cn } from '@/lib/utils';
-import { UIElementRenderer, type UIElement } from '@/lib/ui-catalog';
 
 import { ToolResultDisplay } from './tool-result-display';
 

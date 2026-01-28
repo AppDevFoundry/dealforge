@@ -9,7 +9,7 @@
  * This service is used by AI tools and can be used by other parts of the application.
  */
 
-import { neon, type NeonQueryFunction } from '@neondatabase/serverless';
+import { type NeonQueryFunction, neon } from '@neondatabase/serverless';
 
 // ============================================================================
 // Types
@@ -210,10 +210,7 @@ async function fetchFMRFromHUD(zipCode: string, apiKey: string): Promise<FMRData
   }
 }
 
-async function cacheFMR(
-  sql: NeonQueryFunction<false, false>,
-  fmr: FMRData
-): Promise<void> {
+async function cacheFMR(sql: NeonQueryFunction<false, false>, fmr: FMRData): Promise<void> {
   try {
     await sql`
       INSERT INTO hud_fair_market_rents (
