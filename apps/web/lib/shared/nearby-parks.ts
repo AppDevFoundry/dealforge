@@ -18,6 +18,8 @@ export interface NearbyPark {
   address?: string | null;
   city: string;
   county: string;
+  latitude?: number | null;
+  longitude?: number | null;
   distanceMiles: number;
   lotCount?: number | null;
   distressScore?: number | null;
@@ -43,6 +45,8 @@ export async function findNearbyParks(
         address,
         city,
         county,
+        latitude,
+        longitude,
         lot_count,
         distress_score,
         ST_Distance(
@@ -67,6 +71,8 @@ export async function findNearbyParks(
       address: park.address as string | null,
       city: park.city as string,
       county: park.county as string,
+      latitude: park.latitude ? Number(park.latitude) : null,
+      longitude: park.longitude ? Number(park.longitude) : null,
       distanceMiles: Math.round((park.distance_miles as number) * 10) / 10,
       lotCount: park.lot_count ? Number(park.lot_count) : null,
       distressScore: park.distress_score ? Number(park.distress_score) : null,

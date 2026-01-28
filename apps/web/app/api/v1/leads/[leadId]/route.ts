@@ -93,7 +93,13 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
     for (const [key, value] of Object.entries(data)) {
       if (value !== undefined) {
-        updateData[key] = value;
+        // Handle features specially - store in metadata
+        if (key === 'features') {
+          updateData.metadata =
+            Array.isArray(value) && value.length > 0 ? { features: value } : null;
+        } else {
+          updateData[key] = value;
+        }
       }
     }
 

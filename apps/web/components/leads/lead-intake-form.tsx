@@ -31,6 +31,7 @@ export function LeadIntakeForm() {
     resolver: zodResolver(CreateLeadSchema),
     defaultValues: {
       address: '',
+      features: [],
     },
     mode: 'onChange',
   });
@@ -135,7 +136,9 @@ export function LeadIntakeForm() {
         {currentStep === 0 && (
           <AddressStep register={register} errors={errors} setValue={setValue} watch={watch} />
         )}
-        {currentStep === 1 && <PropertyStep register={register} errors={errors} />}
+        {currentStep === 1 && (
+          <PropertyStep register={register} errors={errors} setValue={setValue} watch={watch} />
+        )}
         {currentStep === 2 && <FinancialsStep register={register} errors={errors} />}
         {currentStep === 3 && <SellerStep register={register} errors={errors} watch={watch} />}
 
@@ -188,6 +191,7 @@ function getFieldsForStep(step: number): (keyof CreateLeadInput)[] {
         'bedrooms',
         'bathrooms',
         'lotCount',
+        'features',
       ];
     case 2:
       return [

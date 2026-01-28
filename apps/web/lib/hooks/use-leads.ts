@@ -108,12 +108,18 @@ export function useLeads(filters: ListLeadsFilters = {}) {
 
 /**
  * Hook to fetch a single lead by ID with intelligence
+ * Automatically polls every 3 seconds while the lead is being analyzed
  */
 export function useLead(id: string | undefined) {
   return useQuery({
     queryKey: leadKeys.detail(id!),
     queryFn: () => fetchApi<LeadWithIntelligenceResponse>(`/api/v1/leads/${id}`),
     enabled: !!id,
+    refetchInterval: (query) => {
+      const status = query.state.data?.data?.status;
+      // Poll every 3 seconds while analyzing, stop when complete
+      return status === 'analyzing' ? 3000 : false;
+    },
   });
 }
 

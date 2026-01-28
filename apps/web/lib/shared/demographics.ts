@@ -37,21 +37,24 @@ export async function lookupDemographics(
     // Normalize county name (remove "County" suffix if present)
     const normalizedCounty = county.replace(/ County$/i, '').trim();
 
+    // Get state code from state abbreviation
+    const stateCode = state === 'TX' ? '48' : null;
+
     const rows = (await sql`
       SELECT
-        data_year,
+        survey_year,
         total_population,
         median_household_income,
         median_age,
         poverty_rate,
-        unemployment_rate,
         total_housing_units,
         owner_occupied_rate,
         median_home_value
       FROM census_demographics
-      WHERE LOWER(county) = LOWER(${normalizedCounty})
-        AND state = ${state}
-      ORDER BY data_year DESC
+      WHERE geo_type = 'county'
+        AND geo_name ILIKE ${normalizedCounty + ' County%'}
+        AND (${stateCode}::text IS NULL OR state_code = ${stateCode})
+      ORDER BY survey_year DESC
       LIMIT 1
     `) as Array<Record<string, unknown>>;
 
@@ -67,11 +70,11 @@ export async function lookupDemographics(
         : null,
       medianAge: row.median_age ? Number(row.median_age) : null,
       povertyRate: row.poverty_rate ? Number(row.poverty_rate) : null,
-      unemploymentRate: row.unemployment_rate ? Number(row.unemployment_rate) : null,
+      unemploymentRate: null, // This comes from BLS data, not Census
       housingUnits: row.total_housing_units ? Number(row.total_housing_units) : null,
       ownerOccupiedRate: row.owner_occupied_rate ? Number(row.owner_occupied_rate) : null,
       medianHomeValue: row.median_home_value ? Number(row.median_home_value) : null,
-      dataYear: row.data_year ? Number(row.data_year) : null,
+      dataYear: row.survey_year ? Number(row.survey_year) : null,
     };
   } catch (error) {
     console.warn('Demographics lookup failed:', error);

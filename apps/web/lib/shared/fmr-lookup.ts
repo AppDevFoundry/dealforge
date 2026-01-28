@@ -38,7 +38,7 @@ export async function lookupFmr(zipCode: string): Promise<FmrData | null> {
         two_bedroom,
         three_bedroom,
         four_bedroom,
-        area_name,
+        metro_name,
         county_name
       FROM hud_fair_market_rents
       WHERE zip_code = ${zipCode}
@@ -58,7 +58,7 @@ export async function lookupFmr(zipCode: string): Promise<FmrData | null> {
       twoBr: fmr.two_bedroom ? Number(fmr.two_bedroom) : null,
       threeBr: fmr.three_bedroom ? Number(fmr.three_bedroom) : null,
       fourBr: fmr.four_bedroom ? Number(fmr.four_bedroom) : null,
-      areaName: fmr.area_name as string | null,
+      areaName: fmr.metro_name as string | null,
       countyName: fmr.county_name as string | null,
     };
   } catch (error) {

@@ -8,11 +8,14 @@ import {
   DollarSign,
   Download,
   Droplets,
+  Edit,
   FileText,
   Home,
   Loader2,
   MapPin,
   RefreshCw,
+  ThumbsDown,
+  ThumbsUp,
   TrendingUp,
   User,
   XCircle,
@@ -20,12 +23,14 @@ import {
 import Link from 'next/link';
 import { use } from 'react';
 
+import { AnalyzingOverlay } from '@/components/leads/analyzing-overlay';
+import { LeadLocationMap } from '@/components/leads/detail/lead-location-map';
 import { LeadStatusBadge } from '@/components/leads/lead-status-badge';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { useAnalyzeLead, useGenerateReport, useLead } from '@/lib/hooks/use-leads';
+import { useAnalyzeLead, useGenerateReport, useLead, useUpdateLead } from '@/lib/hooks/use-leads';
 
 interface PageProps {
   params: Promise<{ leadId: string }>;
@@ -36,6 +41,7 @@ export default function LeadDetailPage({ params }: PageProps) {
   const { data, isLoading, error } = useLead(leadId);
   const analyzeLead = useAnalyzeLead();
   const generateReport = useGenerateReport();
+  const updateLead = useUpdateLead();
 
   if (isLoading) {
     return (
@@ -74,6 +80,14 @@ export default function LeadDetailPage({ params }: PageProps) {
     }
   };
 
+  const handleMarkInterested = async () => {
+    await updateLead.mutateAsync({ id: leadId, data: { status: 'interested' } });
+  };
+
+  const handlePass = async () => {
+    await updateLead.mutateAsync({ id: leadId, data: { status: 'passed' } });
+  };
+
   return (
     <div className="container py-6 space-y-6">
       {/* Header */}
@@ -100,7 +114,45 @@ export default function LeadDetailPage({ params }: PageProps) {
             )}
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
+            {/* Status action buttons - only show for actionable statuses */}
+            {['analyzed', 'new'].includes(lead.status) && (
+              <>
+                <Button
+                  variant="default"
+                  onClick={handleMarkInterested}
+                  disabled={updateLead.isPending}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  {updateLead.isPending ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <ThumbsUp className="mr-2 h-4 w-4" />
+                  )}
+                  Interested
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={handlePass}
+                  disabled={updateLead.isPending}
+                  className="text-muted-foreground hover:text-destructive hover:border-destructive"
+                >
+                  {updateLead.isPending ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <ThumbsDown className="mr-2 h-4 w-4" />
+                  )}
+                  Pass
+                </Button>
+              </>
+            )}
+
+            <Button variant="outline" asChild>
+              <Link href={`/leads/${leadId}/edit`}>
+                <Edit className="mr-2 h-4 w-4" />
+                Edit
+              </Link>
+            </Button>
             <Button
               variant="outline"
               onClick={handleReanalyze}
@@ -124,6 +176,27 @@ export default function LeadDetailPage({ params }: PageProps) {
           </div>
         </div>
       </div>
+
+      {/* Analyzing overlay - shown while intelligence is being gathered */}
+      {lead.status === 'analyzing' && <AnalyzingOverlay intelligence={intelligence} />}
+
+      {/* Location Map */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <MapPin className="h-5 w-5" />
+            Location
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <LeadLocationMap
+            latitude={lead.latitude}
+            longitude={lead.longitude}
+            address={lead.address}
+            intelligence={intelligence}
+          />
+        </CardContent>
+      </Card>
 
       {/* Main content grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
