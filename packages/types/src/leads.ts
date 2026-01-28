@@ -282,7 +282,7 @@ export const CreateLeadSchema = z.object({
   sellerPhone: z.string().max(20).optional(),
   sellerEmail: z.string().email().max(200).optional().or(z.literal('')),
   sellerMotivation: z.string().max(2000).optional(),
-  leadSource: LeadSourceSchema.optional(),
+  leadSource: optionalEnum(LeadSourceSchema),
 
   // Notes
   notes: z.string().max(10000).optional(),
@@ -346,7 +346,7 @@ export const UpdateLeadSchema = z.object({
   sellerPhone: z.string().max(20).nullable().optional(),
   sellerEmail: z.string().email().max(200).nullable().optional().or(z.literal('')),
   sellerMotivation: z.string().max(2000).nullable().optional(),
-  leadSource: LeadSourceSchema.nullable().optional(),
+  leadSource: optionalNullableEnum(LeadSourceSchema),
 
   // Notes
   notes: z.string().max(10000).nullable().optional(),

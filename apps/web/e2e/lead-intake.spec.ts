@@ -130,4 +130,64 @@ test.describe('Lead Intake Form', () => {
     // Should show validation error and stay on step 2
     await expect(page.getByText('Property Details', { exact: true })).toBeVisible();
   });
+
+  test('can create a lead with only required address field', async ({ page }) => {
+    await signIn(page);
+
+    // Listen to console for any errors
+    const consoleErrors: string[] = [];
+    page.on('console', (msg) => {
+      if (msg.type() === 'error') {
+        consoleErrors.push(msg.text());
+      }
+    });
+
+    // Variable to track API response
+    let apiResponseStatus = 0;
+    let apiResponseBody: unknown = null;
+
+    // Step 1: Address
+    await page.getByLabel(/street address/i).fill('123 Test Street, Austin, TX 78701');
+    await page.getByRole('button', { name: /next/i }).click();
+
+    // Step 2: Skip property details
+    await expect(page.getByText('Property Details', { exact: true })).toBeVisible();
+    await page.getByRole('button', { name: /next/i }).click();
+
+    // Step 3: Skip financials
+    await expect(page.getByText('Financial Information', { exact: true })).toBeVisible();
+    await page.getByRole('button', { name: /next/i }).click();
+
+    // Step 4: Skip seller info
+    await expect(page.getByText('Seller Information', { exact: true })).toBeVisible();
+
+    // Click Create Lead
+    const createButton = page.getByRole('button', { name: /create lead/i });
+    await expect(createButton).toBeVisible();
+    await expect(createButton).toBeEnabled();
+
+    // Click and wait for API response
+    const [response] = await Promise.all([
+      page.waitForResponse(
+        (resp) => resp.url().includes('/api/v1/leads') && resp.request().method() === 'POST',
+        { timeout: 10000 }
+      ),
+      createButton.click(),
+    ]);
+
+    apiResponseStatus = response.status();
+    apiResponseBody = await response.json().catch(() => null);
+
+    // Log results for debugging
+    if (consoleErrors.length > 0) {
+      console.log('Console errors:', consoleErrors);
+    }
+    console.log('API Response:', apiResponseStatus, JSON.stringify(apiResponseBody));
+
+    // Verify the API returned success (201)
+    expect(apiResponseStatus).toBe(201);
+
+    // Should redirect to lead detail page
+    await expect(page).toHaveURL(/\/leads\/lead_/, { timeout: 5000 });
+  });
 });
