@@ -110,8 +110,8 @@ async function importSeedData() {
 
     console.log(`\nImporting ${task.file} (${data.length} records)...`);
 
-    // Clear existing data
-    await sql`DELETE FROM ${sql(task.table)}`;
+    // Clear existing data (table name must be in query string, not parameterized)
+    await sql(`DELETE FROM ${task.table}`);
     console.log(`  Cleared ${task.table}`);
 
     // Import in batches
@@ -200,9 +200,10 @@ async function importRecord(
     values.push(boundaryWkt);
   }
 
-  // Execute using tagged template literal with unsafe raw query
+  // Execute raw SQL query with parameters
   // Note: Table names are validated against known tables list above
-  await sql(`INSERT INTO ${table} (${columnList}) VALUES (${placeholders})`, values);
+  const query = `INSERT INTO ${table} (${columnList}) VALUES (${placeholders})`;
+  await sql(query, values);
 }
 
 importSeedData().catch(console.error);

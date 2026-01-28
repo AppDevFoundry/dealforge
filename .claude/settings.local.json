@@ -7,7 +7,10 @@
       "Bash(pnpm lint:*)",
       "Bash(pnpm lint:fix:*)",
       "Bash(npx shadcn@latest add:*)",
-      "Bash(pnpm test:unit:*)"
+      "Bash(pnpm test:unit:*)",
+      "mcp__Neon__run_sql",
+      "Bash(go build:*)",
+      "Bash(/tmp/sync-test:*)"
     ]
   }
 }
