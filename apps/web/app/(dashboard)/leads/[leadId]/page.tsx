@@ -8,6 +8,7 @@ import {
   DollarSign,
   Download,
   Droplets,
+  Edit,
   FileText,
   Home,
   Loader2,
@@ -20,6 +21,8 @@ import {
 import Link from 'next/link';
 import { use } from 'react';
 
+import { AnalyzingOverlay } from '@/components/leads/analyzing-overlay';
+import { LeadLocationMap } from '@/components/leads/detail/lead-location-map';
 import { LeadStatusBadge } from '@/components/leads/lead-status-badge';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -101,6 +104,12 @@ export default function LeadDetailPage({ params }: PageProps) {
           </div>
 
           <div className="flex gap-2">
+            <Button variant="outline" asChild>
+              <Link href={`/leads/${leadId}/edit`}>
+                <Edit className="mr-2 h-4 w-4" />
+                Edit
+              </Link>
+            </Button>
             <Button
               variant="outline"
               onClick={handleReanalyze}
@@ -124,6 +133,27 @@ export default function LeadDetailPage({ params }: PageProps) {
           </div>
         </div>
       </div>
+
+      {/* Analyzing overlay - shown while intelligence is being gathered */}
+      {lead.status === 'analyzing' && <AnalyzingOverlay intelligence={intelligence} />}
+
+      {/* Location Map */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <MapPin className="h-5 w-5" />
+            Location
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <LeadLocationMap
+            latitude={lead.latitude}
+            longitude={lead.longitude}
+            address={lead.address}
+            intelligence={intelligence}
+          />
+        </CardContent>
+      </Card>
 
       {/* Main content grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

@@ -41,6 +41,31 @@ export const PropertyConditionSchema = z.enum([
 ]);
 export type PropertyCondition = z.infer<typeof PropertyConditionSchema>;
 
+export const PropertyFeatureSchema = z.enum([
+  'rv_hookups',
+  'storage_building',
+  'garage',
+  'carport',
+  'septic_system',
+  'well_water',
+  'central_ac',
+  'currently_occupied',
+  'needs_to_be_moved',
+]);
+export type PropertyFeature = z.infer<typeof PropertyFeatureSchema>;
+
+export const PROPERTY_FEATURES: { value: PropertyFeature; label: string }[] = [
+  { value: 'rv_hookups', label: 'RV Hookups' },
+  { value: 'storage_building', label: 'Storage Building' },
+  { value: 'garage', label: 'Garage' },
+  { value: 'carport', label: 'Carport' },
+  { value: 'septic_system', label: 'Septic System' },
+  { value: 'well_water', label: 'Well Water' },
+  { value: 'central_ac', label: 'Central A/C' },
+  { value: 'currently_occupied', label: 'Currently Occupied' },
+  { value: 'needs_to_be_moved', label: 'Needs to be Moved' },
+];
+
 export const LeadSourceSchema = z.enum([
   'direct_mail',
   'cold_call',
@@ -157,6 +182,8 @@ export interface NearbyPark {
   name: string;
   city: string;
   county: string;
+  latitude?: number | null;
+  longitude?: number | null;
   lotCount?: number | null;
   distanceMiles: number;
   distressScore?: number | null;
@@ -286,6 +313,9 @@ export const CreateLeadSchema = z.object({
 
   // Notes
   notes: z.string().max(10000).optional(),
+
+  // Property features
+  features: z.array(PropertyFeatureSchema).optional(),
 });
 export type CreateLeadInput = z.infer<typeof CreateLeadSchema>;
 
@@ -350,6 +380,9 @@ export const UpdateLeadSchema = z.object({
 
   // Notes
   notes: z.string().max(10000).nullable().optional(),
+
+  // Property features
+  features: z.array(PropertyFeatureSchema).nullable().optional(),
 });
 export type UpdateLeadInput = z.infer<typeof UpdateLeadSchema>;
 

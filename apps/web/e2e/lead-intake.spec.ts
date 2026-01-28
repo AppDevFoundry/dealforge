@@ -143,15 +143,21 @@ test.describe('Lead Intake Form', () => {
     await page.getByRole('button', { name: /next/i }).click();
 
     // Step 2: Skip property details - wait for step to be visible
-    await expect(page.getByText('Property Details', { exact: true })).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText('Property Details', { exact: true })).toBeVisible({
+      timeout: 5000,
+    });
     await page.getByRole('button', { name: /next/i }).click();
 
     // Step 3: Skip financials - wait for step to be visible
-    await expect(page.getByText('Financial Information', { exact: true })).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText('Financial Information', { exact: true })).toBeVisible({
+      timeout: 5000,
+    });
     await page.getByRole('button', { name: /next/i }).click();
 
     // Step 4: Skip seller info - wait for step to be visible
-    await expect(page.getByText('Seller Information', { exact: true })).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText('Seller Information', { exact: true })).toBeVisible({
+      timeout: 5000,
+    });
 
     // Click Create Lead - ensure button is visible and enabled
     const createButton = page.getByRole('button', { name: /create lead/i });
@@ -198,15 +204,21 @@ test.describe('Lead Intake Form', () => {
     await page.getByRole('button', { name: /next/i }).click();
 
     // Step 2: Skip property
-    await expect(page.getByText('Property Details', { exact: true })).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText('Property Details', { exact: true })).toBeVisible({
+      timeout: 5000,
+    });
     await page.getByRole('button', { name: /next/i }).click();
 
     // Step 3: Skip financials
-    await expect(page.getByText('Financial Information', { exact: true })).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText('Financial Information', { exact: true })).toBeVisible({
+      timeout: 5000,
+    });
     await page.getByRole('button', { name: /next/i }).click();
 
     // Step 4: Skip seller
-    await expect(page.getByText('Seller Information', { exact: true })).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText('Seller Information', { exact: true })).toBeVisible({
+      timeout: 5000,
+    });
 
     const [response] = await Promise.all([
       page.waitForResponse(
@@ -222,9 +234,9 @@ test.describe('Lead Intake Form', () => {
     await expect(page).toHaveURL(/\/leads\/lead_/, { timeout: 5000 });
 
     // The lead should show as "Analyzing" initially
-    await expect(
-      page.getByText(/analyzing/i).or(page.getByText(/analyzed/i))
-    ).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText(/analyzing/i).or(page.getByText(/analyzed/i))).toBeVisible({
+      timeout: 5000,
+    });
 
     // The address should be visible in the heading
     await expect(page.getByRole('heading', { name: testAddress })).toBeVisible();
@@ -259,7 +271,9 @@ test.describe('Lead Intelligence & Reports', () => {
     await page.getByRole('button', { name: /next/i }).click();
 
     // Step 2: Property Details
-    await expect(page.getByText('Property Details', { exact: true })).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText('Property Details', { exact: true })).toBeVisible({
+      timeout: 5000,
+    });
 
     // Select property type - Singlewide
     await page.getByLabel(/property type/i).click();
@@ -278,22 +292,30 @@ test.describe('Lead Intelligence & Reports', () => {
     await page.getByRole('button', { name: /next/i }).click();
 
     // Step 3: Financials
-    await expect(page.getByText('Financial Information', { exact: true })).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText('Financial Information', { exact: true })).toBeVisible({
+      timeout: 5000,
+    });
     await page.getByLabel(/asking price/i).fill('115000');
     await page.getByRole('button', { name: /next/i }).click();
 
     // Step 4: Seller Information
-    await expect(page.getByText('Seller Information', { exact: true })).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText('Seller Information', { exact: true })).toBeVisible({
+      timeout: 5000,
+    });
 
     // Fill seller motivation - this is key context for AI analysis
-    await page.locator('#sellerMotivation').fill(
-      "Property Issues - Hot water leak caused wall and flooring damage. Home is vacant. 2 acres with RV carport (full hookups), storage building with wood floor, and gazebo. Remaining mortgage balance is $116,000. Needs to sell now."
-    );
+    await page
+      .locator('#sellerMotivation')
+      .fill(
+        'Property Issues - Hot water leak caused wall and flooring damage. Home is vacant. 2 acres with RV carport (full hookups), storage building with wood floor, and gazebo. Remaining mortgage balance is $116,000. Needs to sell now.'
+      );
 
     // Fill notes (uses id selector since there's no associated label)
-    await page.locator('#notes').fill(
-      "Found via Google. Seller motivated due to property issues. Home does not need to be moved."
-    );
+    await page
+      .locator('#notes')
+      .fill(
+        'Found via Google. Seller motivated due to property issues. Home does not need to be moved.'
+      );
 
     // Create the lead
     const [response] = await Promise.all([
@@ -313,7 +335,9 @@ test.describe('Lead Intelligence & Reports', () => {
     await expect(page).toHaveURL(/\/leads\/lead_/, { timeout: 5000 });
 
     // Verify the address is shown
-    await expect(page.getByRole('heading', { name: /122 County Rd/i })).toBeVisible({ timeout: 10000 });
+    await expect(page.getByRole('heading', { name: /122 County Rd/i })).toBeVisible({
+      timeout: 10000,
+    });
 
     // Wait for analysis to complete (may take up to 90s for AI)
     await expect(page.getByText(/analyzed/i)).toBeVisible({ timeout: 90000 });
@@ -332,13 +356,19 @@ test.describe('Lead Intelligence & Reports', () => {
     await page.getByLabel(/street address/i).fill(testAddress);
     await page.getByRole('button', { name: /next/i }).click();
 
-    await expect(page.getByText('Property Details', { exact: true })).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText('Property Details', { exact: true })).toBeVisible({
+      timeout: 5000,
+    });
     await page.getByRole('button', { name: /next/i }).click();
 
-    await expect(page.getByText('Financial Information', { exact: true })).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText('Financial Information', { exact: true })).toBeVisible({
+      timeout: 5000,
+    });
     await page.getByRole('button', { name: /next/i }).click();
 
-    await expect(page.getByText('Seller Information', { exact: true })).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText('Seller Information', { exact: true })).toBeVisible({
+      timeout: 5000,
+    });
 
     const [createResponse] = await Promise.all([
       page.waitForResponse(
@@ -427,13 +457,19 @@ test.describe('Intelligence gathering for various TX locations', () => {
       await page.getByRole('button', { name: /next/i }).click();
 
       // Skip through remaining steps
-      await expect(page.getByText('Property Details', { exact: true })).toBeVisible({ timeout: 5000 });
+      await expect(page.getByText('Property Details', { exact: true })).toBeVisible({
+        timeout: 5000,
+      });
       await page.getByRole('button', { name: /next/i }).click();
 
-      await expect(page.getByText('Financial Information', { exact: true })).toBeVisible({ timeout: 5000 });
+      await expect(page.getByText('Financial Information', { exact: true })).toBeVisible({
+        timeout: 5000,
+      });
       await page.getByRole('button', { name: /next/i }).click();
 
-      await expect(page.getByText('Seller Information', { exact: true })).toBeVisible({ timeout: 5000 });
+      await expect(page.getByText('Seller Information', { exact: true })).toBeVisible({
+        timeout: 5000,
+      });
 
       const [response] = await Promise.all([
         page.waitForResponse(

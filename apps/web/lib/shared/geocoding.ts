@@ -17,7 +17,8 @@ export interface GeocodeResult {
  */
 export async function geocodeAddress(address: string): Promise<GeocodeResult | null> {
   // Support both server-side and client-side env var names
-  const mapboxToken = process.env.MAPBOX_ACCESS_TOKEN || process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
+  const mapboxToken =
+    process.env.MAPBOX_ACCESS_TOKEN || process.env.NEXT_PUBLIC_MAPBOX_ACCESS_TOKEN;
   if (!mapboxToken) {
     console.warn('MAPBOX_ACCESS_TOKEN not set, skipping geocoding');
     return null;

@@ -172,6 +172,7 @@ export async function POST(request: NextRequest) {
         sellerMotivation: data.sellerMotivation,
         leadSource: data.leadSource,
         notes: data.notes,
+        metadata: data.features?.length ? { features: data.features } : null,
       })
       .returning();
 

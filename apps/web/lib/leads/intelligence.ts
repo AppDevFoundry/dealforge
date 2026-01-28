@@ -111,6 +111,8 @@ export async function gatherLeadIntelligence(lead: Lead): Promise<GatherIntellig
       name: park.name,
       city: park.city,
       county: park.county,
+      latitude: park.latitude ?? null,
+      longitude: park.longitude ?? null,
       lotCount: park.lotCount ?? null,
       distanceMiles: park.distanceMiles,
       distressScore: park.distressScore ?? null,
