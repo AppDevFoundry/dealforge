@@ -1,12 +1,14 @@
 'use client';
 
+import { useState } from 'react';
 import type { CreateLeadInput } from '@dealforge/types';
 import { MapPin } from 'lucide-react';
 import type { FieldErrors, UseFormRegister, UseFormSetValue, UseFormWatch } from 'react-hook-form';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+import { AddressAutocomplete } from '@/components/ui/address-autocomplete';
 import { Label } from '@/components/ui/label';
+import type { AddressSuggestion } from '@/lib/shared/address-autocomplete';
 
 interface AddressStepProps {
   register: UseFormRegister<CreateLeadInput>;
@@ -15,7 +17,16 @@ interface AddressStepProps {
   watch: UseFormWatch<CreateLeadInput>;
 }
 
-export function AddressStep({ register, errors }: AddressStepProps) {
+export function AddressStep({ errors, setValue, watch }: AddressStepProps) {
+  const [addressValue, setAddressValue] = useState(watch('address') || '');
+
+  const handleAddressSelect = (suggestion: AddressSuggestion) => {
+    setValue('address', suggestion.placeName, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+    setAddressValue(suggestion.placeName);
+  };
   return (
     <Card>
       <CardHeader>
@@ -30,10 +41,15 @@ export function AddressStep({ register, errors }: AddressStepProps) {
       <CardContent className="space-y-4">
         <div className="space-y-2">
           <Label htmlFor="address">Street Address</Label>
-          <Input
-            id="address"
+          <AddressAutocomplete
+            value={addressValue}
+            onChange={(value) => {
+              setAddressValue(value);
+              setValue('address', value, { shouldValidate: true });
+            }}
+            onSelect={handleAddressSelect}
+            error={errors.address?.message}
             placeholder="123 Main St, San Antonio, TX 78201"
-            {...register('address')}
             className="text-lg"
           />
           {errors.address?.message && (
