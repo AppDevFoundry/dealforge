@@ -96,7 +96,7 @@ export function PropertyStep({ register, errors }: PropertyStepProps) {
               id="yearBuilt"
               type="number"
               placeholder="e.g., 1995"
-              {...register('yearBuilt', { valueAsNumber: true })}
+              {...register('yearBuilt')}
             />
             {errors.yearBuilt?.message && (
               <p className="text-sm text-destructive">{errors.yearBuilt.message}</p>
@@ -111,7 +111,7 @@ export function PropertyStep({ register, errors }: PropertyStepProps) {
               type="number"
               step="0.01"
               placeholder="e.g., 0.5"
-              {...register('lotSize', { valueAsNumber: true })}
+              {...register('lotSize')}
             />
           </div>
 
@@ -122,7 +122,7 @@ export function PropertyStep({ register, errors }: PropertyStepProps) {
               id="homeSize"
               type="number"
               placeholder="e.g., 1200"
-              {...register('homeSize', { valueAsNumber: true })}
+              {...register('homeSize')}
             />
           </div>
 
@@ -133,7 +133,7 @@ export function PropertyStep({ register, errors }: PropertyStepProps) {
               id="bedrooms"
               type="number"
               placeholder="e.g., 3"
-              {...register('bedrooms', { valueAsNumber: true })}
+              {...register('bedrooms')}
             />
           </div>
 
@@ -145,7 +145,7 @@ export function PropertyStep({ register, errors }: PropertyStepProps) {
               type="number"
               step="0.5"
               placeholder="e.g., 2"
-              {...register('bathrooms', { valueAsNumber: true })}
+              {...register('bathrooms')}
             />
           </div>
 
@@ -156,7 +156,7 @@ export function PropertyStep({ register, errors }: PropertyStepProps) {
               id="lotCount"
               type="number"
               placeholder="e.g., 50"
-              {...register('lotCount', { valueAsNumber: true })}
+              {...register('lotCount')}
             />
           </div>
         </div>

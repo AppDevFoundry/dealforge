@@ -228,6 +228,21 @@ export interface LeadWithIntelligence extends Lead {
 // ============================================================================
 
 /**
+ * Helper to create optional number schema that handles empty strings from forms.
+ * HTML form inputs return empty strings for empty fields, which need to be
+ * converted to undefined before number validation.
+ */
+const optionalNumber = (schema: z.ZodNumber) =>
+  z.preprocess((val) => {
+    if (val === '' || val === null || val === undefined) return undefined;
+    if (typeof val === 'string') {
+      const parsed = Number(val);
+      return Number.isNaN(parsed) ? undefined : parsed;
+    }
+    return val;
+  }, schema.optional());
+
+/**
  * Schema for creating a new lead
  */
 export const CreateLeadSchema = z.object({
@@ -237,20 +252,20 @@ export const CreateLeadSchema = z.object({
   // Optional property details
   propertyType: PropertyTypeSchema.optional(),
   propertyCondition: PropertyConditionSchema.optional(),
-  yearBuilt: z.number().int().min(1900).max(2030).optional(),
-  lotSize: z.number().positive().optional(),
-  homeSize: z.number().positive().optional(),
-  bedrooms: z.number().int().min(0).max(20).optional(),
-  bathrooms: z.number().min(0).max(20).optional(),
-  lotCount: z.number().int().positive().optional(),
+  yearBuilt: optionalNumber(z.number().int().min(1900).max(2030)),
+  lotSize: optionalNumber(z.number().positive()),
+  homeSize: optionalNumber(z.number().positive()),
+  bedrooms: optionalNumber(z.number().int().min(0).max(20)),
+  bathrooms: optionalNumber(z.number().min(0).max(20)),
+  lotCount: optionalNumber(z.number().int().positive()),
 
   // Financials
-  askingPrice: z.number().int().positive().optional(),
-  estimatedValue: z.number().int().positive().optional(),
-  lotRent: z.number().int().positive().optional(),
-  monthlyIncome: z.number().int().positive().optional(),
-  annualTaxes: z.number().int().positive().optional(),
-  annualInsurance: z.number().int().positive().optional(),
+  askingPrice: optionalNumber(z.number().int().positive()),
+  estimatedValue: optionalNumber(z.number().int().positive()),
+  lotRent: optionalNumber(z.number().int().positive()),
+  monthlyIncome: optionalNumber(z.number().int().positive()),
+  annualTaxes: optionalNumber(z.number().int().positive()),
+  annualInsurance: optionalNumber(z.number().int().positive()),
 
   // Seller info
   sellerName: z.string().max(200).optional(),
@@ -265,6 +280,20 @@ export const CreateLeadSchema = z.object({
 export type CreateLeadInput = z.infer<typeof CreateLeadSchema>;
 
 /**
+ * Helper for optional nullable number fields (for updates where null clears the value)
+ */
+const optionalNullableNumber = (schema: z.ZodNumber) =>
+  z.preprocess((val) => {
+    if (val === '' || val === undefined) return undefined;
+    if (val === null) return null;
+    if (typeof val === 'string') {
+      const parsed = Number(val);
+      return Number.isNaN(parsed) ? undefined : parsed;
+    }
+    return val;
+  }, schema.nullable().optional());
+
+/**
  * Schema for updating an existing lead
  */
 export const UpdateLeadSchema = z.object({
@@ -277,20 +306,20 @@ export const UpdateLeadSchema = z.object({
   // Property details
   propertyType: PropertyTypeSchema.nullable().optional(),
   propertyCondition: PropertyConditionSchema.nullable().optional(),
-  yearBuilt: z.number().int().min(1900).max(2030).nullable().optional(),
-  lotSize: z.number().positive().nullable().optional(),
-  homeSize: z.number().positive().nullable().optional(),
-  bedrooms: z.number().int().min(0).max(20).nullable().optional(),
-  bathrooms: z.number().min(0).max(20).nullable().optional(),
-  lotCount: z.number().int().positive().nullable().optional(),
+  yearBuilt: optionalNullableNumber(z.number().int().min(1900).max(2030)),
+  lotSize: optionalNullableNumber(z.number().positive()),
+  homeSize: optionalNullableNumber(z.number().positive()),
+  bedrooms: optionalNullableNumber(z.number().int().min(0).max(20)),
+  bathrooms: optionalNullableNumber(z.number().min(0).max(20)),
+  lotCount: optionalNullableNumber(z.number().int().positive()),
 
   // Financials
-  askingPrice: z.number().int().positive().nullable().optional(),
-  estimatedValue: z.number().int().positive().nullable().optional(),
-  lotRent: z.number().int().positive().nullable().optional(),
-  monthlyIncome: z.number().int().positive().nullable().optional(),
-  annualTaxes: z.number().int().positive().nullable().optional(),
-  annualInsurance: z.number().int().positive().nullable().optional(),
+  askingPrice: optionalNullableNumber(z.number().int().positive()),
+  estimatedValue: optionalNullableNumber(z.number().int().positive()),
+  lotRent: optionalNullableNumber(z.number().int().positive()),
+  monthlyIncome: optionalNullableNumber(z.number().int().positive()),
+  annualTaxes: optionalNullableNumber(z.number().int().positive()),
+  annualInsurance: optionalNullableNumber(z.number().int().positive()),
 
   // Seller info
   sellerName: z.string().max(200).nullable().optional(),

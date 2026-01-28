@@ -40,7 +40,7 @@ function CurrencyField({
           type="number"
           placeholder={placeholder}
           className="pl-7 tabular-nums"
-          {...register(name, { valueAsNumber: true })}
+          {...register(name)}
         />
       </div>
       {description && <p className="text-xs text-muted-foreground">{description}</p>}
