@@ -50,7 +50,7 @@ CREATE TABLE "census_demographics" (
 --> statement-breakpoint
 CREATE TABLE "hud_fair_market_rents" (
 	"id" text PRIMARY KEY NOT NULL,
-	"zip_code" text NOT NULL,
+	"zip_code" text,
 	"county_name" text,
 	"metro_name" text,
 	"state_name" text,
@@ -62,19 +62,22 @@ CREATE TABLE "hud_fair_market_rents" (
 	"three_bedroom" integer,
 	"four_bedroom" integer,
 	"small_area_status" text,
+	"entity_code" text,
 	"source_updated_at" timestamp with time zone,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL
 );
 --> statement-breakpoint
-CREATE INDEX "bls_area_year_month_idx" ON "bls_employment" USING btree ("area_code","year","month");--> statement-breakpoint
+CREATE UNIQUE INDEX "bls_area_year_month_idx" ON "bls_employment" USING btree ("area_code","year","month");--> statement-breakpoint
 CREATE INDEX "bls_county_code_idx" ON "bls_employment" USING btree ("county_code");--> statement-breakpoint
 CREATE INDEX "bls_state_code_idx" ON "bls_employment" USING btree ("state_code");--> statement-breakpoint
 CREATE INDEX "bls_year_month_idx" ON "bls_employment" USING btree ("year","month");--> statement-breakpoint
-CREATE INDEX "cen_geo_survey_year_idx" ON "census_demographics" USING btree ("geo_id","survey_year");--> statement-breakpoint
+CREATE UNIQUE INDEX "cen_geo_survey_year_idx" ON "census_demographics" USING btree ("geo_id","survey_year");--> statement-breakpoint
 CREATE INDEX "cen_county_code_idx" ON "census_demographics" USING btree ("county_code");--> statement-breakpoint
 CREATE INDEX "cen_geo_type_idx" ON "census_demographics" USING btree ("geo_type");--> statement-breakpoint
 CREATE INDEX "cen_state_code_idx" ON "census_demographics" USING btree ("state_code");--> statement-breakpoint
+CREATE UNIQUE INDEX "hfr_entity_fiscal_year_idx" ON "hud_fair_market_rents" USING btree ("entity_code","fiscal_year");--> statement-breakpoint
+CREATE INDEX "hfr_metro_name_idx" ON "hud_fair_market_rents" USING btree ("metro_name");--> statement-breakpoint
 CREATE INDEX "hfr_zip_fiscal_year_idx" ON "hud_fair_market_rents" USING btree ("zip_code","fiscal_year");--> statement-breakpoint
 CREATE INDEX "hfr_county_name_idx" ON "hud_fair_market_rents" USING btree ("county_name");--> statement-breakpoint
 CREATE INDEX "hfr_state_code_idx" ON "hud_fair_market_rents" USING btree ("state_code");

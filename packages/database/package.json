@@ -44,14 +44,15 @@
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",
     "@paralleldrive/cuid2": "^3.0.6",
-    "drizzle-orm": "^0.38.3",
+    "drizzle-orm": "^0.45.1",
+    "pg": "^8.17.2",
     "shpjs": "^5.0.1"
   },
   "devDependencies": {
     "@types/geojson": "^7946.0.15",
     "better-auth": "^1.4.12",
     "dotenv": "^17.2.3",
-    "drizzle-kit": "^0.30.1",
+    "drizzle-kit": "^0.31.8",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
     "vitest": "^3.0.0"
