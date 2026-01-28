@@ -145,13 +145,13 @@ async function getMarketData(zipCode: string): Promise<MarketData> {
 
     // Census demographics
     const censusRows = (await sql`
-      SELECT median_household_income, mobile_homes_pct, population_growth_rate
+      SELECT median_household_income, mobile_homes_percent, population_growth_rate
       FROM census_demographics WHERE zip_code = ${zipCode} LIMIT 1
     `) as Array<Record<string, unknown>>;
 
     if (censusRows[0]) {
       result.medianHouseholdIncome = Number(censusRows[0].median_household_income) || undefined;
-      result.mobileHomesPercent = Number(censusRows[0].mobile_homes_pct) || undefined;
+      result.mobileHomesPercent = Number(censusRows[0].mobile_homes_percent) || undefined;
       result.populationGrowthRate = Number(censusRows[0].population_growth_rate) || undefined;
     }
 
@@ -435,17 +435,18 @@ export async function executeLeadIntelligence(jobId: string, leadId: string): Pr
     rawResponses.ai = ai;
 
     // 7. Save intelligence record
+    const intelId = `lint_${globalThis.crypto.randomUUID().replace(/-/g, '')}`;
     await sql`
       INSERT INTO lead_intelligence (
-        lead_id, has_water_ccn, water_provider, has_sewer_ccn, sewer_provider,
+        id, lead_id, has_water_ccn, water_provider, has_sewer_ccn, sewer_provider,
         fmr_fiscal_year, fmr_two_bedroom, suggested_lot_rent_low, suggested_lot_rent_high,
-        median_household_income, unemployment_rate, population_growth_rate, mobile_homes_pct,
+        median_household_income, unemployment_rate, population_growth_rate, mobile_homes_percent,
         nearby_parks_count, nearby_parks_data,
         record_id, owner_name, manufacturer, model_year, has_liens, total_lien_amount,
         ai_insights, ai_risk_factors, ai_opportunities, ai_recommendation, ai_confidence_score,
         raw_responses
       ) VALUES (
-        ${leadId},
+        ${intelId}, ${leadId},
         ${utilities.hasWater}, ${utilities.waterProvider || null},
         ${utilities.hasSewer}, ${utilities.sewerProvider || null},
         ${market.fmrFiscalYear || null}, ${market.fmrTwoBedroom || null},
@@ -470,7 +471,7 @@ export async function executeLeadIntelligence(jobId: string, leadId: string): Pr
         median_household_income = EXCLUDED.median_household_income,
         unemployment_rate = EXCLUDED.unemployment_rate,
         population_growth_rate = EXCLUDED.population_growth_rate,
-        mobile_homes_pct = EXCLUDED.mobile_homes_pct,
+        mobile_homes_percent = EXCLUDED.mobile_homes_percent,
         nearby_parks_count = EXCLUDED.nearby_parks_count,
         nearby_parks_data = EXCLUDED.nearby_parks_data,
         record_id = EXCLUDED.record_id, owner_name = EXCLUDED.owner_name,
