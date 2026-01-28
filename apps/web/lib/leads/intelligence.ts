@@ -22,6 +22,7 @@ import type {
   TdhcaMatch,
 } from '@dealforge/types';
 import { neon } from '@neondatabase/serverless';
+import { createId } from '@paralleldrive/cuid2';
 import { generateObject } from 'ai';
 import { z } from 'zod';
 
@@ -339,8 +340,10 @@ export async function saveLeadIntelligence(
     `;
   } else {
     // Insert new record
+    const id = `lint_${createId()}`;
     await sql`
       INSERT INTO lead_intelligence (
+        id,
         lead_id,
         water_ccn,
         sewer_ccn,
@@ -358,6 +361,7 @@ export async function saveLeadIntelligence(
         created_at,
         updated_at
       ) VALUES (
+        ${id},
         ${leadId},
         ${JSON.stringify(intelligence.waterCcn)},
         ${JSON.stringify(intelligence.sewerCcn)},
