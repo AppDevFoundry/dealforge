@@ -243,15 +243,25 @@ const optionalNumber = (schema: z.ZodNumber) =>
   }, schema.optional());
 
 /**
+ * Helper to create optional enum schema that handles empty strings from forms.
+ * Select components often return empty strings for unselected values.
+ */
+const optionalEnum = <T extends z.ZodEnum<[string, ...string[]]>>(schema: T) =>
+  z.preprocess((val) => {
+    if (val === '' || val === null || val === undefined) return undefined;
+    return val;
+  }, schema.optional());
+
+/**
  * Schema for creating a new lead
  */
 export const CreateLeadSchema = z.object({
   // Required
   address: z.string().min(1, 'Address is required').max(500),
 
-  // Optional property details
-  propertyType: PropertyTypeSchema.optional(),
-  propertyCondition: PropertyConditionSchema.optional(),
+  // Optional property details (enums need preprocessing to handle empty strings from selects)
+  propertyType: optionalEnum(PropertyTypeSchema),
+  propertyCondition: optionalEnum(PropertyConditionSchema),
   yearBuilt: optionalNumber(z.number().int().min(1900).max(2030)),
   lotSize: optionalNumber(z.number().positive()),
   homeSize: optionalNumber(z.number().positive()),
@@ -294,6 +304,16 @@ const optionalNullableNumber = (schema: z.ZodNumber) =>
   }, schema.nullable().optional());
 
 /**
+ * Helper for optional nullable enum fields (for updates where null clears the value)
+ */
+const optionalNullableEnum = <T extends z.ZodEnum<[string, ...string[]]>>(schema: T) =>
+  z.preprocess((val) => {
+    if (val === '' || val === undefined) return undefined;
+    if (val === null) return null;
+    return val;
+  }, schema.nullable().optional());
+
+/**
  * Schema for updating an existing lead
  */
 export const UpdateLeadSchema = z.object({
@@ -303,9 +323,9 @@ export const UpdateLeadSchema = z.object({
   // Address (normally shouldn't change, but allowed)
   address: z.string().min(1).max(500).optional(),
 
-  // Property details
-  propertyType: PropertyTypeSchema.nullable().optional(),
-  propertyCondition: PropertyConditionSchema.nullable().optional(),
+  // Property details (enums need preprocessing to handle empty strings from selects)
+  propertyType: optionalNullableEnum(PropertyTypeSchema),
+  propertyCondition: optionalNullableEnum(PropertyConditionSchema),
   yearBuilt: optionalNullableNumber(z.number().int().min(1900).max(2030)),
   lotSize: optionalNullableNumber(z.number().positive()),
   homeSize: optionalNullableNumber(z.number().positive()),
