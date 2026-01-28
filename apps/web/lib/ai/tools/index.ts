@@ -5,6 +5,7 @@
  */
 
 import { analyzeDeal } from './analyze-deal';
+import { analyzePropertyLead } from './analyze-property-lead';
 import { compareParksByCounty } from './compare-parks-by-county';
 import { getDataRefreshStatus } from './get-data-refresh-status';
 import { getMarketContext } from './get-market-context';
@@ -23,6 +24,7 @@ export const dealScoutTools = {
   getParkDetails,
   getParkLienHistory,
   analyzeDeal,
+  analyzePropertyLead,
   compareParksByCounty,
   getMarketOverview,
   getMarketContext,
@@ -37,6 +39,7 @@ export {
   getParkDetails,
   getParkLienHistory,
   analyzeDeal,
+  analyzePropertyLead,
   compareParksByCounty,
   getMarketOverview,
   getMarketContext,
