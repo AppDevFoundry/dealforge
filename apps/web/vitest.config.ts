@@ -12,7 +12,7 @@ export default defineConfig({
     setupFiles: ['./vitest.setup.ts'],
 
     // Include patterns
-    include: ['__tests__/**/*.{test,spec}.{ts,tsx}'],
+    include: ['__tests__/**/*.{test,spec}.{ts,tsx}', '**/__tests__/**/*.{test,spec}.{ts,tsx}'],
 
     // Exclude patterns
     exclude: ['**/node_modules/**', '**/dist/**', '**/.next/**', '**/e2e/**'],

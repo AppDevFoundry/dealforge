@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -13,6 +14,9 @@ import (
 
 	"github.com/dealforge/data-sync/internal/db"
 )
+
+// ErrDailyLimitReached is returned when the BLS API daily request limit is exceeded.
+var ErrDailyLimitReached = errors.New("BLS API daily request limit reached")
 
 const (
 	baseURLV1 = "https://api.bls.gov/publicAPI/v1/timeseries/data/"
@@ -32,6 +36,15 @@ func NewClient(apiKey string) *Client {
 		httpClient: &http.Client{
 			Timeout: 60 * time.Second,
 		},
+	}
+}
+
+// NewClientWithHTTPClient creates a new BLS API client with a custom HTTP client.
+// This is primarily for testing purposes.
+func NewClientWithHTTPClient(apiKey string, httpClient *http.Client) *Client {
+	return &Client{
+		apiKey:     apiKey,
+		httpClient: httpClient,
 	}
 }
 
@@ -94,6 +107,12 @@ func (c *Client) GetCountyEmployment(ctx context.Context, countyFIPS, countyName
 	}
 
 	if blsResp.Status != "REQUEST_SUCCEEDED" {
+		// Check for daily rate limit exceeded
+		for _, msg := range blsResp.Message {
+			if strings.Contains(strings.ToLower(msg), "daily threshold") {
+				return nil, ErrDailyLimitReached
+			}
+		}
 		return nil, fmt.Errorf("BLS API error: %v", blsResp.Message)
 	}
 

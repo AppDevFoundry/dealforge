@@ -236,6 +236,20 @@ async function syncCcnData(shapefilePath?: string, serviceTypeOverride?: Service
 
         // Handle line geometries (facilities) vs polygon geometries (service areas)
         if (isLineGeometry(feature.geometry.type)) {
+          // Check if facility already exists (by ccn_number + service_type + county)
+          const existingFacility = await sql`
+            SELECT id FROM ccn_facilities
+            WHERE ccn_number = ${ccnNumber}
+              AND service_type = ${serviceType}
+              AND county = ${county}
+            LIMIT 1
+          `;
+
+          if (existingFacility.length > 0) {
+            skippedCount++;
+            continue;
+          }
+
           // Insert into ccn_facilities table
           const id = `ccnf_${createId()}`;
 
@@ -262,6 +276,19 @@ async function syncCcnData(shapefilePath?: string, serviceTypeOverride?: Service
             skippedCount++;
           }
         } else {
+          // Check if area already exists (by ccn_number + service_type)
+          const existingArea = await sql`
+            SELECT id FROM ccn_areas
+            WHERE ccn_number = ${ccnNumber}
+              AND service_type = ${serviceType}
+            LIMIT 1
+          `;
+
+          if (existingArea.length > 0) {
+            skippedCount++;
+            continue;
+          }
+
           // Insert into ccn_areas table (polygons)
           const id = `ccn_${createId()}`;
           const boundaryGeoJson = normalizeGeometry(feature.geometry);

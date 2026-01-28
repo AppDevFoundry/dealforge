@@ -26,6 +26,43 @@ pnpm db:push          # Push schema changes directly (dev)
 pnpm db:studio        # Open Drizzle Studio
 ```
 
+### Seed Data (Dev Database Reset)
+
+Seed data files are gitignored but can be generated locally for quick dev database resets.
+
+```bash
+# Verify current database state
+pnpm --filter @dealforge/database verify:data
+
+# Export current DB to seed files (data/seed/*.json)
+pnpm --filter @dealforge/database seed:export
+
+# Import seed files to reset dev database
+pnpm --filter @dealforge/database seed:import         # Interactive (prompts)
+pnpm --filter @dealforge/database seed:import --force # Skip confirmation
+```
+
+**To regenerate seed data from scratch:**
+
+1. Place raw data files in `data/raw/`:
+   - `data/raw/tdhca/titles.csv` - TDHCA MH ownership records
+   - `data/raw/tdhca/liens.csv` - TDHCA tax lien records
+   - `data/raw/ccn/water.zip` - PUC water CCN shapefile
+   - `data/raw/ccn/sewer.zip` - PUC sewer CCN shapefile
+
+2. Run the data loading sequence:
+   ```bash
+   pnpm --filter @dealforge/database clear:fake --execute
+   pnpm --filter @dealforge/database sync:tdhca:titles data/raw/tdhca/titles.csv
+   pnpm --filter @dealforge/database sync:tdhca:liens data/raw/tdhca/liens.csv
+   pnpm --filter @dealforge/database sync:ccn data/raw/ccn/water.zip water
+   pnpm --filter @dealforge/database sync:ccn data/raw/ccn/sewer.zip sewer
+   cd services/data-sync && go run ./cmd/sync --state=TX --sources=hud,census,bls
+   cd ../.. && pnpm --filter @dealforge/database discover:parks --min-units=5
+   pnpm --filter @dealforge/database calc:distress
+   pnpm --filter @dealforge/database seed:export
+   ```
+
 ### Go Data Sync Service
 
 ```bash

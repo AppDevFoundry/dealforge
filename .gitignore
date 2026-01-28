@@ -79,6 +79,17 @@ services/data-sync/*.exe
 .vercel/
 
 # -------------------------------------------
+# Data Files
+# -------------------------------------------
+# Raw data (too large to commit)
+data/raw/
+data/exports/
+
+# Seed data (generated, not committed - see CLAUDE.md for regeneration)
+data/seed/*.json
+!data/seed/.gitkeep
+
+# -------------------------------------------
 # Misc
 # -------------------------------------------
 *.pem
