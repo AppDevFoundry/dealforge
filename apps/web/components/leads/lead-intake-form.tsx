@@ -68,13 +68,27 @@ export function LeadIntakeForm() {
     }
   };
 
+  // Track if user has explicitly requested submission
+  // This prevents auto-submission when transitioning to step 4 (a React/form quirk)
+  const [submitRequested, setSubmitRequested] = useState(false);
+
   const onSubmit = async (data: CreateLeadInput) => {
+    // Only submit if user explicitly requested it (clicked Create Lead button)
+    if (!submitRequested) {
+      return;
+    }
+
     try {
       const result = await createLead.mutateAsync(data);
       router.push(`/leads/${result.data.id}`);
     } catch (error) {
       console.error('Failed to create lead:', error);
+      setSubmitRequested(false); // Reset on error so user can retry
     }
+  };
+
+  const handleExplicitSubmit = () => {
+    setSubmitRequested(true);
   };
 
   return (
@@ -143,7 +157,7 @@ export function LeadIntakeForm() {
               <ChevronRight className="ml-2 h-4 w-4" />
             </Button>
           ) : (
-            <Button type="submit" disabled={createLead.isPending}>
+            <Button type="submit" onClick={handleExplicitSubmit} disabled={createLead.isPending}>
               {createLead.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

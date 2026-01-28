@@ -43,28 +43,20 @@ test.describe('Lead Intake Form', () => {
 
     // Step 1: Address (only required field)
     await expect(page.getByLabel(/street address/i)).toBeVisible();
-
-    // Fill in the address (required)
     await page.getByLabel(/street address/i).fill('123 Test Street, Austin, TX 78701');
-
-    // Click Next to go to Step 2
     await page.getByRole('button', { name: /next/i }).click();
 
-    // Step 2: Property Details (all optional)
+    // Step 2: Property Details (all optional) - leave empty
     await expect(page.getByText('Property Details', { exact: true })).toBeVisible();
-
-    // Leave all fields empty and click Next
-    // This tests that empty optional number and enum fields don't cause validation errors
     await page.getByRole('button', { name: /next/i }).click();
 
-    // Step 3: Financials (all optional)
+    // Step 3: Financials (all optional) - leave empty
     await expect(page.getByText('Financial Information', { exact: true })).toBeVisible();
-
-    // Leave all fields empty and click Next
     await page.getByRole('button', { name: /next/i }).click();
 
     // Step 4: Seller (all optional)
-    await expect(page.getByText('Seller Information', { exact: true })).toBeVisible();
+    await expect(page.getByLabel(/seller name/i)).toBeVisible();
+    await expect(page).toHaveURL(/\/leads\/new/);
 
     // We made it to the final step with only the address filled!
     await expect(page.getByRole('button', { name: /create lead/i })).toBeVisible();
@@ -142,28 +134,28 @@ test.describe('Lead Intake Form', () => {
       }
     });
 
-    // Variable to track API response
-    let apiResponseStatus = 0;
-    let apiResponseBody: unknown = null;
+    // Use a unique address to avoid conflicts with previous test runs
+    const testAddress = `${Date.now()} Test Street, Austin, TX 78701`;
 
-    // Step 1: Address
-    await page.getByLabel(/street address/i).fill('123 Test Street, Austin, TX 78701');
+    // Step 1: Address - ensure we're on the right page first
+    await expect(page.getByLabel(/street address/i)).toBeVisible();
+    await page.getByLabel(/street address/i).fill(testAddress);
     await page.getByRole('button', { name: /next/i }).click();
 
-    // Step 2: Skip property details
-    await expect(page.getByText('Property Details', { exact: true })).toBeVisible();
+    // Step 2: Skip property details - wait for step to be visible
+    await expect(page.getByText('Property Details', { exact: true })).toBeVisible({ timeout: 5000 });
     await page.getByRole('button', { name: /next/i }).click();
 
-    // Step 3: Skip financials
-    await expect(page.getByText('Financial Information', { exact: true })).toBeVisible();
+    // Step 3: Skip financials - wait for step to be visible
+    await expect(page.getByText('Financial Information', { exact: true })).toBeVisible({ timeout: 5000 });
     await page.getByRole('button', { name: /next/i }).click();
 
-    // Step 4: Skip seller info
-    await expect(page.getByText('Seller Information', { exact: true })).toBeVisible();
+    // Step 4: Skip seller info - wait for step to be visible
+    await expect(page.getByText('Seller Information', { exact: true })).toBeVisible({ timeout: 5000 });
 
-    // Click Create Lead
+    // Click Create Lead - ensure button is visible and enabled
     const createButton = page.getByRole('button', { name: /create lead/i });
-    await expect(createButton).toBeVisible();
+    await expect(createButton).toBeVisible({ timeout: 5000 });
     await expect(createButton).toBeEnabled();
 
     // Click and wait for API response
@@ -175,8 +167,8 @@ test.describe('Lead Intake Form', () => {
       createButton.click(),
     ]);
 
-    apiResponseStatus = response.status();
-    apiResponseBody = await response.json().catch(() => null);
+    const apiResponseStatus = response.status();
+    const apiResponseBody = await response.json().catch(() => null);
 
     // Log results for debugging
     if (consoleErrors.length > 0) {
@@ -189,5 +181,56 @@ test.describe('Lead Intake Form', () => {
 
     // Should redirect to lead detail page
     await expect(page).toHaveURL(/\/leads\/lead_/, { timeout: 5000 });
+
+    // Verify the lead detail page loads with the correct address
+    await expect(page.getByRole('heading', { name: testAddress })).toBeVisible({ timeout: 10000 });
+  });
+
+  test('lead detail page shows intelligence after analysis', async ({ page }) => {
+    await signIn(page);
+
+    // Use a unique address
+    const testAddress = `${Date.now()} Oak Street, San Antonio, TX 78201`;
+
+    // Step 1: Address
+    await expect(page.getByLabel(/street address/i)).toBeVisible();
+    await page.getByLabel(/street address/i).fill(testAddress);
+    await page.getByRole('button', { name: /next/i }).click();
+
+    // Step 2: Skip property
+    await expect(page.getByText('Property Details', { exact: true })).toBeVisible({ timeout: 5000 });
+    await page.getByRole('button', { name: /next/i }).click();
+
+    // Step 3: Skip financials
+    await expect(page.getByText('Financial Information', { exact: true })).toBeVisible({ timeout: 5000 });
+    await page.getByRole('button', { name: /next/i }).click();
+
+    // Step 4: Skip seller
+    await expect(page.getByText('Seller Information', { exact: true })).toBeVisible({ timeout: 5000 });
+
+    const [response] = await Promise.all([
+      page.waitForResponse(
+        (resp) => resp.url().includes('/api/v1/leads') && resp.request().method() === 'POST',
+        { timeout: 10000 }
+      ),
+      page.getByRole('button', { name: /create lead/i }).click(),
+    ]);
+
+    expect(response.status()).toBe(201);
+
+    // Wait for redirect to detail page
+    await expect(page).toHaveURL(/\/leads\/lead_/, { timeout: 5000 });
+
+    // The lead should show as "Analyzing" initially
+    await expect(
+      page.getByText(/analyzing/i).or(page.getByText(/analyzed/i))
+    ).toBeVisible({ timeout: 5000 });
+
+    // The address should be visible in the heading
+    await expect(page.getByRole('heading', { name: testAddress })).toBeVisible();
+
+    // Wait for analysis to complete (status should change to "analyzed")
+    // This may take a while if intelligence gathering is slow
+    await expect(page.getByText(/analyzed/i)).toBeVisible({ timeout: 30000 });
   });
 });
