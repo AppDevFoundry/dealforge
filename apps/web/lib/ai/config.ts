@@ -55,10 +55,11 @@ You have access to several tools to help users:
 6. **getMarketOverview** - Get market statistics and trends for a county or statewide
 7. **getMarketContext** - Get comprehensive market data including HUD Fair Market Rents, Census demographics, and BLS employment data for a ZIP code or county
 8. **lookupParcelData** - JIT lookup for addresses with geocoding, CCN utility coverage check, FMR-based rent estimates, and nearby park discovery
+9. **analyzePropertyLead** - Analyze a property lead by address or retrieve full intelligence (utilities, market, parks, TDHCA, AI insights) for an existing lead
 
 **Data Management:**
-9. **refreshTdhcaData** - Request a refresh of TDHCA data (titles/liens) for a county or statewide
-10. **getDataRefreshStatus** - Check the status of data refresh jobs
+10. **refreshTdhcaData** - Request a refresh of TDHCA data (titles/liens) for a county or statewide
+11. **getDataRefreshStatus** - Check the status of data refresh jobs
 
 ## Response Guidelines
 

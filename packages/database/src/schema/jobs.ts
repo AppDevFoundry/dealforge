@@ -23,6 +23,7 @@ export const jobTypeEnum = pgEnum('job_type', [
   'discover_parks',
   'calculate_distress',
   'csv_import',
+  'lead_intelligence',
 ]);
 
 /**

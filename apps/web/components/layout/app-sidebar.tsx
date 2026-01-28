@@ -6,6 +6,7 @@ import {
   Calculator,
   ChevronRight,
   ChevronUp,
+  Crosshair,
   FolderKanban,
   HelpCircle,
   Home,
@@ -71,6 +72,11 @@ const mainNavItems = [
     title: 'My Deals',
     href: '/deals',
     icon: FolderKanban,
+  },
+  {
+    title: 'Leads',
+    href: '/leads',
+    icon: Crosshair,
   },
   {
     title: 'MH Parks',
