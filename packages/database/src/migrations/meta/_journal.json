@@ -85,6 +85,13 @@
       "when": 1769620876225,
       "tag": "0011_steep_changeling",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1769627626054,
+      "tag": "0012_pale_puff_adder",
+      "breakpoints": true
     }
   ]
 }

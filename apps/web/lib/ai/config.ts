@@ -9,17 +9,47 @@ import { anthropic } from '@ai-sdk/anthropic';
 import type { LanguageModel } from 'ai';
 
 /**
+ * Park context data for context-aware chat
+ */
+export interface ParkContext {
+  id: string;
+  name: string;
+  county: string;
+  lotCount: number | null;
+  distressScore: number | null;
+}
+
+/**
+ * Lead context data for context-aware chat
+ */
+export interface LeadContext {
+  id: string;
+  address: string;
+  city?: string | null;
+  county?: string | null;
+  state?: string | null;
+  propertyType?: string | null;
+  propertyCondition?: string | null;
+  status: string;
+  askingPrice?: number | null;
+  estimatedValue?: number | null;
+  lotRent?: number | null;
+  hasIntelligence: boolean;
+  intelligenceHighlights?: {
+    hasUtilities: boolean;
+    floodRisk: string;
+    nearbyParksCount: number;
+    aiRecommendation: string;
+  };
+}
+
+/**
  * Context passed from the chat panel for context-aware responses
  */
 export interface ChatContext {
   page: string;
-  park: {
-    id: string;
-    name: string;
-    county: string;
-    lotCount: number | null;
-    distressScore: number | null;
-  } | null;
+  park: ParkContext | null;
+  lead: LeadContext | null;
 }
 
 /**
@@ -50,15 +80,23 @@ You have access to several tools to help users:
 3. **getParkLienHistory** - Get detailed tax lien history for a park with yearly breakdown
 4. **analyzeDeal** - Run financial analysis on a potential acquisition with key metrics
 5. **compareParksByCounty** - Compare distress metrics across multiple counties
+6. **analyzePropertyLead** - Create and analyze property leads with geocoding, utility checks, and AI recommendations
 
 **Market Intelligence:**
-6. **getMarketOverview** - Get market statistics and trends for a county or statewide
-7. **getMarketContext** - Get comprehensive market data including HUD Fair Market Rents, Census demographics, and BLS employment data for a ZIP code or county
-8. **lookupParcelData** - JIT lookup for addresses with geocoding, CCN utility coverage check, FMR-based rent estimates, and nearby park discovery
+7. **getMarketOverview** - Get market statistics and trends for a county or statewide
+8. **getMarketContext** - Get comprehensive market data including HUD Fair Market Rents, Census demographics, and BLS employment data for a ZIP code or county
+9. **lookupParcelData** - JIT lookup for addresses with geocoding, CCN utility coverage check, FMR-based rent estimates, and nearby park discovery
 
 **Data Management:**
-9. **refreshTdhcaData** - Request a refresh of TDHCA data (titles/liens) for a county or statewide
-10. **getDataRefreshStatus** - Check the status of data refresh jobs
+10. **refreshTdhcaData** - Request a refresh of TDHCA data (titles/liens) for a county or statewide
+11. **getDataRefreshStatus** - Check the status of data refresh jobs
+
+**Lead Analysis Tools:**
+12. **getLeadDetails** - Fetch complete lead data with intelligence for detailed analysis
+13. **estimateLeadOffer** - Calculate offer scenarios (conservative, moderate, aggressive) based on lead financials and market data
+14. **identifyLeadRedFlags** - Analyze lead for potential risks and deal-breaking issues with severity ratings
+15. **compareLeadToNearbyParks** - Compare lead property to nearby mobile home parks for market positioning
+16. **suggestLeadFollowUp** - Generate due diligence checklist and questions to ask seller based on data gaps
 
 ## Response Guidelines
 
@@ -83,9 +121,16 @@ You have access to several tools to help users:
    - Consider unemployment rate for occupancy projections
    - Use lookupParcelData to check CCN utility coverage for specific properties
 
-4. **Be Concise**: Give clear, actionable insights. Use bullet points for readability.
+5. **Lead Analysis Best Practices**: When analyzing specific leads:
+   - Use estimateLeadOffer to provide actionable valuation guidance with multiple scenarios
+   - Check identifyLeadRedFlags early in the conversation to surface critical issues
+   - Reference compareLeadToNearbyParks for market context and competitive positioning
+   - Suggest next steps with suggestLeadFollowUp when data is incomplete or key information is missing
+   - Use getLeadDetails to refresh or access complete intelligence data during the conversation
 
-5. **Acknowledge Limitations**: If data is incomplete or analysis requires assumptions, state them clearly.
+6. **Be Concise**: Give clear, actionable insights. Use bullet points for readability.
+
+7. **Acknowledge Limitations**: If data is incomplete or analysis requires assumptions, state them clearly.
 
 ## Formatting Requirements
 
@@ -123,7 +168,7 @@ Remember: You're helping investors make informed decisions about significant cap
  * Build a context-aware system prompt
  *
  * Appends current context information to the base system prompt
- * when the user is viewing a specific park or page.
+ * when the user is viewing a specific park, lead, or page.
  */
 export function buildContextAwarePrompt(basePrompt: string, context?: ChatContext): string {
   if (!context) {
@@ -137,6 +182,8 @@ export function buildContextAwarePrompt(basePrompt: string, context?: ChatContex
     dashboard: 'the dashboard',
     'mh-parks': 'the MH Parks explorer',
     'park-detail': 'a specific park detail page',
+    'lead-detail': 'a specific lead detail page',
+    leads: 'their leads list',
     deals: 'their deals list',
     'deal-scout': 'the Deal Scout chat page',
     analyze: 'the analysis tools',
@@ -165,6 +212,70 @@ export function buildContextAwarePrompt(basePrompt: string, context?: ChatContex
     contextParts.push(
       'When the user asks questions without specifying a park, assume they are asking about this park. ' +
         'Use the park ID to fetch details if needed.'
+    );
+  }
+
+  // Add lead context if available
+  if (context.lead) {
+    contextParts.push('');
+    contextParts.push('**Currently Viewing Lead:**');
+    contextParts.push(`- **Address:** ${context.lead.address}`);
+
+    if (context.lead.city && context.lead.county && context.lead.state) {
+      contextParts.push(
+        `- **Location:** ${context.lead.city}, ${context.lead.county} County, ${context.lead.state}`
+      );
+    }
+
+    contextParts.push(`- **Lead ID:** ${context.lead.id}`);
+    contextParts.push(`- **Status:** ${context.lead.status}`);
+
+    if (context.lead.propertyType) {
+      contextParts.push(`- **Property Type:** ${context.lead.propertyType}`);
+    }
+
+    if (context.lead.propertyCondition) {
+      contextParts.push(`- **Condition:** ${context.lead.propertyCondition}`);
+    }
+
+    if (context.lead.askingPrice) {
+      contextParts.push(`- **Asking Price:** $${context.lead.askingPrice.toLocaleString()}`);
+    }
+
+    if (context.lead.estimatedValue) {
+      contextParts.push(`- **Estimated Value:** $${context.lead.estimatedValue.toLocaleString()}`);
+    }
+
+    if (context.lead.lotRent) {
+      contextParts.push(`- **Lot Rent:** $${context.lead.lotRent.toLocaleString()}/month`);
+    }
+
+    if (context.lead.hasIntelligence && context.lead.intelligenceHighlights) {
+      contextParts.push('');
+      contextParts.push('**Intelligence Gathered:**');
+
+      const highlights = context.lead.intelligenceHighlights;
+      contextParts.push(
+        `- **Utilities:** ${highlights.hasUtilities ? 'Water & Sewer Coverage ✓' : 'Missing Coverage ⚠️'}`
+      );
+
+      if (highlights.floodRisk) {
+        contextParts.push(`- **Flood Risk:** ${highlights.floodRisk}`);
+      }
+
+      if (highlights.nearbyParksCount > 0) {
+        contextParts.push(`- **Nearby Parks:** ${highlights.nearbyParksCount} within 10 miles`);
+      }
+
+      if (highlights.aiRecommendation) {
+        contextParts.push(`- **AI Recommendation:** ${highlights.aiRecommendation}`);
+      }
+    }
+
+    contextParts.push('');
+    contextParts.push(
+      'When the user asks questions without specifying a lead or property, assume they are asking about this lead. ' +
+        'Use the lead ID to fetch complete details with the getLeadDetails tool if needed.'
     );
   }
 

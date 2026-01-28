@@ -17,6 +17,12 @@ const toolLoadingMessages: Record<string, { message: string; icon: React.Element
   analyzeDeal: { message: 'Running financial analysis...', icon: Calculator },
   compareParksByCounty: { message: 'Comparing markets...', icon: TrendingUp },
   getMarketOverview: { message: 'Gathering market insights...', icon: MapPin },
+  // Lead-specific tools
+  getLeadDetails: { message: 'Fetching lead details...', icon: Database },
+  estimateLeadOffer: { message: 'Calculating offer scenarios...', icon: Calculator },
+  identifyLeadRedFlags: { message: 'Analyzing risks...', icon: Search },
+  compareLeadToNearbyParks: { message: 'Comparing to nearby parks...', icon: TrendingUp },
+  suggestLeadFollowUp: { message: 'Generating follow-up checklist...', icon: MapPin },
 };
 
 export function DealScoutChat() {

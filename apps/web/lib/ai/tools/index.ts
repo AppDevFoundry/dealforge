@@ -15,6 +15,13 @@ import { getParkLienHistory } from './get-park-lien-history';
 import { lookupParcelData } from './lookup-parcel-data';
 import { refreshTdhcaData } from './refresh-tdhca-data';
 import { searchDistressedParks } from './search-distressed-parks';
+import {
+  compareLeadToNearbyParks,
+  estimateLeadOffer,
+  getLeadDetails,
+  identifyLeadRedFlags,
+  suggestLeadFollowUp,
+} from './lead-tools';
 
 /**
  * All Deal Scout tools bundled for use with streamText
@@ -31,6 +38,12 @@ export const dealScoutTools = {
   lookupParcelData,
   refreshTdhcaData,
   getDataRefreshStatus,
+  // Lead-specific tools
+  getLeadDetails,
+  estimateLeadOffer,
+  identifyLeadRedFlags,
+  compareLeadToNearbyParks,
+  suggestLeadFollowUp,
 };
 
 // Re-export individual tools for granular use
@@ -46,4 +59,10 @@ export {
   lookupParcelData,
   refreshTdhcaData,
   getDataRefreshStatus,
+  // Lead-specific tools
+  getLeadDetails,
+  estimateLeadOffer,
+  identifyLeadRedFlags,
+  compareLeadToNearbyParks,
+  suggestLeadFollowUp,
 };

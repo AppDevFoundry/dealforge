@@ -28,6 +28,12 @@ const toolLoadingMessages: Record<string, { message: string; icon: React.Element
   getMarketOverview: { message: 'Gathering market insights...', icon: MapPin },
   refreshTdhcaData: { message: 'Initiating data refresh...', icon: Database },
   getDataRefreshStatus: { message: 'Checking refresh status...', icon: Database },
+  // Lead-specific tools
+  getLeadDetails: { message: 'Fetching lead details...', icon: Database },
+  estimateLeadOffer: { message: 'Calculating offer scenarios...', icon: Calculator },
+  identifyLeadRedFlags: { message: 'Analyzing risks...', icon: Search },
+  compareLeadToNearbyParks: { message: 'Comparing to nearby parks...', icon: TrendingUp },
+  suggestLeadFollowUp: { message: 'Generating follow-up checklist...', icon: MapPin },
 };
 
 /**

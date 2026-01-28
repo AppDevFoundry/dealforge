@@ -21,8 +21,9 @@ import {
   XCircle,
 } from 'lucide-react';
 import Link from 'next/link';
-import { use } from 'react';
+import { use, useEffect } from 'react';
 
+import { useChatContext } from '@/components/ai/chat-context-provider';
 import { AnalyzingOverlay } from '@/components/leads/analyzing-overlay';
 import { LeadLocationMap } from '@/components/leads/detail/lead-location-map';
 import { LeadStatusBadge } from '@/components/leads/lead-status-badge';
@@ -42,6 +43,51 @@ export default function LeadDetailPage({ params }: PageProps) {
   const analyzeLead = useAnalyzeLead();
   const generateReport = useGenerateReport();
   const updateLead = useUpdateLead();
+  const { setCurrentPage, setCurrentLead } = useChatContext();
+
+  // Set lead context for AI chat
+  useEffect(() => {
+    if (data?.data) {
+      const lead = data.data;
+      const intelligence = lead.intelligence;
+
+      setCurrentPage('lead-detail');
+      setCurrentLead({
+        id: lead.id,
+        address: lead.address,
+        city: lead.city,
+        county: lead.county,
+        state: lead.state,
+        propertyType: lead.propertyType,
+        propertyCondition: lead.propertyCondition,
+        status: lead.status,
+        askingPrice: lead.askingPrice,
+        estimatedValue: lead.estimatedValue,
+        lotRent: lead.lotRent,
+        hasIntelligence: !!intelligence,
+        intelligenceHighlights: intelligence
+          ? {
+              hasUtilities: !!intelligence.hasWaterCoverage && !!intelligence.hasSewerCoverage,
+              floodRisk: intelligence.floodZone || 'Unknown',
+              nearbyParksCount: Array.isArray(intelligence.nearbyParks)
+                ? intelligence.nearbyParks.length
+                : 0,
+              aiRecommendation:
+                intelligence.aiAnalysis?.recommendation === 'pursue'
+                  ? 'Pursue'
+                  : intelligence.aiAnalysis?.recommendation === 'pass'
+                    ? 'Pass'
+                    : 'Needs More Info',
+            }
+          : undefined,
+      });
+    }
+
+    return () => {
+      setCurrentLead(null);
+      setCurrentPage('dashboard');
+    };
+  }, [data, setCurrentPage, setCurrentLead]);
 
   if (isLoading) {
     return (
