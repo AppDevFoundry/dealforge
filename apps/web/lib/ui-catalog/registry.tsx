@@ -1,6 +1,5 @@
 'use client';
 
-import type { UIElement } from './types';
 import { AlertBanner } from './components/alert-banner';
 import { BarChart, LineChart } from './components/charts';
 import { ComparisonTable } from './components/comparison-table';
@@ -10,6 +9,7 @@ import { ParkCard } from './components/park-card';
 import { Stat } from './components/stat';
 import { StatsGroup } from './components/stats-group';
 import { Table } from './components/table';
+import type { UIElement } from './types';
 
 /**
  * Render a single UI element based on its type
@@ -38,7 +38,9 @@ export function renderUIElement(element: UIElement, onParkClick?: (parkId: strin
         <ParkCard
           key={id}
           data={data as Omit<typeof element, 'id' | 'type'>}
-          onClick={onParkClick ? () => onParkClick((element as { parkId: string }).parkId) : undefined}
+          onClick={
+            onParkClick ? () => onParkClick((element as { parkId: string }).parkId) : undefined
+          }
         />
       );
 

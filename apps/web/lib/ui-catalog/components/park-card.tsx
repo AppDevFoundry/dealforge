@@ -1,6 +1,6 @@
 'use client';
 
-import { AlertTriangle, MapPin, Home } from 'lucide-react';
+import { AlertTriangle, Home, MapPin } from 'lucide-react';
 
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -14,7 +14,10 @@ interface ParkCardProps {
   onClick?: () => void;
 }
 
-function getDistressLabel(score: number): { label: string; variant: 'default' | 'secondary' | 'destructive' } {
+function getDistressLabel(score: number): {
+  label: string;
+  variant: 'default' | 'secondary' | 'destructive';
+} {
   if (score >= 70) return { label: 'High Distress', variant: 'destructive' };
   if (score >= 40) return { label: 'Moderate', variant: 'secondary' };
   return { label: 'Low Risk', variant: 'default' };
@@ -22,9 +25,8 @@ function getDistressLabel(score: number): { label: string; variant: 'default' | 
 
 export function ParkCard({ data, className, onClick }: ParkCardProps) {
   const { name, address, city, county, distressScore, lotCount, totalTaxOwed, clickable } = data;
-  const distress = distressScore !== null && distressScore !== undefined
-    ? getDistressLabel(distressScore)
-    : null;
+  const distress =
+    distressScore !== null && distressScore !== undefined ? getDistressLabel(distressScore) : null;
 
   return (
     <Card
@@ -67,9 +69,7 @@ export function ParkCard({ data, className, onClick }: ParkCardProps) {
           {totalTaxOwed !== undefined && totalTaxOwed > 0 && (
             <div>
               <p className="text-xs text-muted-foreground">Tax Owed</p>
-              <p className="text-sm font-semibold text-red-600">
-                ${totalTaxOwed.toLocaleString()}
-              </p>
+              <p className="text-sm font-semibold text-red-600">${totalTaxOwed.toLocaleString()}</p>
             </div>
           )}
         </div>
@@ -85,8 +85,11 @@ export function ParkCard({ data, className, onClick }: ParkCardProps) {
               <div
                 className={cn(
                   'h-full rounded-full transition-all',
-                  distressScore >= 70 ? 'bg-red-500' :
-                  distressScore >= 40 ? 'bg-yellow-500' : 'bg-green-500'
+                  distressScore >= 70
+                    ? 'bg-red-500'
+                    : distressScore >= 40
+                      ? 'bg-yellow-500'
+                      : 'bg-green-500'
                 )}
                 style={{ width: `${distressScore}%` }}
               />

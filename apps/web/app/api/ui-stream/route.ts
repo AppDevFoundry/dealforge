@@ -5,9 +5,9 @@
  * for progressive rendering with json-render.
  */
 
-import { streamText } from 'ai';
 import { anthropic } from '@ai-sdk/anthropic';
 import { generateCatalogPrompt } from '@json-render/core';
+import { streamText } from 'ai';
 
 import { uiCatalog } from '@/lib/ui-catalog/json-render-catalog';
 

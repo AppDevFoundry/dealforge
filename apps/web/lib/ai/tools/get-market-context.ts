@@ -162,8 +162,8 @@ export const getMarketContext = tool({
         threeBedroom: fmr.three_bedroom ? Number(fmr.three_bedroom) : null,
         fourBedroom: fmr.four_bedroom ? Number(fmr.four_bedroom) : null,
         suggestedLotRent: {
-          low: Math.round(twoBedroom * 0.30),
-          high: Math.round(twoBedroom * 0.40),
+          low: Math.round(twoBedroom * 0.3),
+          high: Math.round(twoBedroom * 0.4),
           basis: 'Lot rent typically 30-40% of 2BR FMR',
         },
       };
@@ -200,9 +200,7 @@ export const getMarketContext = tool({
             ? Number(census.median_household_income)
             : null,
           povertyRate: census.poverty_rate ? Number(census.poverty_rate) : null,
-          totalHousingUnits: census.total_housing_units
-            ? Number(census.total_housing_units)
-            : null,
+          totalHousingUnits: census.total_housing_units ? Number(census.total_housing_units) : null,
           vacancyRate: census.vacancy_rate ? Number(census.vacancy_rate) : null,
           medianHomeValue: census.median_home_value ? Number(census.median_home_value) : null,
           medianGrossRent: census.median_gross_rent ? Number(census.median_gross_rent) : null,
@@ -228,8 +226,18 @@ export const getMarketContext = tool({
       const latest = blsRows[0];
       if (latest) {
         const monthNames = [
-          'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-          'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+          'Jan',
+          'Feb',
+          'Mar',
+          'Apr',
+          'May',
+          'Jun',
+          'Jul',
+          'Aug',
+          'Sep',
+          'Oct',
+          'Nov',
+          'Dec',
         ];
 
         result.employment = {
@@ -322,12 +330,14 @@ function generateInsights(data: MarketContextResult): string[] {
 
     // Trend analysis if historical data available
     if (emp.historical && emp.historical.length >= 6) {
-      const recentRates = [emp.unemploymentRate, ...emp.historical.slice(0, 5).map((h) => h.unemploymentRate)].filter(
-        (r): r is number => r !== null
-      );
+      const recentRates = [
+        emp.unemploymentRate,
+        ...emp.historical.slice(0, 5).map((h) => h.unemploymentRate),
+      ].filter((r): r is number => r !== null);
       if (recentRates.length >= 3) {
         const avgRecent = recentRates.slice(0, 3).reduce((a, b) => a + b, 0) / 3;
-        const avgOlder = recentRates.slice(3).reduce((a, b) => a + b, 0) / Math.max(recentRates.length - 3, 1);
+        const avgOlder =
+          recentRates.slice(3).reduce((a, b) => a + b, 0) / Math.max(recentRates.length - 3, 1);
         if (avgRecent < avgOlder - 0.5) {
           insights.push('Employment trend improving - unemployment declining over past 6 months');
         } else if (avgRecent > avgOlder + 0.5) {

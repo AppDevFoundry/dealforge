@@ -235,7 +235,7 @@ export const uiCatalog = createCatalog({
         title: z.string(),
         data: z.record(z.unknown()),
       }),
-      description: 'Save the current analysis to user\'s saved reports',
+      description: "Save the current analysis to user's saved reports",
     },
 
     export_pdf: {
@@ -252,7 +252,7 @@ export const uiCatalog = createCatalog({
         parkId: z.string(),
         notes: z.string().optional(),
       }),
-      description: 'Add a park to the user\'s watchlist',
+      description: "Add a park to the user's watchlist",
     },
 
     navigate_to_park: {

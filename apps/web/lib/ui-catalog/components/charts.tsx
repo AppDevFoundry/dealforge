@@ -2,10 +2,10 @@
 
 import {
   Bar,
-  BarChart as RechartsBarChart,
   CartesianGrid,
   Legend,
   Line,
+  BarChart as RechartsBarChart,
   LineChart as RechartsLineChart,
   ResponsiveContainer,
   Tooltip,

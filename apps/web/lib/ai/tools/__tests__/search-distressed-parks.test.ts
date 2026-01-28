@@ -2,14 +2,8 @@
  * Tests for search-distressed-parks AI tool
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import {
-  createMockSql,
-  createMockCommunity,
-  createMockTaxLien,
-  setupTestEnv,
-  cleanupTestEnv,
-} from './setup';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { cleanupTestEnv, createMockSql, setupTestEnv } from './setup';
 
 // Mock neon module before importing the tool
 const mockSqlFn = createMockSql();
@@ -398,9 +392,27 @@ describe('searchDistressedParks', () => {
 
     it('returns count matching parks array length', async () => {
       const mockParks = [
-        { community_id: 'mhc_1', distress_score: 70, active_lien_count: 2, total_tax_owed: 5000, tax_years_with_liens: 1 },
-        { community_id: 'mhc_2', distress_score: 65, active_lien_count: 3, total_tax_owed: 7500, tax_years_with_liens: 2 },
-        { community_id: 'mhc_3', distress_score: 80, active_lien_count: 5, total_tax_owed: 15000, tax_years_with_liens: 3 },
+        {
+          community_id: 'mhc_1',
+          distress_score: 70,
+          active_lien_count: 2,
+          total_tax_owed: 5000,
+          tax_years_with_liens: 1,
+        },
+        {
+          community_id: 'mhc_2',
+          distress_score: 65,
+          active_lien_count: 3,
+          total_tax_owed: 7500,
+          tax_years_with_liens: 2,
+        },
+        {
+          community_id: 'mhc_3',
+          distress_score: 80,
+          active_lien_count: 5,
+          total_tax_owed: 15000,
+          tax_years_with_liens: 3,
+        },
       ];
 
       mockSqlFn.mockResolvedValue(mockParks);

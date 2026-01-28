@@ -98,25 +98,27 @@ export function ComparisonTable({ data, className }: ComparisonTableProps) {
                 </TableCell>
                 {items.map((item, itemIdx) => {
                   const value = item.metrics?.[metricKey];
-                  const numValue = typeof value === 'number' ? value : parseFloat(String(value));
+                  const numValue =
+                    typeof value === 'number' ? value : Number.parseFloat(String(value));
                   const otherValues = items
                     .filter((_, i) => i !== itemIdx)
                     .map((i) => {
                       const v = i.metrics?.[metricKey];
-                      return typeof v === 'number' ? v : parseFloat(String(v));
+                      return typeof v === 'number' ? v : Number.parseFloat(String(v));
                     });
 
-                  const avgOther = otherValues.length > 0
-                    ? otherValues.reduce((a, b) => a + b, 0) / otherValues.length
-                    : numValue;
+                  const avgOther =
+                    otherValues.length > 0
+                      ? otherValues.reduce((a, b) => a + b, 0) / otherValues.length
+                      : numValue;
 
                   return (
                     <TableCell key={itemIdx} className="text-right">
                       <div className="flex items-center justify-end gap-1">
                         <span>{formatValue(value)}</span>
-                        {!isNaN(numValue) && !isNaN(avgOther) && (
-                          getTrendIcon(numValue, avgOther, highlightBest)
-                        )}
+                        {!isNaN(numValue) &&
+                          !isNaN(avgOther) &&
+                          getTrendIcon(numValue, avgOther, highlightBest)}
                       </div>
                     </TableCell>
                   );
