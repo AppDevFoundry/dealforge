@@ -18,12 +18,13 @@ import (
 
 // Orchestrator coordinates data syncing from multiple sources.
 type Orchestrator struct {
-	db           *db.Client
-	hudClient    *hud.Client
-	censusClient *census.Client
-	blsClient    *bls.Client
+	db            *db.Client
+	hudClient     *hud.Client
+	censusClient  *census.Client
+	blsClient     *bls.Client
 	maxConcurrent int64
-	dryRun       bool
+	maxRetries    int
+	dryRun        bool
 }
 
 // SyncResult contains statistics from a sync operation.
@@ -37,13 +38,14 @@ type SyncResult struct {
 }
 
 // NewOrchestrator creates a new sync orchestrator.
-func NewOrchestrator(dbClient *db.Client, hudAPIKey, censusAPIKey, blsAPIKey string, maxConcurrent int, dryRun bool) *Orchestrator {
+func NewOrchestrator(dbClient *db.Client, hudAPIKey, censusAPIKey, blsAPIKey string, maxConcurrent, maxRetries int, dryRun bool) *Orchestrator {
 	return &Orchestrator{
 		db:            dbClient,
 		hudClient:     hud.NewClient(hudAPIKey),
 		censusClient:  census.NewClient(censusAPIKey),
 		blsClient:     bls.NewClient(blsAPIKey),
 		maxConcurrent: int64(maxConcurrent),
+		maxRetries:    maxRetries,
 		dryRun:        dryRun,
 	}
 }
@@ -203,9 +205,10 @@ func (o *Orchestrator) SyncCensus(ctx context.Context, year int) (*SyncResult, e
 	return result, nil
 }
 
-// SyncBLS syncs BLS LAUS data for all Texas counties.
-// If the daily rate limit is reached, it will stop early and return partial results.
-func (o *Orchestrator) SyncBLS(ctx context.Context, startYear, endYear int) (*SyncResult, error) {
+// SyncBLS syncs BLS LAUS data for all Texas counties with checkpoint support.
+// If the daily rate limit is reached, it will stop early and save a checkpoint.
+// Pass an optional resumeSessionID to continue from a previous checkpoint.
+func (o *Orchestrator) SyncBLS(ctx context.Context, startYear, endYear int, resumeSessionID string) (*SyncResult, error) {
 	start := time.Now()
 	result := &SyncResult{Source: "BLS LAUS"}
 
@@ -218,34 +221,84 @@ func (o *Orchestrator) SyncBLS(ctx context.Context, startYear, endYear int) (*Sy
 	}
 
 	counties := TexasCounties
-	slog.Info("starting BLS LAUS sync",
-		"county_count", len(counties),
-		"start_year", startYear,
-		"end_year", endYear,
-	)
+
+	// Determine starting point based on resume session
+	startIdx := 0
+	var sessionID string
+	var checkpoint *db.SyncCheckpoint
+
+	if resumeSessionID != "" {
+		// Resuming from previous session
+		var err error
+		checkpoint, err = o.db.GetCheckpointBySession(ctx, resumeSessionID)
+		if err != nil {
+			return nil, fmt.Errorf("failed to load checkpoint: %w", err)
+		}
+
+		sessionID = resumeSessionID
+
+		// Find the index of the last completed county
+		if checkpoint.LastCompletedEntity != nil {
+			for i, county := range counties {
+				if county.FIPS == *checkpoint.LastCompletedEntity {
+					startIdx = i + 1 // Start from next county
+					break
+				}
+			}
+		}
+
+		slog.Info("resuming BLS LAUS sync from checkpoint",
+			"session_id", sessionID,
+			"last_completed", checkpoint.LastCompletedEntity,
+			"starting_at_index", startIdx,
+			"counties_remaining", len(counties)-startIdx,
+		)
+	} else {
+		// Starting new session
+		sessionID = fmt.Sprintf("bls_%d", time.Now().Unix())
+
+		if !o.dryRun {
+			var err error
+			checkpoint, err = o.db.CreateCheckpoint(ctx, sessionID, "bls")
+			if err != nil {
+				return nil, fmt.Errorf("failed to create checkpoint: %w", err)
+			}
+		}
+
+		slog.Info("starting BLS LAUS sync",
+			"session_id", sessionID,
+			"county_count", len(counties),
+			"start_year", startYear,
+			"end_year", endYear,
+		)
+	}
 
 	sem := semaphore.NewWeighted(o.maxConcurrent)
 	g, ctx := errgroup.WithContext(ctx)
 
-	successCh := make(chan int, len(counties)*36) // ~36 months per county
+	successCh := make(chan struct {
+		fips  string
+		count int
+	}, len(counties)*36) // ~36 months per county
 	failCh := make(chan string, len(counties))
 
-	for _, county := range counties {
-		county := county // capture loop var
+	// Only process counties from startIdx onwards
+	for i := startIdx; i < len(counties); i++ {
+		county := counties[i] // capture loop var
 		g.Go(func() error {
 			if err := sem.Acquire(ctx, 1); err != nil {
 				return err
 			}
 			defer sem.Release(1)
 
-			records, err := o.blsClient.GetCountyEmployment(ctx, county.FIPS, county.Name, startYear, endYear)
+			records, err := o.blsClient.GetCountyEmploymentWithRetry(ctx, county.FIPS, county.Name, startYear, endYear, o.maxRetries)
 			if err != nil {
 				// If daily rate limit reached, return the error to cancel all goroutines
 				if errors.Is(err, bls.ErrDailyLimitReached) {
 					slog.Warn("BLS daily rate limit reached, stopping sync", "county", county.Name)
 					return bls.ErrDailyLimitReached
 				}
-				slog.Warn("failed to fetch BLS data", "county", county.Name, "error", err)
+				slog.Warn("failed to fetch BLS data after retries", "county", county.Name, "error", err)
 				failCh <- fmt.Sprintf("%s County: %v", county.Name, err)
 				return nil
 			}
@@ -256,9 +309,18 @@ func (o *Orchestrator) SyncBLS(ctx context.Context, startYear, endYear int) (*Sy
 					failCh <- fmt.Sprintf("%s County DB: %v", county.Name, err)
 					return nil
 				}
+
+				// Save checkpoint after successful county
+				if err := o.db.UpdateCheckpoint(ctx, sessionID, county.FIPS, len(records)); err != nil {
+					slog.Warn("failed to update checkpoint", "county", county.Name, "error", err)
+					// Don't fail the sync for checkpoint errors
+				}
 			}
 
-			successCh <- len(records)
+			successCh <- struct {
+				fips  string
+				count int
+			}{county.FIPS, len(records)}
 			return nil
 		})
 	}
@@ -268,8 +330,8 @@ func (o *Orchestrator) SyncBLS(ctx context.Context, startYear, endYear int) (*Sy
 	close(successCh)
 	close(failCh)
 
-	for count := range successCh {
-		result.Successful += count
+	for data := range successCh {
+		result.Successful += data.count
 	}
 	for errMsg := range failCh {
 		result.Failed++
@@ -278,22 +340,37 @@ func (o *Orchestrator) SyncBLS(ctx context.Context, startYear, endYear int) (*Sy
 
 	result.Duration = time.Since(start)
 
-	// Handle daily rate limit error gracefully - return partial results
-	if errors.Is(waitErr, bls.ErrDailyLimitReached) {
-		result.Errors = append(result.Errors, "BLS API daily rate limit reached - sync stopped early")
-		slog.Warn("BLS LAUS sync stopped early due to daily rate limit",
-			"successful_records", result.Successful,
-			"failed_counties", result.Failed,
-			"duration", result.Duration,
-		)
-		return result, nil // Return partial results, not an error
-	}
-
-	if waitErr != nil {
-		return nil, waitErr
+	// Update checkpoint status based on outcome
+	if !o.dryRun {
+		if errors.Is(waitErr, bls.ErrDailyLimitReached) {
+			// Rate limit hit - mark as rate_limited for easy resumption
+			if err := o.db.UpdateCheckpointStatus(ctx, sessionID, "rate_limited"); err != nil {
+				slog.Warn("failed to update checkpoint status", "error", err)
+			}
+			result.Errors = append(result.Errors, fmt.Sprintf("BLS API daily rate limit reached - sync stopped early. Resume with: --resume=%s", sessionID))
+			slog.Warn("BLS LAUS sync stopped early due to daily rate limit",
+				"session_id", sessionID,
+				"successful_records", result.Successful,
+				"failed_counties", result.Failed,
+				"duration", result.Duration,
+			)
+			return result, nil // Return partial results, not an error
+		} else if waitErr != nil {
+			// Some other error occurred
+			if err := o.db.UpdateCheckpointStatus(ctx, sessionID, "failed"); err != nil {
+				slog.Warn("failed to update checkpoint status", "error", err)
+			}
+			return nil, waitErr
+		} else {
+			// Sync completed successfully
+			if err := o.db.UpdateCheckpointStatus(ctx, sessionID, "completed"); err != nil {
+				slog.Warn("failed to update checkpoint status", "error", err)
+			}
+		}
 	}
 
 	slog.Info("completed BLS LAUS sync",
+		"session_id", sessionID,
 		"successful_records", result.Successful,
 		"failed_counties", result.Failed,
 		"duration", result.Duration,
@@ -320,8 +397,8 @@ func (o *Orchestrator) SyncAll(ctx context.Context, stateCode string, censusYear
 	}
 	results = append(results, censusResult)
 
-	// Run BLS sync
-	blsResult, err := o.SyncBLS(ctx, blsStartYear, blsEndYear)
+	// Run BLS sync (no resume - fresh start)
+	blsResult, err := o.SyncBLS(ctx, blsStartYear, blsEndYear, "")
 	if err != nil {
 		return results, fmt.Errorf("BLS sync failed: %w", err)
 	}

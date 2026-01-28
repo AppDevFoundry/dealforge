@@ -48,6 +48,47 @@ func NewClientWithHTTPClient(apiKey string, httpClient *http.Client) *Client {
 	}
 }
 
+// GetCountyEmploymentWithRetry fetches LAUS employment data with automatic retry logic.
+// It will retry transient failures (HTTP errors, timeouts) with exponential backoff.
+// Rate limit errors (ErrDailyLimitReached) are NOT retried.
+func (c *Client) GetCountyEmploymentWithRetry(ctx context.Context, countyFIPS, countyName string, startYear, endYear, maxRetries int) ([]*db.BLSEmployment, error) {
+	var lastErr error
+
+	for attempt := 0; attempt <= maxRetries; attempt++ {
+		records, err := c.GetCountyEmployment(ctx, countyFIPS, countyName, startYear, endYear)
+
+		// Success - return immediately
+		if err == nil {
+			return records, nil
+		}
+
+		// Don't retry rate limit errors - these should fail immediately
+		if errors.Is(err, ErrDailyLimitReached) {
+			return nil, err
+		}
+
+		lastErr = err
+
+		// If we've exhausted retries, return the last error
+		if attempt >= maxRetries {
+			break
+		}
+
+		// Exponential backoff: 1s, 2s, 4s, 8s, etc.
+		backoff := time.Second * time.Duration(1<<uint(attempt))
+
+		// Check if context is cancelled before sleeping
+		select {
+		case <-ctx.Done():
+			return nil, fmt.Errorf("context cancelled during retry: %w", ctx.Err())
+		case <-time.After(backoff):
+			// Continue to next retry attempt
+		}
+	}
+
+	return nil, fmt.Errorf("max retries (%d) exceeded: %w", maxRetries, lastErr)
+}
+
 // GetCountyEmployment fetches LAUS employment data for a Texas county.
 func (c *Client) GetCountyEmployment(ctx context.Context, countyFIPS, countyName string, startYear, endYear int) ([]*db.BLSEmployment, error) {
 	// Build series IDs for all measures

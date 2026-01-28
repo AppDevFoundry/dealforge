@@ -148,6 +148,40 @@ export const blsEmployment = pgTable(
   ]
 );
 
+/**
+ * Sync Checkpoints table
+ *
+ * Tracks progress of data sync operations to enable resumability.
+ * When a sync is interrupted (rate limit, crash, etc.), it can resume
+ * from the last successful checkpoint.
+ */
+export const syncCheckpoints = pgTable(
+  'sync_checkpoints',
+  {
+    id: text('id')
+      .primaryKey()
+      .$defaultFn(() => `chk_${createId()}`),
+    // Session identifier (unique per sync run)
+    syncSessionId: text('sync_session_id').notNull(),
+    // Data source being synced
+    source: text('source').notNull(), // 'bls', 'census', 'hud'
+    // Last successfully processed entity (e.g., county FIPS code)
+    lastCompletedEntity: text('last_completed_entity'),
+    // Total records synced in this session
+    totalRecordsSynced: integer('total_records_synced').notNull().default(0),
+    // Session status
+    status: text('status').notNull().default('in_progress'), // 'in_progress', 'completed', 'rate_limited', 'failed'
+    // Timestamps
+    startedAt: timestamp('started_at', { withTimezone: true }).notNull().defaultNow(),
+    lastUpdatedAt: timestamp('last_updated_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index('sync_chk_session_idx').on(table.syncSessionId),
+    index('sync_chk_source_idx').on(table.source),
+    index('sync_chk_status_idx').on(table.status),
+  ]
+);
+
 // Type exports
 export type HudFairMarketRent = typeof hudFairMarketRents.$inferSelect;
 export type NewHudFairMarketRent = typeof hudFairMarketRents.$inferInsert;
@@ -155,3 +189,5 @@ export type CensusDemographic = typeof censusDemographics.$inferSelect;
 export type NewCensusDemographic = typeof censusDemographics.$inferInsert;
 export type BlsEmployment = typeof blsEmployment.$inferSelect;
 export type NewBlsEmployment = typeof blsEmployment.$inferInsert;
+export type SyncCheckpoint = typeof syncCheckpoints.$inferSelect;
+export type NewSyncCheckpoint = typeof syncCheckpoints.$inferInsert;

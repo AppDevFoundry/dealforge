@@ -18,6 +18,7 @@ type Config struct {
 
 	// Sync settings
 	MaxConcurrent int  // Max concurrent API requests
+	MaxRetries    int  // Max retry attempts for transient failures
 	DryRun        bool // If true, don't write to DB
 }
 
@@ -29,6 +30,7 @@ func Load() (*Config, error) {
 		CensusAPIKey:  os.Getenv("CENSUS_API_KEY"),
 		BLSAPIKey:     os.Getenv("BLS_API_KEY"),
 		MaxConcurrent: 1, // Sequential requests to respect BLS rate limits
+		MaxRetries:    3, // Retry transient failures up to 3 times
 		DryRun:        os.Getenv("DRY_RUN") == "true",
 	}
 

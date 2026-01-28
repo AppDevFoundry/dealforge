@@ -26,6 +26,7 @@ func main() {
 	censusYear := flag.Int("census-year", 0, "Census ACS survey year (default: previous year)")
 	blsStartYear := flag.Int("bls-start-year", 0, "BLS data start year (default: 3 years ago)")
 	blsEndYear := flag.Int("bls-end-year", 0, "BLS data end year (default: current year)")
+	resumeSession := flag.String("resume", "", "Resume from a previous checkpoint session ID")
 	dryRun := flag.Bool("dry-run", false, "Don't write to database, just log what would happen")
 	flag.Parse()
 
@@ -55,7 +56,14 @@ func main() {
 		"sources", sourceList,
 		"state", *stateCode,
 		"dry_run", cfg.DryRun,
+		"resume_session", *resumeSession,
 	)
+
+	// Validate resume session
+	if *resumeSession != "" && !contains(sourceList, "bls") && !contains(sourceList, "all") {
+		slog.Warn("--resume flag provided but 'bls' not in sources list, ignoring")
+		*resumeSession = ""
+	}
 
 	// Set up context with cancellation
 	ctx, cancel := context.WithCancel(context.Background())
@@ -86,6 +94,7 @@ func main() {
 		cfg.CensusAPIKey,
 		cfg.BLSAPIKey,
 		cfg.MaxConcurrent,
+		cfg.MaxRetries,
 		cfg.DryRun,
 	)
 
@@ -109,7 +118,7 @@ func main() {
 		case "census":
 			result, err = orch.SyncCensus(ctx, *censusYear)
 		case "bls":
-			result, err = orch.SyncBLS(ctx, *blsStartYear, *blsEndYear)
+			result, err = orch.SyncBLS(ctx, *blsStartYear, *blsEndYear, *resumeSession)
 		case "all":
 			results, err = orch.SyncAll(ctx, *stateCode, *censusYear, *blsStartYear, *blsEndYear)
 			if err != nil {
@@ -170,4 +179,14 @@ func parseSourceList(sources string) []string {
 		return []string{"all"}
 	}
 	return result
+}
+
+// contains checks if a string slice contains a given string.
+func contains(slice []string, str string) bool {
+	for _, s := range slice {
+		if s == str {
+			return true
+		}
+	}
+	return false
 }
