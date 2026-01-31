@@ -92,6 +92,20 @@
       "when": 1769627626054,
       "tag": "0012_pale_puff_adder",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1738310400000,
+      "tag": "0013_parcels",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1738310401000,
+      "tag": "0014_lead_intelligence_parcel",
+      "breakpoints": true
     }
   ]
 }

@@ -9,3 +9,4 @@ export * from './nearby-parks';
 export * from './flood-zone';
 export * from './demographics';
 export * from './tdhca-lookup';
+export * from './parcel-lookup';
