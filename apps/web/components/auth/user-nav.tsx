@@ -2,7 +2,6 @@
 
 import { Button } from '@/components/ui/button';
 import { signOut } from '@/lib/auth-client';
-import { useRouter } from 'next/navigation';
 
 interface UserNavProps {
   user: {
@@ -14,12 +13,9 @@ interface UserNavProps {
 }
 
 export function UserNav({ user }: UserNavProps) {
-  const router = useRouter();
-
   const handleSignOut = async () => {
     await signOut();
-    router.push('/');
-    router.refresh();
+    window.location.href = '/sign-in';
   };
 
   return (
