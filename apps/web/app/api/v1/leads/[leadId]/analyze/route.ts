@@ -1,6 +1,7 @@
 import { ApiErrors, createSuccessResponse } from '@/lib/api';
 import { getServerSession } from '@/lib/auth-server';
 import {
+  autoFillLeadFromParcel,
   gatherLeadIntelligence,
   saveLeadIntelligence,
   updateLeadWithGeocode,
@@ -52,6 +53,14 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
     // Update lead with geocoded data if available
     if (intelligence.geocode) {
       await updateLeadWithGeocode(lead.id, intelligence.geocode);
+    }
+
+    // Auto-fill lead fields from parcel data (quick wins)
+    if (intelligence.parcelData) {
+      const { fieldsUpdated } = await autoFillLeadFromParcel(lead.id, intelligence.parcelData);
+      if (fieldsUpdated.length > 0) {
+        console.log(`Auto-filled lead ${lead.id} with parcel data:`, fieldsUpdated);
+      }
     }
 
     // Save intelligence

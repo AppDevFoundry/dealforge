@@ -10,6 +10,13 @@ import { checkFloodZone, getFloodZoneDescription } from '@/lib/shared/flood-zone
 import { lookupFmr } from '@/lib/shared/fmr-lookup';
 import { type GeocodeResult, geocodeAddress } from '@/lib/shared/geocoding';
 import { findNearbyParks } from '@/lib/shared/nearby-parks';
+import {
+  type ParcelData,
+  createParcelSnapshot,
+  getLandUseDescription,
+  lookupParcel,
+  mapLandUseToPropertyType,
+} from '@/lib/shared/parcel-lookup';
 import { searchTdhcaRecords } from '@/lib/shared/tdhca-lookup';
 import { anthropic } from '@ai-sdk/anthropic';
 import type { Lead } from '@dealforge/database/schema';
@@ -47,6 +54,7 @@ export interface GatherIntelligenceResult {
   demographics?: Demographics | null;
   tdhcaMatch?: TdhcaMatch | null;
   nearbyParks: NearbyPark[];
+  parcelData?: ParcelData | null;
   aiAnalysis?: AiAnalysis | null;
 }
 
@@ -82,10 +90,11 @@ export async function gatherLeadIntelligence(lead: Lead): Promise<GatherIntellig
 
   // Run parallel lookups if we have coordinates
   if (coords) {
-    const [utilityCoverage, floodZoneResult, nearbyParks] = await Promise.all([
+    const [utilityCoverage, floodZoneResult, nearbyParks, parcelResult] = await Promise.all([
       checkCCNCoverage(coords.lat, coords.lng),
       checkFloodZone(coords.lat, coords.lng),
       findNearbyParks(coords.lat, coords.lng, 10, 10),
+      lookupParcel(coords.lat, coords.lng),
     ]);
 
     // CCN coverage
@@ -118,6 +127,11 @@ export async function gatherLeadIntelligence(lead: Lead): Promise<GatherIntellig
       distanceMiles: park.distanceMiles,
       distressScore: park.distressScore ?? null,
     }));
+
+    // Parcel data from TxGIO/TNRIS
+    if (parcelResult.parcel) {
+      result.parcelData = parcelResult.parcel;
+    }
   }
 
   // Run other lookups in parallel
@@ -263,6 +277,25 @@ You are an expert real estate investment analyst specializing in manufactured ho
     }
   }
 
+  if (intelligence.parcelData) {
+    const parcel = intelligence.parcelData;
+    sections.push(`
+### Parcel Data (TxGIO/TNRIS)
+- **Property ID:** ${parcel.propId}
+- **Owner:** ${parcel.ownerName || 'Unknown'}${parcel.ownerCareOf ? ` (c/o ${parcel.ownerCareOf})` : ''}
+- **Legal Description:** ${parcel.legalDescription ? parcel.legalDescription.substring(0, 100) + (parcel.legalDescription.length > 100 ? '...' : '') : 'N/A'}
+- **Legal Area:** ${parcel.legalArea ? `${parcel.legalArea.toFixed(2)} ${parcel.legalAreaUnit || 'acres'}` : 'Unknown'}
+- **Assessed Values (${parcel.taxYear || 'N/A'}):**
+  - Land: ${parcel.landValue ? `$${parcel.landValue.toLocaleString()}` : 'N/A'}
+  - Improvements: ${parcel.improvementValue ? `$${parcel.improvementValue.toLocaleString()}` : 'N/A'}
+  - Market: ${parcel.marketValue ? `$${parcel.marketValue.toLocaleString()}` : 'N/A'}
+- **Land Use:** ${parcel.stateLandUse || parcel.localLandUse || 'Unknown'}`);
+
+    if (parcel.mailAddress && parcel.mailAddress !== parcel.situsAddress) {
+      sections.push(`- **Owner Mailing Address:** ${parcel.mailAddress}, ${parcel.mailCity || ''}, ${parcel.mailState || ''} ${parcel.mailZip || ''}`);
+    }
+  }
+
   if (intelligence.nearbyParks.length > 0) {
     sections.push(`
 ### Nearby MH Communities (within 10 miles)
@@ -297,7 +330,9 @@ Consider factors like:
 - Market fundamentals (demographics, FMR levels)
 - Seller motivation and deal source
 - Nearby competition and market saturation
-- TDHCA record status and any liens`);
+- TDHCA record status and any liens
+- Parcel assessed values vs asking price (if available)
+- Owner mailing address differences that may indicate absentee ownership`);
 
   return sections.join('\n');
 }
@@ -318,6 +353,12 @@ export async function saveLeadIntelligence(
 
   const now = new Date().toISOString();
 
+  // Create parcel snapshot if parcel data exists
+  const parcelId = intelligence.parcelData?.id || null;
+  const parcelSnapshot = intelligence.parcelData
+    ? JSON.stringify(createParcelSnapshot(intelligence.parcelData))
+    : null;
+
   if (existing.length > 0) {
     // Update existing record
     await sql`
@@ -333,6 +374,8 @@ export async function saveLeadIntelligence(
         demographics = ${JSON.stringify(intelligence.demographics)},
         tdhca_match = ${JSON.stringify(intelligence.tdhcaMatch)},
         nearby_parks = ${JSON.stringify(intelligence.nearbyParks)},
+        parcel_id = ${parcelId},
+        parcel_data = ${parcelSnapshot},
         ai_analysis = ${JSON.stringify(intelligence.aiAnalysis)},
         ai_analyzed_at = ${intelligence.aiAnalysis ? now : null},
         updated_at = ${now}
@@ -356,6 +399,8 @@ export async function saveLeadIntelligence(
         demographics,
         tdhca_match,
         nearby_parks,
+        parcel_id,
+        parcel_data,
         ai_analysis,
         ai_analyzed_at,
         created_at,
@@ -374,6 +419,8 @@ export async function saveLeadIntelligence(
         ${JSON.stringify(intelligence.demographics)},
         ${JSON.stringify(intelligence.tdhcaMatch)},
         ${JSON.stringify(intelligence.nearbyParks)},
+        ${parcelId},
+        ${parcelSnapshot},
         ${JSON.stringify(intelligence.aiAnalysis)},
         ${intelligence.aiAnalysis ? now : null},
         ${now},
@@ -400,4 +447,106 @@ export async function updateLeadWithGeocode(leadId: string, geocode: GeocodeResu
       updated_at = ${new Date().toISOString()}
     WHERE id = ${leadId}
   `;
+}
+
+/**
+ * Auto-fill lead fields from parcel data (quick wins)
+ *
+ * Updates empty lead fields with data from the parcel record:
+ * - Year Built from parcel.yearBuilt
+ * - Lot Size from parcel.legalArea (if in acres)
+ * - Property Type from land use codes
+ * - Estimated Value from parcel.marketValue
+ * - Seller Name from parcel.ownerName
+ * - County from parcel.county
+ */
+export async function autoFillLeadFromParcel(
+  leadId: string,
+  parcel: ParcelData
+): Promise<{ fieldsUpdated: string[] }> {
+  const sql = getSql();
+  const fieldsUpdated: string[] = [];
+
+  // Build dynamic update based on available parcel data
+  const updates: string[] = [];
+  const values: Record<string, unknown> = {};
+
+  // Year Built
+  if (parcel.yearBuilt) {
+    const yearBuiltNum = parseInt(parcel.yearBuilt, 10);
+    if (!isNaN(yearBuiltNum) && yearBuiltNum > 1900 && yearBuiltNum <= new Date().getFullYear()) {
+      updates.push('year_built = COALESCE(year_built, ${yearBuilt})');
+      values.yearBuilt = yearBuiltNum;
+      fieldsUpdated.push('yearBuilt');
+    }
+  }
+
+  // Lot Size (convert to acres if needed)
+  if (parcel.legalArea && parcel.legalArea > 0) {
+    const unit = parcel.legalAreaUnit?.toUpperCase() || '';
+    let lotSizeAcres = parcel.legalArea;
+
+    // Convert common units to acres
+    if (unit === 'SF' || unit === 'SQ FT' || unit === 'SQFT') {
+      lotSizeAcres = parcel.legalArea / 43560;
+    } else if (unit === 'SQ M' || unit === 'SQM') {
+      lotSizeAcres = parcel.legalArea / 4046.86;
+    }
+    // If already in AC/ACRES or unknown, assume acres
+
+    updates.push('lot_size = COALESCE(lot_size, ${lotSize})');
+    values.lotSize = Math.round(lotSizeAcres * 1000) / 1000; // 3 decimal places
+    fieldsUpdated.push('lotSize');
+  }
+
+  // Property Type from land use codes
+  const derivedPropertyType = mapLandUseToPropertyType(parcel.stateLandUse, parcel.localLandUse);
+  if (derivedPropertyType) {
+    updates.push('property_type = COALESCE(property_type, ${propertyType})');
+    values.propertyType = derivedPropertyType;
+    fieldsUpdated.push('propertyType');
+  }
+
+  // Estimated Value from market value
+  if (parcel.marketValue && parcel.marketValue > 0) {
+    updates.push('estimated_value = COALESCE(estimated_value, ${estimatedValue})');
+    values.estimatedValue = Math.round(parcel.marketValue);
+    fieldsUpdated.push('estimatedValue');
+  }
+
+  // Seller Name from owner name
+  if (parcel.ownerName) {
+    updates.push('seller_name = COALESCE(seller_name, ${sellerName})');
+    values.sellerName = parcel.ownerName;
+    fieldsUpdated.push('sellerName');
+  }
+
+  // County
+  if (parcel.county && parcel.county !== 'UNKNOWN') {
+    updates.push('county = COALESCE(county, ${county})');
+    values.county = parcel.county;
+    fieldsUpdated.push('county');
+  }
+
+  // Only update if we have changes
+  if (updates.length === 0) {
+    return { fieldsUpdated: [] };
+  }
+
+  // Execute the update with COALESCE to preserve existing values
+  const now = new Date().toISOString();
+
+  await sql`
+    UPDATE leads SET
+      year_built = COALESCE(year_built, ${values.yearBuilt || null}),
+      lot_size = COALESCE(lot_size, ${values.lotSize || null}),
+      property_type = COALESCE(property_type, ${values.propertyType || null}),
+      estimated_value = COALESCE(estimated_value, ${values.estimatedValue || null}),
+      seller_name = COALESCE(seller_name, ${values.sellerName || null}),
+      county = COALESCE(county, ${values.county || null}),
+      updated_at = ${now}
+    WHERE id = ${leadId}
+  `;
+
+  return { fieldsUpdated };
 }

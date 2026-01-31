@@ -10,5 +10,6 @@ export * from './infrastructure';
 export * from './tdhca';
 export * from './jobs';
 export * from './market-data';
+export * from './parcels';
 export * from './leads';
 export * from './conversations';

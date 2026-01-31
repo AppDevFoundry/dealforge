@@ -11,6 +11,7 @@ import {
   Edit,
   FileText,
   Home,
+  Landmark,
   Loader2,
   MapPin,
   RefreshCw,
@@ -32,6 +33,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useAnalyzeLead, useGenerateReport, useLead, useUpdateLead } from '@/lib/hooks/use-leads';
+import type { ParcelDataSnapshot } from '@dealforge/database/schema';
 
 interface PageProps {
   params: Promise<{ leadId: string }>;
@@ -496,6 +498,141 @@ export default function LeadDetailPage({ params }: PageProps) {
               />
             </CardContent>
           </Card>
+
+          {/* Parcel Data (County Records) */}
+          {(intelligence as unknown as { parcelData?: ParcelDataSnapshot })?.parcelData && (() => {
+            const parcel = (intelligence as unknown as { parcelData: ParcelDataSnapshot }).parcelData;
+            return (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Landmark className="h-5 w-5" />
+                    County Records
+                  </CardTitle>
+                  <CardDescription>
+                    {parcel.county} County • Tax Year {parcel.taxYear || 'N/A'}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {parcel.ownerName && (
+                    <div>
+                      <p className="text-sm text-muted-foreground">Owner of Record</p>
+                      <p className="font-medium">{parcel.ownerName}</p>
+                      {parcel.ownerCareOf && (
+                        <p className="text-sm text-muted-foreground">c/o {parcel.ownerCareOf}</p>
+                      )}
+                    </div>
+                  )}
+                  {parcel.mailAddress && (() => {
+                    // Normalize addresses for comparison (lowercase, trim, remove extra spaces)
+                    const normalizeAddr = (addr: string) => addr.toLowerCase().replace(/\s+/g, ' ').trim();
+                    const mailNorm = normalizeAddr(parcel.mailAddress);
+                    const situsNorm = parcel.situsAddress ? normalizeAddr(parcel.situsAddress) : '';
+
+                    // Check if absentee: mail address doesn't start with situs address
+                    // (handles case where mail_addr includes city/state/zip but situs doesn't)
+                    const isAbsentee = situsNorm && !mailNorm.startsWith(situsNorm) && !situsNorm.startsWith(mailNorm);
+
+                    // Check if mail address already contains city/state to avoid duplication
+                    const mailHasCity = parcel.mailCity && parcel.mailAddress.toLowerCase().includes(parcel.mailCity.toLowerCase());
+
+                    return (
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <p className="text-sm text-muted-foreground">Owner Mailing Address</p>
+                          {isAbsentee && (
+                            <Badge variant="outline" className="text-xs bg-amber-50 text-amber-700 border-amber-200">
+                              Absentee Owner
+                            </Badge>
+                          )}
+                        </div>
+                        <p className="text-sm">
+                          {parcel.mailAddress}
+                          {/* Only append city/state/zip if not already in the address */}
+                          {!mailHasCity && parcel.mailCity && `, ${parcel.mailCity}`}
+                          {!mailHasCity && parcel.mailState && `, ${parcel.mailState}`}
+                          {!mailHasCity && parcel.mailZip && ` ${parcel.mailZip}`}
+                        </p>
+                      </div>
+                    );
+                  })()}
+                  {(parcel.marketValue || parcel.landValue || parcel.improvementValue) && (
+                    <div className="space-y-1">
+                      <p className="text-sm text-muted-foreground">Assessed Values</p>
+                      {parcel.marketValue && (
+                        <div className="flex justify-between text-sm">
+                          <span>Market Value</span>
+                          <span className="font-medium">${Number(parcel.marketValue).toLocaleString()}</span>
+                        </div>
+                      )}
+                      {parcel.landValue && (
+                        <div className="flex justify-between text-sm">
+                          <span>Land</span>
+                          <span>${Number(parcel.landValue).toLocaleString()}</span>
+                        </div>
+                      )}
+                      {parcel.improvementValue && (
+                        <div className="flex justify-between text-sm">
+                          <span>Improvements</span>
+                          <span>${Number(parcel.improvementValue).toLocaleString()}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {parcel.legalDescription && (
+                    <div>
+                      <p className="text-sm text-muted-foreground">Legal Description</p>
+                      <p className="text-sm">{parcel.legalDescription}</p>
+                    </div>
+                  )}
+                  {(parcel.legalArea || parcel.gisArea) && (
+                    <div className="space-y-1">
+                      <p className="text-sm text-muted-foreground">Lot Size</p>
+                      {parcel.legalArea && (
+                        <div className="flex justify-between text-sm">
+                          <span>Legal Area</span>
+                          <span>
+                            {Number(parcel.legalArea).toLocaleString()} {parcel.legalAreaUnit || 'acres'}
+                          </span>
+                        </div>
+                      )}
+                      {parcel.gisArea && (
+                        <div className="flex justify-between text-sm">
+                          <span>GIS Calculated</span>
+                          <span>{(parcel.gisArea * 0.000247105).toFixed(3)} acres</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                  {(parcel.stateLandUse || parcel.localLandUse) && (
+                    <div>
+                      <p className="text-sm text-muted-foreground">Land Use</p>
+                      <div className="flex items-center gap-2">
+                        {parcel.stateLandUse && (
+                          <Badge variant="outline">{parcel.stateLandUse}</Badge>
+                        )}
+                        {parcel.localLandUse && (
+                          <Badge variant="secondary">{parcel.localLandUse}</Badge>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                  {parcel.yearBuilt && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Year Built</span>
+                      <span>{parcel.yearBuilt}</span>
+                    </div>
+                  )}
+                  {parcel.propId && (
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">Property ID</span>
+                      <span className="font-mono">{parcel.propId}</span>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })()}
 
           {/* Flood Zone */}
           {intelligence?.floodZone && (

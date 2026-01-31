@@ -12,6 +12,41 @@ import {
 } from 'drizzle-orm/pg-core';
 import { createId } from '@paralleldrive/cuid2';
 import { users } from './users';
+import { parcels } from './parcels';
+
+/**
+ * Parcel data snapshot stored with lead intelligence
+ */
+export interface ParcelDataSnapshot {
+  id: string;
+  propId: string;
+  geoId: string | null;
+  county: string;
+  fips: string | null;
+  ownerName: string | null;
+  ownerCareOf: string | null;
+  situsAddress: string | null;
+  situsCity: string | null;
+  situsState: string | null;
+  situsZip: string | null;
+  mailAddress: string | null;
+  mailCity: string | null;
+  mailState: string | null;
+  mailZip: string | null;
+  legalDescription: string | null;
+  legalArea: number | null;
+  legalAreaUnit: string | null;
+  landValue: number | null;
+  improvementValue: number | null;
+  marketValue: number | null;
+  taxYear: string | null;
+  stateLandUse: string | null;
+  localLandUse: string | null;
+  yearBuilt: string | null;
+  gisArea: number | null;
+  sourceUpdatedAt: string | null;
+  fetchedAt: string;
+}
 
 /**
  * Lead status enum
@@ -141,6 +176,10 @@ export const leadIntelligence = pgTable(
     leadId: text('lead_id')
       .notNull()
       .references(() => leads.id, { onDelete: 'cascade' }),
+
+    // Parcel data (from TxGIO/TNRIS)
+    parcelId: text('parcel_id').references(() => parcels.id, { onDelete: 'set null' }),
+    parcelData: jsonb('parcel_data').$type<ParcelDataSnapshot>(), // Snapshot of parcel data at analysis time
 
     // CCN Coverage
     waterCcn: jsonb('water_ccn'), // { utilityName, ccnNumber, ... }
