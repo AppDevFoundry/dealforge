@@ -84,6 +84,7 @@ export function MobileNav({ user }: MobileNavProps) {
 
   const handleSignOut = async () => {
     await signOut();
+    window.location.href = '/sign-in';
   };
 
   return (

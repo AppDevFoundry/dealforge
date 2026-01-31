@@ -6,11 +6,13 @@ import { Label } from '@/components/ui/label';
 import { signIn } from '@/lib/auth-client';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useState } from 'react';
+import { GoogleIcon } from './google-icon';
 
 export function SignInForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get('callbackUrl') || '/dashboard';
+  const verified = searchParams.get('verified') === 'true';
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -30,7 +32,11 @@ export function SignInForm() {
       });
 
       if (result.error) {
-        setError(result.error.message || 'Failed to sign in');
+        if (result.error.code === 'EMAIL_NOT_VERIFIED') {
+          setError('Please verify your email address before signing in. Check your inbox.');
+        } else {
+          setError(result.error.message || 'Failed to sign in');
+        }
       } else {
         router.push(callbackUrl);
         router.refresh();
@@ -42,20 +48,26 @@ export function SignInForm() {
     }
   };
 
-  const handleOAuthSignIn = async (provider: 'google' | 'github') => {
+  const handleGoogleSignIn = async () => {
     setError(null);
     try {
       await signIn.social({
-        provider,
+        provider: 'google',
         callbackURL: callbackUrl,
       });
     } catch {
-      setError('Failed to initiate OAuth flow');
+      setError('Failed to initiate Google sign in');
     }
   };
 
   return (
     <div className="space-y-6">
+      {verified && (
+        <div className="rounded-md bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 p-3 text-sm text-green-700 dark:text-green-300">
+          Your email has been verified. You can now sign in.
+        </div>
+      )}
+
       <form onSubmit={handleEmailSignIn} className="space-y-4">
         {error && (
           <div className="rounded-md bg-destructive/10 p-3 text-sm text-destructive">{error}</div>
@@ -104,14 +116,15 @@ export function SignInForm() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <Button variant="outline" onClick={() => handleOAuthSignIn('google')} disabled={loading}>
-          Google
-        </Button>
-        <Button variant="outline" onClick={() => handleOAuthSignIn('github')} disabled={loading}>
-          GitHub
-        </Button>
-      </div>
+      <Button
+        variant="outline"
+        onClick={handleGoogleSignIn}
+        disabled={loading}
+        className="w-full"
+      >
+        <GoogleIcon className="mr-2 size-5" />
+        Continue with Google
+      </Button>
     </div>
   );
 }

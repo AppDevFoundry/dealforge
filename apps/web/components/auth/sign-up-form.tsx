@@ -3,37 +3,71 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { signIn, signUp } from '@/lib/auth-client';
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { signIn } from '@/lib/auth-client';
+import { Check, X } from 'lucide-react';
+import { useMemo, useState } from 'react';
+import { GoogleIcon } from './google-icon';
+
+/**
+ * Password requirements validation
+ */
+function validatePassword(password: string) {
+  return {
+    minLength: password.length >= 8,
+    hasUppercase: /[A-Z]/.test(password),
+    hasLowercase: /[a-z]/.test(password),
+    hasNumber: /[0-9]/.test(password),
+    hasSpecial: /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(password),
+  };
+}
+
+function PasswordRequirement({ met, label }: { met: boolean; label: string }) {
+  return (
+    <div
+      className={`flex items-center gap-2 text-xs ${met ? 'text-green-600 dark:text-green-400' : 'text-muted-foreground'}`}
+    >
+      {met ? <Check className="size-3" /> : <X className="size-3" />}
+      <span>{label}</span>
+    </div>
+  );
+}
 
 export function SignUpForm() {
-  const router = useRouter();
-
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+
+  const passwordValidation = useMemo(() => validatePassword(password), [password]);
+  const isPasswordValid = Object.values(passwordValidation).every(Boolean);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    if (!isPasswordValid) {
+      setError('Please ensure your password meets all requirements');
+      return;
+    }
+
     setLoading(true);
 
     try {
-      const result = await signUp.email({
-        name,
-        email,
-        password,
+      // Use secure signup endpoint that doesn't reveal if email exists
+      const response = await fetch('/api/auth/secure-signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password }),
       });
 
-      if (result.error) {
-        setError(result.error.message || 'Failed to create account');
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError(data.error || 'Something went wrong. Please try again.');
       } else {
-        // Redirect to dashboard after successful signup
-        router.push('/dashboard');
-        router.refresh();
+        setSuccess(true);
       }
     } catch {
       setError('An unexpected error occurred');
@@ -42,17 +76,45 @@ export function SignUpForm() {
     }
   };
 
-  const handleOAuthSignIn = async (provider: 'google' | 'github') => {
+  const handleGoogleSignIn = async () => {
     setError(null);
     try {
       await signIn.social({
-        provider,
+        provider: 'google',
         callbackURL: '/dashboard',
       });
     } catch {
-      setError('Failed to initiate OAuth flow');
+      setError('Failed to initiate Google sign in');
     }
   };
+
+  if (success) {
+    return (
+      <div className="space-y-4 text-center">
+        <div className="rounded-md bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 p-4">
+          <h3 className="font-medium text-green-800 dark:text-green-200">Check your email</h3>
+          <p className="mt-2 text-sm text-green-700 dark:text-green-300">
+            If an account needs verification, we've sent a link to <strong>{email}</strong>. Click
+            the link to verify your account.
+          </p>
+        </div>
+        <p className="text-sm text-muted-foreground">
+          Didn't receive the email? Check your spam folder or{' '}
+          <button
+            type="button"
+            onClick={() => setSuccess(false)}
+            className="text-primary underline-offset-4 hover:underline"
+          >
+            try again
+          </button>
+          . Already verified?{' '}
+          <a href="/sign-in" className="text-primary underline-offset-4 hover:underline">
+            Sign in
+          </a>
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -100,13 +162,27 @@ export function SignUpForm() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            minLength={8}
             disabled={loading}
           />
-          <p className="text-xs text-muted-foreground">Must be at least 8 characters</p>
+          <div className="space-y-1 pt-1">
+            <PasswordRequirement met={passwordValidation.minLength} label="At least 8 characters" />
+            <PasswordRequirement
+              met={passwordValidation.hasUppercase}
+              label="One uppercase letter"
+            />
+            <PasswordRequirement
+              met={passwordValidation.hasLowercase}
+              label="One lowercase letter"
+            />
+            <PasswordRequirement met={passwordValidation.hasNumber} label="One number" />
+            <PasswordRequirement
+              met={passwordValidation.hasSpecial}
+              label="One special character (!@#$%...)"
+            />
+          </div>
         </div>
 
-        <Button type="submit" className="w-full" disabled={loading}>
+        <Button type="submit" className="w-full" disabled={loading || !isPasswordValid}>
           {loading ? 'Creating account...' : 'Create Account'}
         </Button>
       </form>
@@ -120,14 +196,10 @@ export function SignUpForm() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
-        <Button variant="outline" onClick={() => handleOAuthSignIn('google')} disabled={loading}>
-          Google
-        </Button>
-        <Button variant="outline" onClick={() => handleOAuthSignIn('github')} disabled={loading}>
-          GitHub
-        </Button>
-      </div>
+      <Button variant="outline" onClick={handleGoogleSignIn} disabled={loading} className="w-full">
+        <GoogleIcon className="mr-2 size-5" />
+        Continue with Google
+      </Button>
     </div>
   );
 }

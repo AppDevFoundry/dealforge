@@ -150,6 +150,7 @@ export function AppSidebar({ user, isAdmin = false }: AppSidebarProps) {
 
   const handleSignOut = async () => {
     await signOut();
+    window.location.href = '/sign-in';
   };
 
   return (
