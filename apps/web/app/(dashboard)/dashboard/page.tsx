@@ -1,6 +1,8 @@
+import { VerificationToast } from '@/components/auth/verification-toast';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Calculator, Calendar, Sparkles, TrendingUp } from 'lucide-react';
 import Link from 'next/link';
+import { Suspense } from 'react';
 
 export const metadata = {
   title: 'Dashboard',
@@ -10,6 +12,11 @@ export const metadata = {
 export default function DashboardPage() {
   return (
     <div className="container py-8">
+      {/* Show verification success toast if redirected from email verification */}
+      <Suspense fallback={null}>
+        <VerificationToast />
+      </Suspense>
+
       {/* Header with premium styling */}
       <div className="flex items-center justify-between">
         <div className="animate-fade-in">
