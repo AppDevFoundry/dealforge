@@ -14,6 +14,9 @@ const DEBUG_AUTH = process.env.DEBUG_AUTH === 'true' || process.env.VERCEL_ENV =
  * don't redirect to dashboard - they let the sign-in page handle it.
  */
 
+// Static 'df' cookie prefix - must match auth.ts
+const COOKIE_PREFIX = 'df';
+
 // Routes that require authentication
 const protectedRoutes = ['/dashboard', '/deals', '/analyze'];
 
@@ -21,12 +24,14 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Check for session cookie - BetterAuth uses __Secure- prefix on HTTPS (production)
+  // BetterAuth cookie format: {prefix}.session_token (prefix replaces 'better-auth')
+  const prefix = COOKIE_PREFIX;
   const sessionCookie =
-    request.cookies.get('better-auth.session_token') ||
-    request.cookies.get('__Secure-better-auth.session_token');
+    request.cookies.get(`${prefix}.session_token`) ||
+    request.cookies.get(`__Secure-${prefix}.session_token`);
   const sessionDataCookie =
-    request.cookies.get('better-auth.session_data') ||
-    request.cookies.get('__Secure-better-auth.session_data');
+    request.cookies.get(`${prefix}.session_data`) ||
+    request.cookies.get(`__Secure-${prefix}.session_data`);
   const isAuthenticated = !!sessionCookie;
 
   // Debug logging
@@ -35,6 +40,7 @@ export async function middleware(request: NextRequest) {
     console.log('[middleware] Auth debug:', {
       pathname,
       host: request.headers.get('host'),
+      cookiePrefix: prefix,
       allCookies,
       sessionCookie: sessionCookie ? 'present' : 'missing',
       sessionDataCookie: sessionDataCookie ? 'present' : 'missing',

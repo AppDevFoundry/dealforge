@@ -9,16 +9,12 @@ const DEBUG_AUTH = process.env.DEBUG_AUTH === 'true' || process.env.VERCEL_ENV =
 // Compute config values
 const baseURL = getBaseUrl();
 
-// Extract port from baseURL for cookie prefix (prevents conflicts when running multiple dev servers)
-const getPortFromUrl = (url: string): string => {
-  try {
-    const parsed = new URL(url);
-    return parsed.port || (parsed.protocol === 'https:' ? '443' : '80');
-  } catch {
-    return '3000';
-  }
+// Use static 'df' cookie prefix everywhere
+// Note: Dynamic port-specific prefixes were removed because auth.ts and middleware.ts
+// calculated ports differently (configured URL vs request Host header), causing mismatches
+const getCookiePrefix = (): string => {
+  return 'df';
 };
-const port = getPortFromUrl(baseURL);
 
 const trustedOrigins = [
   baseURL,
@@ -94,9 +90,7 @@ export const auth = betterAuth({
   },
 
   advanced: {
-    // Use port-specific cookie prefix to prevent conflicts when running multiple dev servers
-    // e.g., localhost:3000 uses "df-3000" prefix, localhost:3001 uses "df-3001" prefix
-    cookiePrefix: `df-${port}`,
+    cookiePrefix: getCookiePrefix(),
   },
 });
 
